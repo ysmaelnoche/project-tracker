@@ -12,13 +12,20 @@
    Under **Authentication → Sign In / Providers → Email → Password requirements**,
    consider raising the minimum password length to 8 to match the app's own
    validation (`lib/auth/validation.ts`) — defense in depth, not required.
-5. Optional, for GitHub activity: create a fine-grained personal access token
-   (read-only: Contents, Metadata, Pull requests). Either put it in `GITHUB_TOKEN` in
-   `.env.local`, or paste it into **Config → GitHub Connection** once signed into the
-   app (validated against GitHub before it's saved; a database-stored token always
-   takes priority over the env var). The app works fully without either — repository/
-   commit/PR panels just stay in their empty state until a token and a repository are
-   connected.
+5. Optional, for GitHub activity: create a fine-grained personal access token, scoped
+   to the repos you want tracked, with these **repository permissions** (all
+   read-only): Contents, Metadata, Pull requests, Checks. Either put it in
+   `GITHUB_TOKEN` in `.env.local`, or paste it into **Config → GitHub Connection**
+   once signed into the app (validated against GitHub before it's saved; a
+   database-stored token always takes priority over the env var). The app works fully
+   without either — repository/commit/PR panels just stay in their empty state until
+   a token and a repository are connected.
+
+   For the Dashboard's contribution-history panel specifically: try the token above
+   first with no **account permissions** granted. If that panel shows "Contributions
+   unavailable" once connected, add **Account permissions → Profile → Read-only** and
+   regenerate the token — GitHub's docs don't clearly state which case applies, so
+   this is a "try it and see" step (see `lib/github/contributions-fetch.ts`).
 
 Migrations are plain numbered SQL files under `migrations/`. Add new ones as
 `00XX_description.sql` rather than editing an already-applied file.

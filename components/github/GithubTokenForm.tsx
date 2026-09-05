@@ -86,7 +86,7 @@ export function GithubTokenForm({ hasDatabaseToken }: { hasDatabaseToken: boolea
       </form>
 
       <p className="font-mono text-[9px] leading-relaxed tracking-[0.1em] text-ink-faint">
-        A FINE-GRAINED TOKEN, READ-ONLY: CONTENTS · METADATA · PULL REQUESTS
+        A FINE-GRAINED TOKEN, READ-ONLY: CONTENTS · METADATA · PULL REQUESTS · CHECKS
       </p>
 
       {error ? <p className="font-mono text-xs tracking-[0.02em] text-red">{error}</p> : null}
