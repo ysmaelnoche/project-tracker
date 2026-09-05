@@ -113,6 +113,19 @@
     transform: none;
   }
 }
+/* One staged-sequence line sliding into place — the Access screen's
+   AUTHENTICATING panel and the shared BufferPanel both reveal lines with
+   this (components/ui/BufferPanel.tsx). */
+@keyframes inject {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @keyframes sweep {
   0% {
     opacity: 0.3;
