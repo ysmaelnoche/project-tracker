@@ -40,8 +40,17 @@ describe("deriveEntryStageFields", () => {
     });
   });
 
-  it("deployed: records today as the deploy date, never a build start we don't actually know, and drops any target date", () => {
-    expect(deriveEntryStageFields("production", "2026-12-01", TODAY)).toEqual({
+  it("deployed: the date field means \"when did this actually deploy\" — uses the operator's own date, never a build start we don't actually know", () => {
+    expect(deriveEntryStageFields("production", "2026-08-20", TODAY)).toEqual({
+      status: "production",
+      devStartDate: null,
+      publishedDate: "2026-08-20",
+      targetDate: null,
+    });
+  });
+
+  it("deployed: defaults the deploy date to today when the operator leaves it blank", () => {
+    expect(deriveEntryStageFields("production", null, TODAY)).toEqual({
       status: "production",
       devStartDate: null,
       publishedDate: TODAY,
@@ -49,12 +58,7 @@ describe("deriveEntryStageFields", () => {
     });
   });
 
-  it("deployed with no target date given", () => {
-    expect(deriveEntryStageFields("production", null, TODAY)).toEqual({
-      status: "production",
-      devStartDate: null,
-      publishedDate: TODAY,
-      targetDate: null,
-    });
+  it("deployed: a future-dated input is still just carried through — this function doesn't validate, only maps", () => {
+    expect(deriveEntryStageFields("production", "2099-01-01", TODAY).publishedDate).toBe("2099-01-01");
   });
 });

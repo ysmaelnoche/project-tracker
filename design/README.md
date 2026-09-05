@@ -201,15 +201,20 @@ keeps calling out. Each choice carries a one-line explanation of what it actuall
 does, since "already deployed" quietly changing what fields exist isn't obvious
 otherwise.
 
-Picking DEPLOYED removes the TARGET DATE field (a forward-looking date makes no
-sense for something already shipped) via a smooth height/opacity collapse — CSS
-grid's `grid-template-rows` trick, animating a real "auto height" rather than a
-fixed pixel value. BUILD keeps target date, since a ship target still makes sense
-mid-construction. `deriveEntryStageFields` (pure, TDD'd) decides the actual fields
-from here: BUILD stamps today as the build start; DEPLOYED stamps today as the
-deploy date and *never* invents a build-start date it doesn't actually know — the
-same "don't fabricate history" principle the Access screen's auth sequence already
-established.
+The one date field on the form is relabeled per stage rather than hidden for
+DEPLOYED (an earlier version collapsed it away entirely — changed after the user
+tried it and asked for this instead): PENDING/BUILD keep "TARGET DATE," a
+forward-looking ship target; DEPLOYED becomes "DEPLOY DATE" — when it actually went
+live, optional, defaulting to today if left blank. Same input, same form field,
+just repurposed, with a small text-swap animation (reusing the `inject` keyframe
+that already animates each BufferPanel line in) and a teal accent cueing the
+meaning change. `deriveEntryStageFields` (pure, TDD'd) decides the actual fields
+from here: BUILD always stamps today as the build start (not user-editable — we
+weren't there for it, but we do know we're registering it today); DEPLOYED uses
+the operator's own deploy date when given, today otherwise. Neither stage ever
+invents a build-start date it doesn't actually know — DEPLOYED still never
+back-fills `dev_start_date`, the same "don't fabricate history" principle the
+Access screen's auth sequence already established.
 
 Each entry stage plays its own COMMITTING animation (`lib/projects/create-sequence.ts`),
 not a shared one with different colors: BUILD and DEPLOYED name the record they're

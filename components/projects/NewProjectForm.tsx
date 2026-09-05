@@ -41,9 +41,36 @@ const ENTRY_STAGE_OPTIONS: EntryStageOption[] = [
     mark: "◈",
     markClass: "text-teal",
     label: "DEPLOYED",
-    note: "Already shipped. Today is recorded as the deploy date — no target date needed.",
+    note: "Already shipped. Set when it actually deployed below, or leave it blank to use today.",
   },
 ];
+
+interface DateFieldCopy {
+  label: string;
+  helper: string;
+  accentClass: string;
+}
+
+// The same input is relabeled per stage rather than hidden for DEPLOYED —
+// it's still collecting one date, just a different one depending on what's
+// true about the project already.
+const DATE_FIELD_COPY: Record<EntryStage, DateFieldCopy> = {
+  pending: {
+    label: "TARGET DATE (OPTIONAL)",
+    helper: "When you're aiming to ship — you can always change this later.",
+    accentClass: "text-ink-faint",
+  },
+  in_development: {
+    label: "TARGET DATE (OPTIONAL)",
+    helper: "When you're aiming to ship — you can always change this later.",
+    accentClass: "text-ink-faint",
+  },
+  production: {
+    label: "DEPLOY DATE (OPTIONAL)",
+    helper: "When it actually went live. Leave blank to record it as today.",
+    accentClass: "text-teal",
+  },
+};
 
 const SUCCESS_SUBLINE: Record<EntryStage, string> = {
   pending: "Committed. Opening the project record…",
@@ -135,7 +162,7 @@ export function NewProjectForm() {
   }
 
   if (stage === "form") {
-    const showTargetDate = entryStage !== "production";
+    const dateCopy = DATE_FIELD_COPY[entryStage];
     const activeNote = ENTRY_STAGE_OPTIONS.find((o) => o.value === entryStage)?.note;
 
     return (
@@ -230,36 +257,30 @@ export function NewProjectForm() {
             </select>
           </div>
 
-          <div
-            className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-            style={{ gridTemplateRows: showTargetDate ? "1fr" : "0fr" }}
-          >
-            <div className="overflow-hidden">
-              <div
-                className={`transition-opacity duration-200 ${showTargetDate ? "opacity-100" : "opacity-0"}`}
-              >
-                <label
-                  htmlFor="targetDate"
-                  className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
-                >
-                  TARGET DATE (OPTIONAL)
-                </label>
-                <input
-                  id="targetDate"
-                  name="targetDate"
-                  type="date"
-                  className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-accent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {!showTargetDate ? (
-            <p className="-mt-2 font-mono text-[10px] leading-relaxed text-teal">
-              ◈ Deploy date recorded as today — a target date doesn&apos;t apply to something
-              already shipped.
+          <div>
+            <label
+              htmlFor="targetDate"
+              className={`block font-mono text-[9px] tracking-[0.16em] transition-colors duration-300 ${dateCopy.accentClass}`}
+            >
+              <span key={entryStage} className="inline-block [animation:inject_0.25s_ease]">
+                {dateCopy.label}
+              </span>
+            </label>
+            <input
+              id="targetDate"
+              name="targetDate"
+              type="date"
+              className={`mt-2.5 w-full border bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-accent ${
+                entryStage === "production" ? "border-teal/50" : "border-border-strong"
+              }`}
+            />
+            <p
+              key={`helper-${entryStage}`}
+              className="mt-2 font-mono text-[10px] leading-relaxed text-ink-3 [animation:inject_0.25s_ease]"
+            >
+              {dateCopy.helper}
             </p>
-          ) : null}
+          </div>
         </div>
 
         <div className="border-t border-divider pt-5">

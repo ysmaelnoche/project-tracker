@@ -30,7 +30,7 @@ export const KEEL_STEPS_IN_DEVELOPMENT: SequenceStep[] = [
 export const KEEL_STEPS_DEPLOYED: SequenceStep[] = [
   { label: "ALLOCATING HULL RECORD", detail: "PROJECTS TABLE" },
   { label: "STAMPING REGISTRY NUMBER", detail: "SEQUENTIAL REF" },
-  { label: "RECORDING DEPLOYMENT", detail: "TODAY" },
+  { label: "RECORDING DEPLOYMENT", detail: "DEPLOY DATE" },
   { label: "JOINING FLEET AT DEPLOYED", detail: "ACTIVITY LOG" },
 ];
 
