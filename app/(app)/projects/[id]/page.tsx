@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RepoPanel } from "@/components/github/RepoPanel";
 import { LinksPanel } from "@/components/projects/LinksPanel";
 import { NotesPanel } from "@/components/projects/NotesPanel";
 import { ProjectActions } from "@/components/projects/ProjectActions";
@@ -7,8 +8,6 @@ import { ProjectActivity } from "@/components/projects/ProjectActivity";
 import { ProjectEditForm } from "@/components/projects/ProjectEditForm";
 import { StageStrip } from "@/components/projects/StageStrip";
 import { TasksPanel } from "@/components/projects/TasksPanel";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Panel, PanelHeader, PanelTitle } from "@/components/ui/Panel";
 import { ProgressGauge } from "@/components/ui/ProgressGauge";
 import { StageBadge } from "@/components/ui/StageBadge";
 import { projectGaugeTone } from "@/lib/projects/lifecycle";
@@ -110,19 +109,7 @@ export default async function ProjectDetailPage({
         <TasksPanel project={project} tasks={tasks} today={today} />
 
         <div className="flex flex-col gap-[clamp(16px,2.5vw,26px)]">
-          {/* TODO(github slice): repo/PRs/branches/commits panel goes here */}
-          <Panel>
-            <PanelHeader>
-              <PanelTitle>SOURCE</PanelTitle>
-            </PanelHeader>
-            <div className="p-4">
-              <EmptyState
-                eyebrow="NOT CONNECTED"
-                title="Source — not connected yet."
-                body="Connect a GitHub repository to see commits, pushes, pull requests, and development activity here."
-              />
-            </div>
-          </Panel>
+          <RepoPanel projectId={project.id} />
 
           <LinksPanel projectId={project.id} links={project.links} />
           <NotesPanel projectId={project.id} notes={project.notes} key={`notes-${project.updatedAt}`} />
