@@ -3,13 +3,7 @@ import { NewProjectForm } from "@/components/projects/NewProjectForm";
 import { Panel } from "@/components/ui/Panel";
 
 // See PLAN.md "Creating a Project" and the Shipyard mockup's project create form.
-export default async function NewProjectPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
-
+export default function NewProjectPage() {
   return (
     <div className="mx-auto max-w-[560px]">
       <Link
@@ -35,7 +29,7 @@ export default async function NewProjectPage({
         </p>
 
         <div className="mt-7">
-          <NewProjectForm error={error} />
+          <NewProjectForm />
         </div>
       </Panel>
     </div>

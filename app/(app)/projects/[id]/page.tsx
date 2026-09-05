@@ -26,10 +26,10 @@ export default async function ProjectDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string; repoError?: string }>;
+  searchParams: Promise<{ repoError?: string }>;
 }) {
   const { id } = await params;
-  const { error, repoError } = await searchParams;
+  const { repoError } = await searchParams;
 
   const project = await getProject(id);
   if (!project) notFound();
@@ -75,7 +75,7 @@ export default async function ProjectDetailPage({
               </p>
             ) : null}
             <div className="mt-4">
-              <ProjectEditForm project={project} error={error} key={project.updatedAt} />
+              <ProjectEditForm project={project} key={project.updatedAt} />
             </div>
           </div>
           <div className="flex-none">

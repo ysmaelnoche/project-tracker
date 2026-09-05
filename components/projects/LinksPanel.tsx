@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Panel, PanelHeader, PanelTitle } from "@/components/ui/Panel";
+import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
 import { addProjectLink, removeProjectLink } from "@/lib/projects/actions";
 import type { ProjectLink } from "@/lib/types";
@@ -69,7 +70,13 @@ export function LinksPanel({ projectId, links }: { projectId: string; links: Pro
             disabled={isPending}
             className="self-start cursor-pointer bg-accent px-3 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
-            SAVE LINK
+            {isPending ? (
+              <span className="inline-flex items-center gap-2">
+                <Spinner /> SAVING…
+              </span>
+            ) : (
+              "SAVE LINK"
+            )}
           </button>
         </form>
       ) : null}
