@@ -1,13 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/access", "/auth/callback"];
+const PUBLIC_PATHS = ["/access"];
 
 /**
  * Refreshes the Supabase session cookie on every request and gates every route
- * behind sign-in except the sign-in page itself and the magic-link callback.
- * This is a single-operator app, so there is no role/permission model beyond
- * "signed in or not".
+ * behind sign-in except the sign-in page itself. This is a single-operator
+ * app, so there is no role/permission model beyond "signed in or not".
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

@@ -1,5 +1,8 @@
+import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
+import { ChangeUsernameForm } from "@/components/auth/ChangeUsernameForm";
 import { AutomationToggle } from "@/components/github/AutomationToggle";
 import { Panel, PanelHeader, PanelTitle } from "@/components/ui/Panel";
+import { getCurrentUsername } from "@/lib/auth/queries";
 import { signOutAction } from "@/lib/github/actions";
 import type { AutomationSettingKey } from "@/lib/github/actions";
 import { getAutomationSettings, isGithubConfigured } from "@/lib/github/queries";
@@ -57,7 +60,10 @@ const TOGGLE_DEFS: ToggleDef[] = [
  * readout (never the token itself), and sign-out.
  */
 export default async function SettingsPage() {
-  const settings = await getAutomationSettings();
+  const [settings, currentUsername] = await Promise.all([
+    getAutomationSettings(),
+    getCurrentUsername(),
+  ]);
   const githubConfigured = isGithubConfigured();
 
   return (
@@ -68,6 +74,15 @@ export default async function SettingsPage() {
 
       <div className="mt-6 max-w-[640px]">
         <Panel>
+          <PanelHeader>
+            <PanelTitle>PROFILE</PanelTitle>
+          </PanelHeader>
+          <ChangeUsernameForm currentUsername={currentUsername} />
+          <div className="border-t border-divider" />
+          <ChangePasswordForm />
+        </Panel>
+
+        <Panel className="mt-6">
           <PanelHeader>
             <PanelTitle>GITHUB CONNECTION</PanelTitle>
           </PanelHeader>
@@ -113,7 +128,8 @@ export default async function SettingsPage() {
             <div className="flex-1">
               <div className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">OPERATOR</div>
               <p className="mt-1.5 text-xs leading-relaxed text-ink-3">
-                Sign out of this device. You&apos;ll need a fresh access link to sign back in.
+                Sign out of this device. You&apos;ll need your username and password to sign back
+                in.
               </p>
             </div>
             <button

@@ -21,9 +21,15 @@ grep -n 'data-screen-label="..."' design/Shipyard.reference.html
 Screens: Overview (dashboard), Fleet (projects list), Project detail, Queue (tasks),
 Source control, Log (activity), Config (settings), Access (sign-in).
 
-One deliberate departure from this reference: the mockup's Settings screen describes
-a GitHub App + webhooks + Edge Function pipeline as flavor text. We're building the
-GitHub integration as a personal-access-token + on-demand refresh instead — see
-`PLAN.md` ("GitHub Data Strategy") and the decision note in the README once the
-GitHub slice lands. Everything else in the mockup (screens, data model, automation
-rules and their default on/off state, copy) is the intended real behavior.
+Two deliberate departures from this reference:
+
+- **GitHub integration**: the mockup's Settings screen describes a GitHub App +
+  webhooks + Edge Function pipeline as flavor text. We built a personal-access-token +
+  on-demand refresh instead — see `PLAN.md` ("GitHub Data Strategy") and `lib/github/`.
+- **Access screen**: the mockup's Access screen is a single-field magic-link sign-in
+  ("issue access link", no password). The real app uses username + password instead
+  (a `profiles` table maps a username to the underlying Supabase Auth account) so a
+  Change Password / Change Username profile flow is possible — see `lib/auth/`.
+
+Everything else in the mockup (screens, data model, automation rules and their default
+on/off state, copy) is the intended real behavior.
