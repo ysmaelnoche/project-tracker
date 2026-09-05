@@ -25,6 +25,7 @@ interface ProjectRow {
   dev_start_date: string | null;
   target_date: string | null;
   published_date: string | null;
+  archived_at: string | null;
   notes: string;
   created_at: string;
   updated_at: string;
@@ -53,6 +54,7 @@ function mapProject(row: ProjectRow, links: ProjectLink[]): Project {
     devStartDate: row.dev_start_date,
     targetDate: row.target_date,
     publishedDate: row.published_date,
+    archivedAt: row.archived_at,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

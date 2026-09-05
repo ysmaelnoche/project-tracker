@@ -9,16 +9,22 @@ import { diffDays, formatStamp } from "@/lib/format";
 import {
   archiveProject,
   markProduction,
+  purgeProject,
   restoreProject,
   startDevelopment,
   togglePause,
 } from "@/lib/projects/actions";
+import { daysUntilPurgeEligible, isPurgeEligible } from "@/lib/projects/purge";
+import { PurgeSequence } from "@/components/projects/PurgeSequence";
 import type { Project } from "@/lib/types";
 
 type ConfirmKind = "start" | "production" | "archive" | null;
 
 interface ProjectActionsProps {
-  project: Pick<Project, "id" | "ref" | "name" | "status" | "devStartDate" | "publishedDate">;
+  project: Pick<
+    Project,
+    "id" | "ref" | "name" | "status" | "devStartDate" | "publishedDate" | "archivedAt"
+  >;
   openTaskCount: number;
   today: string;
   confirmBeforeArchive: boolean;
@@ -33,6 +39,7 @@ export function ProjectActions({
   confirmBeforeArchive,
 }: ProjectActionsProps) {
   const [confirmKind, setConfirmKind] = useState<ConfirmKind>(null);
+  const [purgeOpen, setPurgeOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const toast = useToast();
@@ -152,6 +159,20 @@ export function ProjectActions({
     }
   }
 
+  function handlePurged() {
+    toast.show({
+      label: "PURGED",
+      tone: "red",
+      message: `${project.name} was permanently deleted. This cannot be undone.`,
+    });
+    router.push("/projects");
+    router.refresh();
+  }
+
+  const purgeEligible = project.status === "archived" && isPurgeEligible(project.archivedAt, today);
+  const purgeEtaDays =
+    project.status === "archived" && !purgeEligible ? daysUntilPurgeEligible(project.archivedAt, today) : null;
+
   const dur = project.devStartDate ? diffDays(project.devStartDate, today) : 0;
   const productionBody =
     openTaskCount > 0
@@ -159,43 +180,63 @@ export function ProjectActions({
       : `All tasks closed. Build start ${formatStamp(project.devStartDate)} → deploy ${formatStamp(today)} — ${dur} day${dur === 1 ? "" : "s"} of development.`;
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {project.status === "pending" ? (
-        <Button variant="primary" onClick={() => setConfirmKind("start")}>
-          ▸ INITIATE BUILD
-        </Button>
-      ) : null}
-
-      {project.status === "in_development" ? (
-        <>
-          <button
-            onClick={() => setConfirmKind("production")}
-            className="cursor-pointer bg-teal px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-opacity hover:opacity-[0.82]"
-          >
-            ◈ DEPLOY
-          </button>
-          <Button variant="secondary" onClick={runTogglePause} disabled={isPending}>
-            HOLD
+    <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
+        {project.status === "pending" ? (
+          <Button variant="primary" onClick={() => setConfirmKind("start")}>
+            ▸ INITIATE BUILD
           </Button>
-        </>
-      ) : null}
+        ) : null}
 
-      {project.status === "paused" ? (
-        <Button variant="primary" onClick={runTogglePause} disabled={isPending}>
-          ▸ RESUME BUILD
-        </Button>
-      ) : null}
+        {project.status === "in_development" ? (
+          <>
+            <button
+              onClick={() => setConfirmKind("production")}
+              className="cursor-pointer bg-teal px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-opacity hover:opacity-[0.82]"
+            >
+              ◈ DEPLOY
+            </button>
+            <Button variant="secondary" onClick={runTogglePause} disabled={isPending}>
+              HOLD
+            </Button>
+          </>
+        ) : null}
 
-      {project.status === "archived" ? (
-        <Button variant="primary" onClick={runRestore} disabled={isPending}>
-          RESTORE
-        </Button>
-      ) : null}
+        {project.status === "paused" ? (
+          <Button variant="primary" onClick={runTogglePause} disabled={isPending}>
+            ▸ RESUME BUILD
+          </Button>
+        ) : null}
 
-      {project.status !== "archived" ? (
-        <Button variant="danger" onClick={handleArchiveClick} disabled={isPending}>
-          DECOMMISSION
-        </Button>
+        {project.status === "archived" ? (
+          <Button variant="primary" onClick={runRestore} disabled={isPending}>
+            RESTORE
+          </Button>
+        ) : null}
+
+        {project.status !== "archived" ? (
+          <Button variant="danger" onClick={handleArchiveClick} disabled={isPending}>
+            DECOMMISSION
+          </Button>
+        ) : null}
+
+        {purgeEligible ? (
+          <button
+            onClick={() => setPurgeOpen(true)}
+            className="cursor-pointer border border-red bg-transparent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-red transition-colors hover:bg-red hover:text-bg"
+          >
+            ☠ PURGE
+          </button>
+        ) : null}
+      </div>
+
+      {purgeEtaDays !== null ? (
+        <span className="font-mono text-[9px] tracking-[0.12em] text-ink-faint">
+          ELIGIBLE FOR PURGE IN {purgeEtaDays} DAY{purgeEtaDays === 1 ? "" : "S"}
+        </span>
+      ) : null}
+      {purgeEligible ? (
+        <span className="font-mono text-[9px] tracking-[0.12em] text-red">ELIGIBLE FOR PURGE</span>
       ) : null}
 
       <ConfirmDialog
@@ -209,6 +250,8 @@ export function ProjectActions({
         toLabel="BUILD"
         confirmLabel="INITIATE"
         cancelLabel="HOLD"
+        pending={isPending}
+        pendingLabel="INITIATING…"
         onConfirm={runStart}
         onClose={closeConfirm}
       />
@@ -224,6 +267,8 @@ export function ProjectActions({
         toLabel="DEPLOYED"
         confirmLabel="DEPLOY"
         cancelLabel="CANCEL"
+        pending={isPending}
+        pendingLabel="DEPLOYING…"
         onConfirm={runProduction}
         onClose={closeConfirm}
       />
@@ -239,8 +284,19 @@ export function ProjectActions({
         toLabel="DECOMMISSIONED"
         confirmLabel="DECOMMISSION"
         cancelLabel="CANCEL"
+        pending={isPending}
+        pendingLabel="DECOMMISSIONING…"
         onConfirm={runArchive}
         onClose={closeConfirm}
+      />
+
+      <PurgeSequence
+        open={purgeOpen}
+        projectRef={project.ref}
+        projectName={project.name}
+        onPurge={() => purgeProject(project.id)}
+        onPurged={handlePurged}
+        onClose={() => setPurgeOpen(false)}
       />
     </div>
   );

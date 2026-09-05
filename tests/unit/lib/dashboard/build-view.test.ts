@@ -16,6 +16,7 @@ function project(overrides: Partial<Project>): Project {
     devStartDate: "2026-08-01",
     targetDate: null,
     publishedDate: null,
+    archivedAt: null,
     notes: "",
     createdAt: "2026-08-01T00:00:00.000Z",
     updatedAt: "2026-08-01T00:00:00.000Z",
