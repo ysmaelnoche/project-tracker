@@ -164,6 +164,9 @@ export function NewProjectForm() {
   if (stage === "form") {
     const dateCopy = DATE_FIELD_COPY[entryStage];
     const activeNote = ENTRY_STAGE_OPTIONS.find((o) => o.value === entryStage)?.note;
+    // Only a forward-looking target date is floor-limited to today — a
+    // DEPLOYED project's deploy date is deliberately backdatable.
+    const dateMin = entryStage === "production" ? undefined : new Date().toISOString().slice(0, 10);
 
     return (
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -270,6 +273,7 @@ export function NewProjectForm() {
               id="targetDate"
               name="targetDate"
               type="date"
+              min={dateMin}
               className={`mt-2.5 w-full border bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-accent ${
                 entryStage === "production" ? "border-teal/50" : "border-border-strong"
               }`}

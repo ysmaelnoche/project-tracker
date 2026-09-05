@@ -16,6 +16,7 @@ import { linkRepository } from "@/lib/github/actions";
 import { KEEL_PAYOFF } from "@/lib/projects/create-sequence";
 import { deriveEntryStageFields, type EntryStage } from "@/lib/projects/entry-stage";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
+import { isValidTargetDate } from "@/lib/projects/target-date";
 import type { ActivityTone, Priority, ProjectStatus, ProjectType } from "@/lib/types";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -97,6 +98,14 @@ export async function createProject(
   }
   const entryStage = entryStageInput as EntryStage;
 
+  // The date field means "target date" for pending/build (must be
+  // today-onward — this is a forward-looking ship target, not a fact
+  // about the past) but "deploy date" for an already-shipped project,
+  // which is deliberately backdatable — see lib/projects/entry-stage.ts.
+  if (entryStage !== "production" && !isValidTargetDate(targetDate || null, null, todayIso())) {
+    return { ok: false, error: "Target date can't be in the past." };
+  }
+
   const fields = deriveEntryStageFields(entryStage, targetDate || null, todayIso());
 
   const supabase = await createClient();
@@ -156,6 +165,18 @@ export async function updateProject(
   }
 
   const supabase = await createClient();
+
+  // An unchanged, already-overdue target date is fine — only a *newly
+  // chosen* past date is rejected (see lib/projects/target-date.ts).
+  const { data: current } = await supabase
+    .from("projects")
+    .select("target_date")
+    .eq("id", id)
+    .maybeSingle();
+  if (!isValidTargetDate(targetDate || null, current?.target_date ?? null, todayIso())) {
+    return { ok: false, error: "Target date can't be in the past." };
+  }
+
   const { error } = await supabase
     .from("projects")
     .update({ name, description, priority, target_date: targetDate || null })
