@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { ProgressGauge } from "@/components/ui/ProgressGauge";
 import { StageBadge } from "@/components/ui/StageBadge";
 import { diffDays, formatStamp } from "@/lib/format";
-import { projectGaugeTone } from "@/lib/projects/lifecycle";
 import { computeTaskProgress } from "@/lib/projects/progress";
 import type { ProjectTaskRow } from "@/lib/projects/task-reads";
 import type { Project } from "@/lib/types";
@@ -23,7 +21,7 @@ function buildMetaLine(project: Project, tasks: ProjectTaskRow[], today: string)
   return bits.join(" · ");
 }
 
-/** One row on the Fleet list — ref, name, class, stage, progress gauge, meta line. */
+/** One row on the Fleet list — ref, name, class, stage, task completion, meta line. */
 export function ProjectCard({
   project,
   tasks,
@@ -34,7 +32,6 @@ export function ProjectCard({
   today: string;
 }) {
   const { total, percent } = computeTaskProgress(tasks);
-  const gaugeWidth = project.status === "pending" ? 0 : percent;
 
   return (
     <Link
@@ -50,11 +47,6 @@ export function ProjectCard({
           {project.type === "personal" ? "PERSONAL" : "WORK"}
         </span>
         <StageBadge status={project.status} />
-        <ProgressGauge
-          percent={gaugeWidth}
-          tone={projectGaugeTone(project.status)}
-          className="w-28 flex-none"
-        />
         <span className="flex-none w-11 text-right font-mono text-xs tabular-nums text-ink">
           {total ? `${percent}%` : "—"}
         </span>
