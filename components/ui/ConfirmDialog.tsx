@@ -1,5 +1,7 @@
 "use client";
 
+import { Spinner } from "@/components/ui/Spinner";
+
 interface ConfirmDialogProps {
   open: boolean;
   tone?: "accent" | "teal" | "red";
@@ -12,6 +14,9 @@ interface ConfirmDialogProps {
   confirmLabel?: string;
   cancelLabel?: string;
   hideConfirm?: boolean;
+  /** While true, the confirm button shows a spinner + `pendingLabel` and both buttons disable — every lifecycle-transition dialog's own missing buffering state, closed in one place. */
+  pending?: boolean;
+  pendingLabel?: string;
   onConfirm?: () => void;
   onClose: () => void;
 }
@@ -44,6 +49,8 @@ export function ConfirmDialog({
   confirmLabel = "CONFIRM",
   cancelLabel = "CANCEL",
   hideConfirm = false,
+  pending = false,
+  pendingLabel = "WORKING…",
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
@@ -107,18 +114,26 @@ export function ConfirmDialog({
           <div className="mt-6 flex justify-end gap-2">
             <button
               onClick={onClose}
-              className="cursor-pointer border border-border-strong bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.13em] text-ink-2 hover:border-ink hover:text-ink"
+              disabled={pending}
+              className="cursor-pointer border border-border-strong bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.13em] text-ink-2 hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
             >
               {cancelLabel}
             </button>
             {!hideConfirm ? (
               <button
                 onClick={onConfirm}
-                className={`cursor-pointer border-0 px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg ${
+                disabled={pending}
+                className={`cursor-pointer border-0 px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg disabled:cursor-not-allowed disabled:opacity-60 ${
                   tone === "red" ? "bg-red" : tone === "teal" ? "bg-teal" : "bg-accent"
                 }`}
               >
-                {confirmLabel}
+                {pending ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner /> {pendingLabel}
+                  </span>
+                ) : (
+                  confirmLabel
+                )}
               </button>
             ) : null}
           </div>
