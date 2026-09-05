@@ -1,94 +1,105 @@
-import { signInWithUsername } from "@/lib/auth/actions";
+import { AccessForm } from "@/components/auth/AccessForm";
+import { getLastSessionInfo } from "@/lib/auth/queries";
+import { formatDateTimeStamp } from "@/lib/format";
 
-const ERROR_COPY: Record<string, string> = {
-  missing_fields: "Enter both a username and a password.",
-  invalid_credentials: "That username or password is incorrect.",
-};
+// "Last session" must be read fresh on every visit, not frozen at build/deploy
+// time — this page can never be statically prerendered.
+export const dynamic = "force-dynamic";
 
-export default async function AccessPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
-  const errorMessage = error ? (ERROR_COPY[error] ?? ERROR_COPY.invalid_credentials) : null;
+const LIFECYCLE_STAGES = [
+  {
+    step: "01",
+    code: "STANDBY",
+    tone: "text-ink-faint",
+    note: "Registered. Tasks stay locked until you commit to it.",
+  },
+  {
+    step: "02",
+    code: "BUILD",
+    tone: "text-amber",
+    note: "Tasks unlock, start date recorded, branches bind themselves.",
+  },
+  {
+    step: "03",
+    code: "DEPLOYED",
+    tone: "text-teal",
+    note: "Deploy date captured, build duration computed for you.",
+  },
+] as const;
+
+export default async function AccessPage() {
+  const { lastSignInAt } = await getLastSessionInfo();
+  const lastSessionLabel = lastSignInAt ? formatDateTimeStamp(lastSignInAt) : "NO PRIOR SESSION ON RECORD";
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-bg p-6">
-      <div className="relative w-full max-w-[392px] border border-border-strong bg-surface-raised p-8">
-        <div className="pointer-events-none absolute -top-px -left-px h-[11px] w-[11px] border-t border-l border-amber" />
-        <div className="pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r border-amber" />
+    <div className="fixed inset-0 z-60 flex items-center justify-center overflow-auto bg-bg p-4 sm:p-6">
+      <div className="relative grid w-full max-w-[940px] grid-cols-1 border border-border-strong bg-surface sm:grid-cols-2">
+        <div className="pointer-events-none absolute -top-px -left-px z-10 h-[13px] w-[13px] border-t border-l border-amber" />
+        <div className="pointer-events-none absolute -top-px -right-px z-10 h-[13px] w-[13px] border-t border-r border-amber" />
+        <div className="pointer-events-none absolute -bottom-px -left-px z-10 h-[13px] w-[13px] border-b border-l border-amber" />
+        <div className="pointer-events-none absolute -bottom-px -right-px z-10 h-[13px] w-[13px] border-b border-r border-amber" />
 
-        <div className="flex items-center gap-2">
-          <span className="h-[7px] w-[7px] animate-pulse rounded-full bg-amber shadow-[0_0_9px_rgba(233,169,74,0.8)]" />
-          <span className="font-mono text-xs font-medium tracking-[0.16em]">SHIPYARD</span>
-        </div>
-
-        <div className="mt-8 font-mono text-[9px] tracking-[0.2em] text-ink-faint">
-          {"// IDENTITY VERIFICATION"}
-        </div>
-        <h1 className="mt-4 font-mono text-[26px] font-light leading-tight tracking-[0.01em]">
-          Sign in.
-        </h1>
-        <p className="mt-2.5 text-sm leading-relaxed text-ink-2">
-          Single operator, single log. Enter your credentials to continue.
-        </p>
-
-        <form action={signInWithUsername} className="mt-7 flex flex-col gap-4">
-          <div>
-            <label
-              htmlFor="username"
-              className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
-            >
-              USERNAME
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              autoCapitalize="off"
-              spellCheck={false}
-              required
-              placeholder="operator"
-              className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
-            />
+        {/* Branding / lifecycle panel */}
+        <div className="flex flex-col gap-7 border-b border-border bg-track p-6 sm:border-r sm:border-b-0 sm:p-8">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2 w-2 animate-[blink_3.4s_ease-in-out_infinite] rounded-full bg-amber shadow-[0_0_10px_rgba(233,169,74,0.85)]" />
+            <span className="font-mono text-[13px] font-medium tracking-[0.16em] text-ink">
+              SHIPYARD
+            </span>
+            <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
+              {"// BUILD CONTROL"}
+            </span>
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
-            >
-              PASSWORD
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              placeholder="••••••••••••"
-              className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
-            />
+            <div className="font-mono text-[9px] tracking-[0.2em] text-ink-faint">
+              {"// TERMINAL IDLE"}
+            </div>
+            <div className="mt-4 text-pretty font-mono text-[clamp(21px,2.6vw,27px)] font-light leading-[1.28] tracking-[-0.005em] text-ink">
+              Every system you build, on one console.
+            </div>
+            <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-ink-2">
+              Projects move STANDBY → BUILD → DEPLOYED. Commits, branches and pull requests bind
+              themselves to tasks, so the log keeps itself.
+            </p>
           </div>
 
-          {errorMessage ? (
-            <p className="font-mono text-xs tracking-[0.04em] text-red">{errorMessage}</p>
-          ) : null}
+          <div>
+            <div className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+              {"// LIFECYCLE"}
+            </div>
+            <div className="mt-3.5 flex flex-col gap-3">
+              {LIFECYCLE_STAGES.map((st) => (
+                <div key={st.step} className="flex items-baseline gap-3">
+                  <span className="flex-none font-mono text-[9px] tracking-[0.12em] text-ink-disabled">
+                    {st.step}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className={`font-mono text-[10px] tracking-[0.16em] ${st.tone}`}>
+                      {st.code}
+                    </div>
+                    <div className="mt-1 text-xs leading-relaxed text-ink-3">{st.note}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <button
-            type="submit"
-            className="mt-1 w-full cursor-pointer bg-amber px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-amber-hover"
-          >
-            ▸ SIGN IN
-          </button>
-        </form>
+          <div className="mt-auto border-t border-divider pt-4">
+            <div className="flex items-baseline gap-3 py-1">
+              <span className="flex-none basis-[92px] font-mono text-[9px] tracking-[0.14em] text-ink-faint">
+                LAST SESSION
+              </span>
+              <span className="min-w-0 flex-1 font-mono text-[10px] tracking-[0.02em] text-ink-3">
+                {lastSessionLabel}
+              </span>
+            </div>
+          </div>
+        </div>
 
-        <div className="mt-5 font-mono text-[9px] leading-loose tracking-[0.12em] text-ink-disabled">
-          ROW-LEVEL SECURITY ACTIVE
-          <br />
-          OWNERSHIP ENFORCED AT DATABASE LAYER
+        {/* Auth panel */}
+        <div className="flex min-h-[420px] flex-col justify-center p-6 sm:p-8">
+          <AccessForm />
         </div>
       </div>
     </div>
