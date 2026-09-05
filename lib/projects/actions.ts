@@ -17,12 +17,16 @@ import { KEEL_PAYOFF } from "@/lib/projects/create-sequence";
 import { deriveEntryStageFields, type EntryStage } from "@/lib/projects/entry-stage";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
 import { isValidTargetDate } from "@/lib/projects/target-date";
+import { getTodayIso } from "@/lib/timezone-server";
 import type { ActivityTone, Priority, ProjectStatus, ProjectType } from "@/lib/types";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+// Delegates to the operator's own timezone (lib/timezone-server.ts) rather
+// than the server process's — every dev_start_date/published_date/
+// target_date this file stamps needs to be *the operator's* calendar day.
+async function todayIso(): Promise<string> {
+  return getTodayIso();
 }
 
 async function logActivity(
@@ -97,16 +101,17 @@ export async function createProject(
     return { ok: false, error: "Choose an entry stage." };
   }
   const entryStage = entryStageInput as EntryStage;
+  const today = await todayIso();
 
   // The date field means "target date" for pending/build (must be
   // today-onward — this is a forward-looking ship target, not a fact
   // about the past) but "deploy date" for an already-shipped project,
   // which is deliberately backdatable — see lib/projects/entry-stage.ts.
-  if (entryStage !== "production" && !isValidTargetDate(targetDate || null, null, todayIso())) {
+  if (entryStage !== "production" && !isValidTargetDate(targetDate || null, null, today)) {
     return { ok: false, error: "Target date can't be in the past." };
   }
 
-  const fields = deriveEntryStageFields(entryStage, targetDate || null, todayIso());
+  const fields = deriveEntryStageFields(entryStage, targetDate || null, today);
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -173,7 +178,7 @@ export async function updateProject(
     .select("target_date")
     .eq("id", id)
     .maybeSingle();
-  if (!isValidTargetDate(targetDate || null, current?.target_date ?? null, todayIso())) {
+  if (!isValidTargetDate(targetDate || null, current?.target_date ?? null, await todayIso())) {
     return { ok: false, error: "Target date can't be in the past." };
   }
 
@@ -256,7 +261,7 @@ export async function startDevelopment(id: string) {
 
   const { error } = await supabase
     .from("projects")
-    .update({ status: "in_development", dev_start_date: todayIso() })
+    .update({ status: "in_development", dev_start_date: await todayIso() })
     .eq("id", id);
   if (error) throw new Error(error.message);
 
@@ -276,7 +281,7 @@ export async function markProduction(id: string) {
 
   const { error } = await supabase
     .from("projects")
-    .update({ status: "production", published_date: todayIso() })
+    .update({ status: "production", published_date: await todayIso() })
     .eq("id", id);
   if (error) throw new Error(error.message);
 

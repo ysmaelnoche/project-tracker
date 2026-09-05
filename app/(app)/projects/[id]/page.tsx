@@ -18,6 +18,7 @@ import {
   listActivityForProject,
 } from "@/lib/projects/queries";
 import { listTasksForProject } from "@/lib/projects/task-reads";
+import { getTodayIso } from "@/lib/timezone-server";
 
 // PLAN.md "Project Detail Experience". See the Shipyard mockup's
 // `data-screen-label="Project detail"` section for the reference layout.
@@ -34,7 +35,7 @@ export default async function ProjectDetailPage({
   const project = await getProject(id);
   if (!project) notFound();
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = await getTodayIso();
 
   const [tasks, activity, confirmBeforeArchive, activityTrend] = await Promise.all([
     listTasksForProject(project.id),

@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { filterProjects } from "@/lib/projects/filters";
 import { listProjects } from "@/lib/projects/queries";
 import { listTasksForProjects } from "@/lib/projects/task-reads";
+import { getTodayIso } from "@/lib/timezone-server";
 import type { ProjectStatus, ProjectType } from "@/lib/types";
 
 type ClassValue = "all" | ProjectType;
@@ -45,7 +46,7 @@ export default async function ProjectsPage({
 
   const projects = await listProjects();
   const taskMap = await listTasksForProjects(projects.map((p) => p.id));
-  const today = new Date().toISOString().slice(0, 10);
+  const today = await getTodayIso();
 
   const classScoped = projects.filter(
     (p) =>

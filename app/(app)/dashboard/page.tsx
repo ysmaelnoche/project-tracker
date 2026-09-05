@@ -12,6 +12,7 @@ import { buildDashboardView } from "@/lib/dashboard/build-view";
 import { getDashboardData } from "@/lib/dashboard/queries";
 import { parseScope } from "@/lib/dashboard/scope";
 import { getDevelopmentActivity } from "@/lib/github/dev-activity-fetch";
+import { getTodayIso } from "@/lib/timezone-server";
 
 // PLAN.md "Dashboard" / "Dashboard Overview": the command-center home screen —
 // Primary Directive, metrics bar, Active Builds, My Day / Inbound, Standby /
@@ -25,7 +26,7 @@ export default async function DashboardPage({
 }) {
   const params = await searchParams;
   const scope = parseScope(params.scope);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = await getTodayIso();
 
   const [data, activity] = await Promise.all([getDashboardData(), getDevelopmentActivity(today)]);
   const view = buildDashboardView({ ...data, scope, today });

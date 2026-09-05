@@ -226,3 +226,25 @@ is deliberately the *last step of the same animation* rather than a separate
 animation on the real Fleet list page — simpler, and it plays before navigating to
 the new project's own page either way; animating the actual list page on arrival
 would be a bigger, separate change.
+
+**"Today" now means the operator's actual calendar day, not the server's**: every
+page computing "today" — overdue tasks, the header's status line, each project's
+STANDBY/BUILD/DEPLOYED strip, target-date validation, entry-stage stamping, the
+Source screen's "pushed today" metric — used either `new Date().toISOString()`
+(always UTC) or a `Date`'s own local getters evaluated *on the server*. Both are
+wrong the same way: a serverless Node runtime's own timezone (UTC by default on
+Vercel) has nothing to do with where the operator actually is, so anyone east of
+UTC saw "today" read as yesterday for hours after their own local midnight — this
+was a real, reported bug, not a hypothetical.
+
+Fixed properly rather than patched at one call site, since the same mistake was
+duplicated across seven files: `components/TimezoneSync.tsx` detects the browser's
+real IANA timezone (`Intl.DateTimeFormat().resolvedOptions().timeZone`) and stores
+it in a cookie, mounted once in the root layout so it's set before any page under
+`(app)` renders. `lib/timezone.ts` holds the pure part — given a timezone name,
+what calendar day is it (`Intl.DateTimeFormat(...).formatToParts`), TDD'd against
+both directions of the bug (a zone ahead of UTC rolling over first, one behind UTC
+rolling over last). `lib/timezone-server.ts` reads the cookie and exposes
+`getTodayIso()`, which every Server Component/Action now calls instead of
+computing its own — self-correcting if the operator travels, with UTC as a
+fallback only for the brief window before the very first sync.

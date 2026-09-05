@@ -14,8 +14,8 @@ import {
   parseTaskView,
   sortTaskRows,
   TASK_VIEW_EMPTY_COPY,
-  todayIso,
 } from "@/lib/tasks/views";
+import { getTodayIso } from "@/lib/timezone-server";
 
 export default async function TasksPage({
   searchParams,
@@ -25,7 +25,7 @@ export default async function TasksPage({
   const { view: viewParam, context: contextParam } = await searchParams;
   const view = parseTaskView(viewParam);
   const context = parseTaskContext(contextParam);
-  const today = todayIso();
+  const today = await getTodayIso();
 
   const [tasks, projects] = await Promise.all([listTasks(), listProjectsLite()]);
   const projectById = new Map(projects.map((p) => [p.id, p]));

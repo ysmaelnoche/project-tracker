@@ -10,6 +10,12 @@ import { BufferPanel } from "@/components/ui/BufferPanel";
 
 const STEP_INTERVAL_MS = 300;
 
+/** "2026-09-06" from the browser's own local clock — never `.toISOString()`, which shifts to UTC. */
+function localTodayIso(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
 interface EntryStageOption {
   value: EntryStage;
   mark: string;
@@ -165,8 +171,11 @@ export function NewProjectForm() {
     const dateCopy = DATE_FIELD_COPY[entryStage];
     const activeNote = ENTRY_STAGE_OPTIONS.find((o) => o.value === entryStage)?.note;
     // Only a forward-looking target date is floor-limited to today — a
-    // DEPLOYED project's deploy date is deliberately backdatable.
-    const dateMin = entryStage === "production" ? undefined : new Date().toISOString().slice(0, 10);
+    // DEPLOYED project's deploy date is deliberately backdatable. This runs
+    // in the browser, so the Date's own local getters are already the
+    // operator's real local day — `.toISOString()` would wrongly shift to
+    // UTC even though there's no ambiguity to resolve here.
+    const dateMin = entryStage === "production" ? undefined : localTodayIso();
 
     return (
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
