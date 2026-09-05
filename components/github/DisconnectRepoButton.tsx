@@ -50,6 +50,8 @@ export function DisconnectRepoButton({
         body="Cached commits, branches, and pull requests for this repository are removed from the tracker. Nothing changes on GitHub itself, and you can reconnect it any time."
         confirmLabel="DISCONNECT"
         cancelLabel="CANCEL"
+        pending={isPending}
+        pendingLabel="DISCONNECTING…"
         onConfirm={handleConfirm}
         onClose={() => !isPending && setOpen(false)}
       />
