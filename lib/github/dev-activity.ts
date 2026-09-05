@@ -7,6 +7,9 @@
  * without a database; see dev-activity-fetch.ts for the actual reads.
  */
 
+/** The trend window every commit/merge trend chart in the app shares — the Dashboard's aggregate panel and each project's own trend. */
+export const ACTIVITY_TREND_WEEKS = 12;
+
 function diffDays(fromIso: string, toIso: string): number {
   const toUtc = (iso: string) => {
     const [y, m, d] = iso.split("-").map(Number);
@@ -16,15 +19,16 @@ function diffDays(fromIso: string, toIso: string): number {
 }
 
 /**
- * Buckets commit dates into `weeks` consecutive 7-day windows ending today,
- * oldest first (so the array renders left-to-right as a bar chart in
- * chronological order). Commits older than the whole window, or dated in
- * the future, are dropped rather than skewing an edge bucket.
+ * Buckets dates into `weeks` consecutive 7-day windows ending today, oldest
+ * first (so the array renders left-to-right in chronological order). Dates
+ * older than the whole window, or dated in the future, are dropped rather
+ * than skewing an edge bucket. Shared by every per-week activity series —
+ * commits, merges, or anything else dated by day.
  */
-export function bucketCommitsByWeek(commitDates: string[], weeks: number, todayIso: string): number[] {
+function bucketDatesByWeek(dates: string[], weeks: number, todayIso: string): number[] {
   const buckets = new Array(weeks).fill(0) as number[];
 
-  for (const dateIso of commitDates) {
+  for (const dateIso of dates) {
     const daysAgo = diffDays(dateIso, todayIso);
     if (daysAgo < 0) continue;
 
@@ -36,6 +40,35 @@ export function bucketCommitsByWeek(commitDates: string[], weeks: number, todayI
   }
 
   return buckets;
+}
+
+/** Buckets commit dates into `weeks` consecutive 7-day windows ending today. */
+export function bucketCommitsByWeek(commitDates: string[], weeks: number, todayIso: string): number[] {
+  return bucketDatesByWeek(commitDates, weeks, todayIso);
+}
+
+export interface ActivityTrend {
+  commits: number[];
+  merges: number[];
+}
+
+/**
+ * The two-line commit/merge trend (DevelopmentActivityPanel, and the
+ * per-project trend replacing the task-progress bar on Project Detail):
+ * commit dates and PR-merge dates bucketed into the same `weeks` window,
+ * as independent parallel series — a week can have commits with no merges,
+ * or vice versa.
+ */
+export function buildActivityTrend(
+  commitDates: string[],
+  mergedDates: string[],
+  weeks: number,
+  todayIso: string,
+): ActivityTrend {
+  return {
+    commits: bucketDatesByWeek(commitDates, weeks, todayIso),
+    merges: bucketDatesByWeek(mergedDates, weeks, todayIso),
+  };
 }
 
 export interface CommitForActivity {

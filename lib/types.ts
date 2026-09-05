@@ -111,6 +111,7 @@ export interface GhPullRequest {
   deletions: number;
   reviewerCount: number;
   githubUpdatedAt: string | null;
+  mergedAt: string | null;
 }
 
 export interface GhCommit {

@@ -70,6 +70,8 @@ export interface FetchedPullRequest {
   deletions: number;
   reviewerCount: number;
   githubUpdatedAt: string | null;
+  /** Exact merge timestamp from GitHub, null unless `state` is "merged". */
+  mergedAt: string | null;
 }
 
 export interface PlannedCommit extends FetchedCommit {

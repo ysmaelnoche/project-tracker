@@ -154,6 +154,7 @@ interface PullRequestRow {
   deletions: number;
   reviewer_count: number;
   github_updated_at: string | null;
+  merged_at: string | null;
 }
 
 function mapPullRequest(row: PullRequestRow): GhPullRequest {
@@ -170,6 +171,7 @@ function mapPullRequest(row: PullRequestRow): GhPullRequest {
     deletions: row.deletions,
     reviewerCount: row.reviewer_count,
     githubUpdatedAt: row.github_updated_at,
+    mergedAt: row.merged_at,
   };
 }
 
@@ -234,7 +236,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       supabase
         .from("gh_pull_requests")
         .select(
-          "id, repository_id, task_id, number, title, branch, state, checks_state, additions, deletions, reviewer_count, github_updated_at",
+          "id, repository_id, task_id, number, title, branch, state, checks_state, additions, deletions, reviewer_count, github_updated_at, merged_at",
         ),
       supabase.from("gh_commits").select("id, repository_id, task_id, sha, message, branch, authored_at"),
     ]);

@@ -134,6 +134,7 @@ export function shapePullRequest(
     deletions: raw.deletions ?? 0,
     reviewerCount: raw.requested_reviewers?.length ?? 0,
     githubUpdatedAt: raw.updated_at,
+    mergedAt: raw.merged_at ?? null,
   };
 }
 
@@ -177,5 +178,6 @@ export function toPullRequestRow(repositoryId: string, row: PlannedPullRequest) 
     deletions: row.deletions,
     reviewer_count: row.reviewerCount,
     github_updated_at: row.githubUpdatedAt,
+    merged_at: row.mergedAt,
   };
 }

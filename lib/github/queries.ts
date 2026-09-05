@@ -9,6 +9,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { getGithubTokenSource, isGithubConfigured as checkGithubConfigured } from "@/lib/github/client";
+import { ACTIVITY_TREND_WEEKS, buildActivityTrend, type ActivityTrend } from "@/lib/github/dev-activity";
 import {
   DEFAULT_AUTOMATION_SETTINGS,
   type AutomationSettings,
@@ -56,6 +57,7 @@ interface PullRequestRow {
   deletions: number;
   reviewer_count: number;
   github_updated_at: string | null;
+  merged_at: string | null;
 }
 
 interface CommitRow {
@@ -109,6 +111,7 @@ function mapPullRequest(row: PullRequestRow): GhPullRequest {
     deletions: row.deletions,
     reviewerCount: row.reviewer_count,
     githubUpdatedAt: row.github_updated_at,
+    mergedAt: row.merged_at,
   };
 }
 
@@ -143,6 +146,66 @@ export async function getRepositoryForProject(projectId: string): Promise<Reposi
 
   if (error) throw new Error(error.message);
   return data ? mapRepository(data as RepositoryRow) : null;
+}
+
+export interface ProjectActivityTrend {
+  hasRepo: boolean;
+  trend: ActivityTrend;
+}
+
+function emptyProjectActivityTrend(): ProjectActivityTrend {
+  return {
+    hasRepo: false,
+    trend: { commits: new Array(ACTIVITY_TREND_WEEKS).fill(0), merges: new Array(ACTIVITY_TREND_WEEKS).fill(0) },
+  };
+}
+
+/**
+ * The commit/merge trend for one project's connected repository — the
+ * chart that replaced the task-progress bar on Project Detail (PLAN.md
+ * addendum: the operator found a near-empty progress bar for a project
+ * with no tasks yet more useful as real GitHub activity). `hasRepo: false`
+ * (no repo connected at all) is distinct from a connected repo with zero
+ * activity in the window — the caller renders nothing for the former,
+ * a real all-zero chart for the latter.
+ */
+export async function getProjectActivityTrend(projectId: string, todayIso: string): Promise<ProjectActivityTrend> {
+  const supabase = await createClient();
+
+  const { data: repo } = await supabase
+    .from("repositories")
+    .select("id")
+    .eq("project_id", projectId)
+    .maybeSingle();
+
+  if (!repo) return emptyProjectActivityTrend();
+
+  const windowDays = ACTIVITY_TREND_WEEKS * 7;
+  const sinceIso = new Date(Date.parse(`${todayIso}T00:00:00Z`) - windowDays * 86_400_000).toISOString();
+
+  const [commitsResult, mergedResult] = await Promise.all([
+    supabase
+      .from("gh_commits")
+      .select("authored_at")
+      .eq("repository_id", repo.id)
+      .gte("authored_at", sinceIso),
+    supabase
+      .from("gh_pull_requests")
+      .select("merged_at")
+      .eq("repository_id", repo.id)
+      .eq("state", "merged")
+      .gte("merged_at", sinceIso),
+  ]);
+
+  const commitDates = (commitsResult.data ?? []).map((c) => (c.authored_at as string).slice(0, 10));
+  const mergedDates = (mergedResult.data ?? [])
+    .map((p) => (p.merged_at as string | null)?.slice(0, 10))
+    .filter((d): d is string => !!d);
+
+  return {
+    hasRepo: true,
+    trend: buildActivityTrend(commitDates, mergedDates, ACTIVITY_TREND_WEEKS, todayIso),
+  };
 }
 
 export interface RepositoryActivity {

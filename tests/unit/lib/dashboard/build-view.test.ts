@@ -84,6 +84,7 @@ function pr(overrides: Partial<GhPullRequest>): GhPullRequest {
     deletions: 2,
     reviewerCount: 0,
     githubUpdatedAt: null,
+    mergedAt: null,
     ...overrides,
   };
 }

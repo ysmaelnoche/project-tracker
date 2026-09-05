@@ -8,9 +8,9 @@ import { ProjectActivity } from "@/components/projects/ProjectActivity";
 import { ProjectEditForm } from "@/components/projects/ProjectEditForm";
 import { StageStrip } from "@/components/projects/StageStrip";
 import { TasksPanel } from "@/components/projects/TasksPanel";
-import { ProgressGauge } from "@/components/ui/ProgressGauge";
 import { StageBadge } from "@/components/ui/StageBadge";
-import { projectGaugeTone } from "@/lib/projects/lifecycle";
+import { TrendChart } from "@/components/ui/TrendChart";
+import { getProjectActivityTrend } from "@/lib/github/queries";
 import { computeTaskProgress } from "@/lib/projects/progress";
 import {
   getConfirmBeforeArchive,
@@ -34,15 +34,16 @@ export default async function ProjectDetailPage({
   const project = await getProject(id);
   if (!project) notFound();
 
-  const [tasks, activity, confirmBeforeArchive] = await Promise.all([
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [tasks, activity, confirmBeforeArchive, activityTrend] = await Promise.all([
     listTasksForProject(project.id),
     listActivityForProject(project.ref),
     getConfirmBeforeArchive(),
+    getProjectActivityTrend(project.id, today),
   ]);
 
-  const today = new Date().toISOString().slice(0, 10);
   const { done, total, percent } = computeTaskProgress(tasks);
-  const gaugeWidth = project.status === "pending" ? 0 : percent;
   const openTaskCount = total - done;
 
   return (
@@ -88,19 +89,29 @@ export default async function ProjectDetailPage({
           </div>
         </div>
 
-        <div className="mt-7 flex flex-wrap items-end gap-5">
-          <div className="min-w-[180px] flex-1 basis-[260px]">
-            <ProgressGauge percent={gaugeWidth} tone={projectGaugeTone(project.status)} />
-            <div className="mt-2.5 font-mono text-[9px] tracking-[0.13em] text-ink-2">
-              {total
-                ? `${String(done).padStart(2, "0")} CLOSED · ${String(openTaskCount).padStart(2, "0")} OPEN`
-                : "NO TASKS ON RECORD"}
-            </div>
+        <div className="mt-7 flex flex-wrap items-baseline justify-between gap-3">
+          <div className="font-mono text-[9px] tracking-[0.13em] text-ink-2">
+            {total
+              ? `${String(done).padStart(2, "0")} CLOSED · ${String(openTaskCount).padStart(2, "0")} OPEN`
+              : "NO TASKS ON RECORD"}
           </div>
-          <div className="flex-none font-mono text-[clamp(30px,4vw,40px)] font-light tracking-[-0.03em] tabular-nums text-ink">
+          <div className="font-mono text-[clamp(20px,2.6vw,26px)] font-light tracking-[-0.03em] tabular-nums text-ink">
             {total ? `${percent}%` : "—"}
           </div>
         </div>
+
+        {activityTrend.hasRepo ? (
+          <div className="mt-6 border-t border-divider pt-6">
+            <div className="mb-2 text-center font-mono text-[9px] tracking-[0.18em] text-ink-faint">
+              {"// SOURCE ACTIVITY — LAST 12 WEEKS"}
+            </div>
+            <TrendChart
+              commits={activityTrend.trend.commits}
+              merges={activityTrend.trend.merges}
+              heightPx={92}
+            />
+          </div>
+        ) : null}
       </div>
 
       <StageStrip project={project} today={today} />
