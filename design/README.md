@@ -69,3 +69,17 @@ Tailwind `text-*` utility on any `<Link>`, regardless of specificity. Any button
 from a styled `<Link>` (e.g. "+ NEW PROJECT", "+ NEW TASK") had invisible label text:
 same color as its own background. Moved those base resets into `@layer base` so
 Tailwind's utilities (in a later layer) win as intended.
+
+**Dashboard "Development Activity" panel** (not in the mockup at all — added at the
+user's request, then reworked once): the first attempt mirrored GitHub's own
+account-wide contribution calendar (`viewer.contributionsCollection` over GraphQL,
+recolored blue). That API is structurally incapable of returning private-repository
+activity for *any* token — confirmed as an open, unresolved GitHub platform
+limitation (github.com/orgs/community/discussions/24812), not a permissions problem
+on our end. Replaced entirely with `lib/github/dev-activity*` + `DevelopmentActivityPanel`:
+real commits/PRs across the operator's *connected* repos (private repos included —
+that path is a plain per-repo REST read, never subject to the GraphQL limitation),
+shown as a 12-week bar chart plus a per-repo breakdown, styled like the rest of the
+console instead of borrowing GitHub's own green-calendar look. Closer to what
+`PLAN.md`'s "GitHub Dashboard Integration" section originally asked for anyway
+("3 commits today, 1 open PR" style summaries) than the calendar mimicry was.
