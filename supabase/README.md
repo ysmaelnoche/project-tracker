@@ -20,6 +20,20 @@
 Migrations are plain numbered SQL files under `migrations/`. Add new ones as
 `00XX_description.sql` rather than editing an already-applied file.
 
+**Every new table needs an explicit `grant` statement.** Running SQL through the
+dashboard's SQL editor doesn't reliably apply Supabase's usual auto-grant the way
+its Table Editor UI does — a table can end up with correct RLS policies but no base
+table privilege at all, which fails as a flat "permission denied" before RLS is even
+evaluated (this bit `profiles` in 0002 and, it turned out, every table in 0001 — see
+0003_grants.sql). Any migration that creates a table should include:
+```sql
+grant select, insert, update, delete on public.<table> to anon, authenticated, service_role;
+```
+and, if it has a column defaulting to a sequence-backed function, also:
+```sql
+grant usage, select on sequence public.<sequence> to anon, authenticated, service_role;
+```
+
 ## Creating the operator account
 
 There's no public sign-up screen — this is a single-operator app. Create the one
