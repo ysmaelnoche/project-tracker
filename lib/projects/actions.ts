@@ -11,7 +11,6 @@
  */
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { linkRepository } from "@/lib/github/actions";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
@@ -65,10 +64,13 @@ async function fetchProjectCore(supabase: SupabaseServerClient, id: string) {
 
 /**
  * Creates a project on status "pending" (PLAN.md "Creating a Project") and
- * redirects to its detail page. Server Action bound directly to the New
- * Project form.
+ * returns a result for the (client) New Project form's staged "COMMITTING"
+ * sequence to react to — see `components/projects/NewProjectForm.tsx`. Never
+ * redirects: the caller navigates once it has a result to show first.
  */
-export async function createProject(formData: FormData) {
+export async function createProject(
+  formData: FormData,
+): Promise<{ ok: true; id: string; repoWarning?: string } | { ok: false; error: string }> {
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const type = String(formData.get("type") ?? "");
@@ -77,10 +79,10 @@ export async function createProject(formData: FormData) {
   const repoSlug = String(formData.get("repoSlug") ?? "").trim();
 
   if (!name) {
-    redirect("/projects/new?error=name_required");
+    return { ok: false, error: "Name is required." };
   }
   if (type !== "personal" && type !== "work") {
-    redirect("/projects/new?error=invalid_type");
+    return { ok: false, error: "Choose a project type." };
   }
 
   const supabase = await createClient();
@@ -97,7 +99,7 @@ export async function createProject(formData: FormData) {
     .single();
 
   if (error || !data) {
-    redirect("/projects/new?error=create_failed");
+    return { ok: false, error: "Could not create the project. Try again in a moment." };
   }
 
   await logActivity(supabase, "KEEL LAID", data.name, data.ref, "quiet");
@@ -106,17 +108,16 @@ export async function createProject(formData: FormData) {
   revalidatePath("/dashboard");
 
   // Optional "link a repo now" field on the create form. A failed link never
-  // undoes the project — it's already created — it just lands the operator
-  // on the project page with the reason shown next to the same form, ready
-  // to retry (see `linkRepository`'s doc comment).
+  // undoes the project — it's already created — it's a soft warning the
+  // caller surfaces on the project page, ready to retry.
   if (repoSlug) {
     const result = await linkRepository(data.id, repoSlug);
     if (!result.ok) {
-      redirect(`/projects/${data.id}?repoError=${encodeURIComponent(result.error)}`);
+      return { ok: true, id: data.id, repoWarning: result.error };
     }
   }
 
-  redirect(`/projects/${data.id}`);
+  return { ok: true, id: data.id };
 }
 
 // ---------------------------------------------------------------------------
@@ -124,14 +125,17 @@ export async function createProject(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 /** Edits the project's core fields. Deliberately does not touch `type` or `status`. */
-export async function updateProject(id: string, formData: FormData) {
+export async function updateProject(
+  id: string,
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const priority = String(formData.get("priority") ?? "medium") as Priority;
   const targetDate = String(formData.get("targetDate") ?? "").trim();
 
   if (!name) {
-    redirect(`/projects/${id}?error=name_required`);
+    return { ok: false, error: "Name is required." };
   }
 
   const supabase = await createClient();
@@ -141,25 +145,28 @@ export async function updateProject(id: string, formData: FormData) {
     .eq("id", id);
 
   if (error) {
-    redirect(`/projects/${id}?error=update_failed`);
+    return { ok: false, error: "Could not save those changes." };
   }
 
   revalidateProject(id);
-  redirect(`/projects/${id}`);
+  return { ok: true };
 }
 
 /** Notes get their own small action so the Notes panel can save independently. */
-export async function updateNotes(id: string, formData: FormData) {
+export async function updateNotes(
+  id: string,
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const notes = String(formData.get("notes") ?? "").trim();
 
   const supabase = await createClient();
   const { error } = await supabase.from("projects").update({ notes }).eq("id", id);
   if (error) {
-    redirect(`/projects/${id}?error=update_failed`);
+    return { ok: false, error: "Could not save those changes." };
   }
 
   revalidateProject(id);
-  redirect(`/projects/${id}`);
+  return { ok: true };
 }
 
 // ---------------------------------------------------------------------------

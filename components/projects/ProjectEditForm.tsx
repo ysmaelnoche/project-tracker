@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { updateProject } from "@/lib/projects/actions";
+import { Spinner } from "@/components/ui/Spinner";
 import type { Priority, Project } from "@/lib/types";
 
 const PRIORITIES: Priority[] = ["low", "medium", "high"];
@@ -10,17 +12,30 @@ const PRIORITIES: Priority[] = ["low", "medium", "high"];
  * Inline "edit project" disclosure (name/description/priority/target date —
  * PLAN.md "Pending Projects": editable at every stage). The parent page keys
  * this component by `project.updatedAt` so a successful save remounts it back
- * into its closed, read state automatically.
+ * into its closed, read state automatically — since `updateProject` no
+ * longer redirects, this now drives that refresh itself via `router.refresh()`.
  */
 export function ProjectEditForm({
   project,
-  error,
 }: {
   project: Pick<Project, "id" | "name" | "description" | "priority" | "targetDate">;
-  error?: string;
 }) {
-  const [editing, setEditing] = useState(!!error);
-  const action = updateProject.bind(null, project.id);
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function handleSubmit(formData: FormData) {
+    setError(null);
+    startTransition(async () => {
+      const result = await updateProject(project.id, formData);
+      if (result.ok) {
+        router.refresh();
+      } else {
+        setError(result.error);
+      }
+    });
+  }
 
   if (!editing) {
     return (
@@ -34,11 +49,12 @@ export function ProjectEditForm({
   }
 
   return (
-    <form action={action} className="mt-4 flex w-full flex-col gap-3 border border-border bg-surface p-4">
+    <form
+      action={handleSubmit}
+      className="mt-4 flex w-full flex-col gap-3 border border-border bg-surface p-4"
+    >
       {error ? (
-        <p className="font-mono text-[10px] tracking-[0.04em] text-red">
-          {error === "name_required" ? "Name is required." : "Could not save those changes."}
-        </p>
+        <p className="font-mono text-[10px] tracking-[0.04em] text-red">{error}</p>
       ) : null}
 
       <div>
@@ -111,14 +127,22 @@ export function ProjectEditForm({
       <div className="flex gap-2">
         <button
           type="submit"
-          className="cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg hover:bg-accent-hover"
+          disabled={pending}
+          className="cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
-          SAVE
+          {pending ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner /> SAVING…
+            </span>
+          ) : (
+            "SAVE"
+          )}
         </button>
         <button
           type="button"
           onClick={() => setEditing(false)}
-          className="cursor-pointer border border-border-strong bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.13em] text-ink-2 hover:border-ink hover:text-ink"
+          disabled={pending}
+          className="cursor-pointer border border-border-strong bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.13em] text-ink-2 hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
         >
           CANCEL
         </button>
