@@ -13,6 +13,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { linkRepository } from "@/lib/github/actions";
+import { KEEL_PAYOFF } from "@/lib/projects/create-sequence";
+import { deriveEntryStageFields, type EntryStage } from "@/lib/projects/entry-stage";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
 import type { ActivityTone, Priority, ProjectStatus, ProjectType } from "@/lib/types";
 
@@ -78,6 +80,7 @@ export async function createProject(
   const priority = String(formData.get("priority") ?? "medium") as Priority;
   const targetDate = String(formData.get("targetDate") ?? "").trim();
   const repoSlug = String(formData.get("repoSlug") ?? "").trim();
+  const entryStageInput = String(formData.get("entryStage") ?? "pending");
 
   if (!name) {
     return { ok: false, error: "Name is required." };
@@ -85,6 +88,16 @@ export async function createProject(
   if (type !== "personal" && type !== "work") {
     return { ok: false, error: "Choose a project type." };
   }
+  if (
+    entryStageInput !== "pending" &&
+    entryStageInput !== "in_development" &&
+    entryStageInput !== "production"
+  ) {
+    return { ok: false, error: "Choose an entry stage." };
+  }
+  const entryStage = entryStageInput as EntryStage;
+
+  const fields = deriveEntryStageFields(entryStage, targetDate || null, todayIso());
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -94,7 +107,10 @@ export async function createProject(
       description,
       type: type as ProjectType,
       priority,
-      target_date: targetDate || null,
+      status: fields.status,
+      dev_start_date: fields.devStartDate,
+      published_date: fields.publishedDate,
+      target_date: fields.targetDate,
     })
     .select("id, ref, name")
     .single();
@@ -103,7 +119,7 @@ export async function createProject(
     return { ok: false, error: "Could not create the project. Try again in a moment." };
   }
 
-  await logActivity(supabase, "KEEL LAID", data.name, data.ref, "quiet");
+  await logActivity(supabase, KEEL_PAYOFF[entryStage], data.name, data.ref, "quiet");
 
   revalidatePath("/projects");
   revalidatePath("/dashboard");
