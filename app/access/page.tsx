@@ -1,18 +1,17 @@
-import { requestAccessLink } from "./actions";
+import { signInWithUsername } from "@/lib/auth/actions";
 
 const ERROR_COPY: Record<string, string> = {
-  invalid_email: "That doesn't look like a valid address.",
-  send_failed: "Could not send the access link. Try again in a moment.",
-  auth: "That link was invalid or has expired. Request a new one.",
+  missing_fields: "Enter both a username and a password.",
+  invalid_credentials: "That username or password is incorrect.",
 };
 
 export default async function AccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; error?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const { sent, error } = await searchParams;
-  const errorMessage = error ? ERROR_COPY[error] ?? ERROR_COPY.send_failed : null;
+  const { error } = await searchParams;
+  const errorMessage = error ? (ERROR_COPY[error] ?? ERROR_COPY.invalid_credentials) : null;
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-bg p-6">
@@ -29,52 +28,62 @@ export default async function AccessPage({
           {"// IDENTITY VERIFICATION"}
         </div>
         <h1 className="mt-4 font-mono text-[26px] font-light leading-tight tracking-[0.01em]">
-          Request access.
+          Sign in.
         </h1>
         <p className="mt-2.5 text-sm leading-relaxed text-ink-2">
-          Single operator, single log. A one-time link is issued to your address — no
-          credentials stored.
+          Single operator, single log. Enter your credentials to continue.
         </p>
 
-        {sent ? (
-          <div className="mt-7 border border-border bg-track p-4">
-            <div className="font-mono text-[9px] tracking-[0.16em] text-teal">
-              {"// LINK ISSUED"}
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-ink-2">
-              Sent to <span className="text-ink">{sent}</span>. Open it on this device to
-              sign in.
-            </p>
-          </div>
-        ) : (
-          <form action={requestAccessLink} className="mt-7">
+        <form action={signInWithUsername} className="mt-7 flex flex-col gap-4">
+          <div>
             <label
-              htmlFor="email"
+              htmlFor="username"
               className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
             >
-              ADDRESS
+              USERNAME
             </label>
             <input
-              id="email"
-              name="email"
-              type="email"
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              autoCapitalize="off"
+              spellCheck={false}
               required
-              placeholder="operator@somewhere.dev"
+              placeholder="operator"
               className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
             />
-            {errorMessage ? (
-              <p className="mt-2 font-mono text-xs tracking-[0.04em] text-red">
-                {errorMessage}
-              </p>
-            ) : null}
-            <button
-              type="submit"
-              className="mt-4 w-full cursor-pointer bg-amber px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-amber-hover"
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
             >
-              ▸ ISSUE ACCESS LINK
-            </button>
-          </form>
-        )}
+              PASSWORD
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••••••"
+              className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+            />
+          </div>
+
+          {errorMessage ? (
+            <p className="font-mono text-xs tracking-[0.04em] text-red">{errorMessage}</p>
+          ) : null}
+
+          <button
+            type="submit"
+            className="mt-1 w-full cursor-pointer bg-amber px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-amber-hover"
+          >
+            ▸ SIGN IN
+          </button>
+        </form>
 
         <div className="mt-5 font-mono text-[9px] leading-loose tracking-[0.12em] text-ink-disabled">
           ROW-LEVEL SECURITY ACTIVE
