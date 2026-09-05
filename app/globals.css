@@ -166,3 +166,76 @@
     opacity: 0.25;
   }
 }
+/* A hard, rapid alarm blink — distinct from the gentle status-dot `blink`
+   above. Used only by the SCUTTLE countdown's warning badge
+   (components/projects/ScuttleSequence.tsx) — the one moment in the app
+   meant to read as a genuine emergency klaxon, not ambient HUD chrome. */
+@keyframes klaxon {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+/* A pulsing red alarm-light glow around the SCUTTLE countdown's border. */
+@keyframes alarm-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(228, 97, 74, 0.35),
+      0 0 18px 2px rgba(228, 97, 74, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(228, 97, 74, 0.75),
+      0 0 38px 8px rgba(228, 97, 74, 0.55);
+  }
+}
+/* A heartbeat-like punch on the countdown digit itself — sharper than the
+   ambient `sweep` fade used elsewhere, paired with `klaxon` for urgency. */
+@keyframes alarm-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(228, 97, 74, 0.5);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.05);
+    text-shadow: 0 0 30px rgba(228, 97, 74, 0.85);
+  }
+}
+/* Scrolling diagonal hazard stripes — see .hazard-stripes below. */
+@keyframes hazard-scroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 28px 0;
+  }
+}
+
+/* Decorative, opt-in classes that aren't resets — kept in their own layer
+   (same reasoning as @layer base above: an unlayered rule would beat any
+   conflicting Tailwind utility regardless of specificity). */
+@layer utilities {
+  .hazard-stripes {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--color-red) 0px,
+      var(--color-red) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+    background-size: 28px 28px;
+    opacity: 0.5;
+    animation: hazard-scroll 1.1s linear infinite;
+  }
+}

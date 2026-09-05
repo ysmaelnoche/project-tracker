@@ -150,19 +150,35 @@ export function ScuttleSequence({
         role="alertdialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className="relative m-auto w-full max-w-[480px] animate-[lift_0.18s_ease] border border-red bg-surface-raised shadow-[0_30px_70px_-20px_rgba(0,0,0,0.9)]"
+        style={{
+          animation:
+            phase === "countdown"
+              ? "lift 0.18s ease, alarm-glow 0.9s ease-in-out infinite"
+              : "lift 0.18s ease",
+        }}
+        className="relative m-auto w-full max-w-[480px] overflow-hidden border border-red bg-surface-raised"
       >
+        {phase === "countdown" ? <div className="hazard-stripes h-[5px] w-full" /> : null}
+
         <div className="pointer-events-none absolute -top-px -left-px h-[11px] w-[11px] border-t border-l border-red" />
         <div className="pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r border-red" />
 
         <div className="flex flex-wrap items-baseline gap-3 border-b border-border px-5 py-3.5">
+          {phase === "countdown" ? (
+            <span className="[animation:klaxon_0.55s_ease-in-out_infinite] font-mono text-[9px] tracking-[0.18em] text-red">
+              ⚠ EMERGENCY
+            </span>
+          ) : null}
           <span className="font-mono text-[9px] tracking-[0.2em] text-red">{"// SCUTTLE SEQUENCE"}</span>
           <span className="ml-auto font-mono text-[9px] tracking-[0.12em] text-ink-faint">{projectRef}</span>
         </div>
 
         {phase === "countdown" ? (
           <div className="px-6 py-8 text-center">
-            <div className="font-mono text-[76px] font-light leading-none tabular-nums text-red [animation:sweep_1s_ease-in-out_infinite]">
+            <div className="font-mono text-[9px] tracking-[0.22em] text-red [animation:klaxon_0.55s_ease-in-out_infinite]">
+              ⚠ SCUTTLE IMMINENT — ABORT TO CANCEL ⚠
+            </div>
+            <div className="mt-3 font-mono text-[88px] font-light leading-none tabular-nums text-red [animation:alarm-pulse_0.7s_ease-in-out_infinite]">
               {secondsLeft}
             </div>
             <p className="mt-4 text-sm leading-relaxed text-ink-2">
@@ -172,12 +188,15 @@ export function ScuttleSequence({
             </p>
             <button
               onClick={handleCancel}
-              className="mt-6 w-full cursor-pointer border border-border-strong bg-transparent px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-ink transition-colors hover:border-ink"
+              className="mt-6 w-full cursor-pointer border-2 border-red bg-transparent px-4 py-3 font-mono text-[12px] font-bold tracking-[0.16em] text-red transition-colors hover:bg-red hover:text-bg"
             >
               ✕ ABORT
             </button>
           </div>
-        ) : (
+        ) : null}
+        {phase === "countdown" ? <div className="hazard-stripes h-[5px] w-full" /> : null}
+
+        {phase !== "countdown" ? (
           <div className="px-6 py-6">
             <BufferPanel
               tone="red"
@@ -201,7 +220,7 @@ export function ScuttleSequence({
               </button>
             ) : null}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
