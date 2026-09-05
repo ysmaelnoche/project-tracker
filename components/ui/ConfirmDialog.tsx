@@ -2,7 +2,7 @@
 
 interface ConfirmDialogProps {
   open: boolean;
-  tone?: "amber" | "teal" | "red";
+  tone?: "accent" | "teal" | "red";
   eyebrow: string;
   refLabel?: string;
   title: string;
@@ -17,12 +17,12 @@ interface ConfirmDialogProps {
 }
 
 const TONE_TEXT: Record<NonNullable<ConfirmDialogProps["tone"]>, string> = {
-  amber: "text-amber",
+  accent: "text-accent",
   teal: "text-teal",
   red: "text-red",
 };
 const TONE_BORDER: Record<NonNullable<ConfirmDialogProps["tone"]>, string> = {
-  amber: "border-amber",
+  accent: "border-accent",
   teal: "border-teal",
   red: "border-red",
 };
@@ -34,7 +34,7 @@ const TONE_BORDER: Record<NonNullable<ConfirmDialogProps["tone"]>, string> = {
  */
 export function ConfirmDialog({
   open,
-  tone = "amber",
+  tone = "accent",
   eyebrow,
   refLabel,
   title,
@@ -115,7 +115,7 @@ export function ConfirmDialog({
               <button
                 onClick={onConfirm}
                 className={`cursor-pointer border-0 px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg ${
-                  tone === "red" ? "bg-red" : tone === "teal" ? "bg-teal" : "bg-amber"
+                  tone === "red" ? "bg-red" : tone === "teal" ? "bg-teal" : "bg-accent"
                 }`}
               >
                 {confirmLabel}

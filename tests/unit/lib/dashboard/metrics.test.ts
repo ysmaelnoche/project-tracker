@@ -30,14 +30,14 @@ describe("buildMetrics", () => {
     expect(tiles.find((t) => t.label === "DEPLOYED")?.value).toBe("01");
   });
 
-  it("passes OPEN PRS through and flags amber tone when non-zero", () => {
+  it("passes OPEN PRS through and flags accent tone when non-zero", () => {
     const zero = buildMetrics([], [], 0, TODAY);
     expect(zero.find((t) => t.label === "OPEN PRS")?.value).toBe("00");
     expect(zero.find((t) => t.label === "OPEN PRS")?.tone).toBe("ink");
 
     const some = buildMetrics([], [], 3, TODAY);
     expect(some.find((t) => t.label === "OPEN PRS")?.value).toBe("03");
-    expect(some.find((t) => t.label === "OPEN PRS")?.tone).toBe("amber");
+    expect(some.find((t) => t.label === "OPEN PRS")?.tone).toBe("accent");
   });
 
   it("DUE TODAY counts only open tasks due exactly today", () => {

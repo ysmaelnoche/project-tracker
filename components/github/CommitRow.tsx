@@ -22,7 +22,7 @@ export function CommitRow({
       rel="noreferrer"
       className="flex flex-wrap items-baseline gap-3.5 border-b border-divider px-4 py-3 transition-colors last:border-b-0 hover:bg-surface-hover"
     >
-      <span className="flex-none font-mono text-[11px] tracking-[0.04em] text-amber">
+      <span className="flex-none font-mono text-[11px] tracking-[0.04em] text-accent">
         {commit.sha.slice(0, 7)}
       </span>
       <span className="min-w-0 flex-1 basis-[220px] text-sm leading-snug text-ink">{commit.message}</span>

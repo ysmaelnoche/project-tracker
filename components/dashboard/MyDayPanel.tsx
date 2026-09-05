@@ -58,7 +58,7 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
         toast.show({
           label: result.done ? "TASK COMPLETE" : "TASK REOPENED",
           message: result.done ? `"${row.title}" closed.` : `"${row.title}" is back in the queue.`,
-          tone: result.done ? "teal" : "amber",
+          tone: result.done ? "teal" : "accent",
         });
         router.refresh();
       })
@@ -108,7 +108,7 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
               </div>
 
               {row.inProgress ? (
-                <span className="shrink-0 font-mono text-[9px] leading-[1.9] tracking-[0.12em] text-amber">
+                <span className="shrink-0 font-mono text-[9px] leading-[1.9] tracking-[0.12em] text-accent">
                   ● ACTIVE
                 </span>
               ) : null}

@@ -51,7 +51,7 @@ export function TasksPanel({
         {!locked ? (
           <Link
             href={`/tasks/new?project=${project.id}`}
-            className="ml-auto font-mono text-[9px] tracking-[0.14em] text-amber hover:text-amber-hover"
+            className="ml-auto font-mono text-[9px] tracking-[0.14em] text-accent hover:text-accent-hover"
           >
             + ADD TASK
           </Link>
@@ -59,8 +59,8 @@ export function TasksPanel({
       </PanelHeader>
 
       {locked ? (
-        <div className="m-3 border-l-2 border-amber bg-surface-hover p-[26px_18px]">
-          <div className="font-mono text-[9px] tracking-[0.18em] text-amber">
+        <div className="m-3 border-l-2 border-accent bg-surface-hover p-[26px_18px]">
+          <div className="font-mono text-[9px] tracking-[0.18em] text-accent">
             ⚠ TASK CREATION LOCKED
           </div>
           <div className="mt-3.5 font-mono text-xl font-light text-ink">
@@ -82,7 +82,7 @@ export function TasksPanel({
           </p>
           <Link
             href={`/tasks/new?project=${project.id}`}
-            className="inline-block border border-border-strong px-3.5 py-2.5 font-mono text-[9px] tracking-[0.13em] text-ink-2 hover:border-amber hover:text-amber"
+            className="inline-block border border-border-strong px-3.5 py-2.5 font-mono text-[9px] tracking-[0.13em] text-ink-2 hover:border-accent hover:text-accent"
           >
             + ADD FIRST TASK
           </Link>
@@ -91,7 +91,7 @@ export function TasksPanel({
         <div>
           {next ? (
             <div className="flex flex-wrap items-baseline gap-3 border-b border-divider bg-surface-hover px-4 py-2.5">
-              <span className="font-mono text-[9px] tracking-[0.16em] text-amber">▸ NEXT</span>
+              <span className="font-mono text-[9px] tracking-[0.16em] text-accent">▸ NEXT</span>
               <span className="text-sm text-ink">{next.title}</span>
             </div>
           ) : null}
@@ -125,7 +125,7 @@ export function TasksPanel({
                   </div>
                 </div>
                 {task.status === "in_progress" ? (
-                  <span className="flex-none font-mono text-[9px] tracking-[0.12em] text-amber">
+                  <span className="flex-none font-mono text-[9px] tracking-[0.12em] text-accent">
                     ● ACTIVE
                   </span>
                 ) : null}
@@ -150,7 +150,7 @@ export function TasksPanel({
         */}
         <Link
           href="/tasks?context=project"
-          className="font-mono text-[9px] tracking-[0.13em] text-ink-3 hover:text-amber"
+          className="font-mono text-[9px] tracking-[0.13em] text-ink-3 hover:text-accent"
         >
           VIEW IN QUEUE ▸
         </Link>

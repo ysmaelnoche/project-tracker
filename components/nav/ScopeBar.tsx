@@ -37,7 +37,7 @@ export function ScopeBar({ statusLine }: { statusLine: string }) {
               key={s.value}
               onClick={() => setScope(s.value)}
               className={`cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.13em] ${
-                current === s.value ? "text-amber" : "text-ink-3"
+                current === s.value ? "text-accent" : "text-ink-3"
               }`}
             >
               {current === s.value ? "◆" : "◇"} {s.label}

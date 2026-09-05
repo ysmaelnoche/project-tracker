@@ -37,7 +37,7 @@ export function BranchRow({
         {branch.lastCommitAt ? new Date(branch.lastCommitAt).toISOString().slice(0, 10).replaceAll("-", ".") : "—"}
       </span>
       <span
-        className={`font-mono text-[9px] tracking-[0.13em] ${branch.isStale ? "text-red" : "text-amber"}`}
+        className={`font-mono text-[9px] tracking-[0.13em] ${branch.isStale ? "text-red" : "text-accent"}`}
       >
         {branch.isStale ? "⚠ STALE" : "● ACTIVE"}
       </span>

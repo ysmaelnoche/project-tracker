@@ -5,19 +5,19 @@ function cx(...parts: Array<string | false | null | undefined>) {
 /** Thin bordered gauge used for project progress bars, matching the Shipyard mockup. */
 export function ProgressGauge({
   percent,
-  tone = "amber",
+  tone = "accent",
   className,
 }: {
   percent: number;
-  tone?: "amber" | "teal" | "faint";
+  tone?: "accent" | "teal" | "faint";
   className?: string;
 }) {
-  const fill = tone === "teal" ? "bg-teal" : tone === "faint" ? "bg-ink-faint" : "bg-amber";
+  const fill = tone === "teal" ? "bg-teal" : tone === "faint" ? "bg-ink-faint" : "bg-accent";
   const glow =
     tone === "teal"
       ? "shadow-[0_0_10px_rgba(111,179,168,0.4)]"
-      : tone === "amber"
-        ? "shadow-[0_0_10px_rgba(233,169,74,0.35)]"
+      : tone === "accent"
+        ? "shadow-[0_0_10px_rgba(58,192,240,0.35)]"
         : "";
 
   return (

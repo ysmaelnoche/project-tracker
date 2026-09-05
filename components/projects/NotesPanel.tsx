@@ -19,7 +19,7 @@ export function NotesPanel({ projectId, notes }: { projectId: string; notes: str
         <PanelTitle>NOTES</PanelTitle>
         <button
           onClick={() => setEditing((v) => !v)}
-          className="ml-auto cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.14em] text-amber hover:text-amber-hover"
+          className="ml-auto cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.14em] text-accent hover:text-accent-hover"
         >
           {editing ? "CANCEL" : notes ? "EDIT" : "+ ADD NOTES"}
         </button>
@@ -32,11 +32,11 @@ export function NotesPanel({ projectId, notes }: { projectId: string; notes: str
             defaultValue={notes}
             rows={5}
             placeholder="Anything worth remembering about this project…"
-            className="resize-y border border-border-strong bg-track px-3 py-2.5 text-sm leading-relaxed text-ink outline-none focus:border-amber"
+            className="resize-y border border-border-strong bg-track px-3 py-2.5 text-sm leading-relaxed text-ink outline-none focus:border-accent"
           />
           <button
             type="submit"
-            className="self-start cursor-pointer bg-amber px-3 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg hover:bg-amber-hover"
+            className="self-start cursor-pointer bg-accent px-3 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg hover:bg-accent-hover"
           >
             SAVE NOTES
           </button>

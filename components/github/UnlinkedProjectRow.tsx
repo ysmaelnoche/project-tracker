@@ -22,7 +22,7 @@ export function UnlinkedProjectRow({
         <span className="font-mono text-[11px] tracking-[0.06em] text-ink-2">{name.toUpperCase()}</span>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="ml-auto cursor-pointer border border-border-strong bg-transparent px-2.5 py-1.5 font-mono text-[9px] tracking-[0.11em] text-ink-3 transition-colors hover:border-amber hover:text-amber"
+          className="ml-auto cursor-pointer border border-border-strong bg-transparent px-2.5 py-1.5 font-mono text-[9px] tracking-[0.11em] text-ink-3 transition-colors hover:border-accent hover:text-accent"
         >
           {open ? "CANCEL" : "+ CONNECT"}
         </button>

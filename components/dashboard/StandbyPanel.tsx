@@ -17,7 +17,7 @@ export function StandbyPanel({ projects }: { projects: StandbyEntry[] }) {
                 <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">{p.ref}</span>
                 <Link
                   href={`/projects/${p.id}`}
-                  className="font-mono text-sm tracking-[0.05em] text-ink hover:text-amber"
+                  className="font-mono text-sm tracking-[0.05em] text-ink hover:text-accent"
                 >
                   {p.name.toUpperCase()}
                 </Link>

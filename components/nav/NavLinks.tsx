@@ -26,12 +26,12 @@ export function NavLinks() {
             key={item.href}
             href={item.href}
             className={`flex items-center gap-1 px-2.5 py-1.5 font-mono text-[10px] tracking-[0.14em] transition-colors ${
-              active ? "bg-surface-hover text-amber" : "text-ink-3 hover:text-ink"
+              active ? "bg-surface-hover text-accent" : "text-ink-3 hover:text-ink"
             }`}
           >
-            <span className={active ? "text-amber" : "text-transparent"}>[</span>
+            <span className={active ? "text-accent" : "text-transparent"}>[</span>
             {item.label}
-            <span className={active ? "text-amber" : "text-transparent"}>]</span>
+            <span className={active ? "text-accent" : "text-transparent"}>]</span>
           </Link>
         );
       })}

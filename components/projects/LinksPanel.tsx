@@ -43,7 +43,7 @@ export function LinksPanel({ projectId, links }: { projectId: string; links: Pro
         <PanelTitle>UPLINKS</PanelTitle>
         <button
           onClick={() => setAdding((v) => !v)}
-          className="ml-auto cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.14em] text-amber hover:text-amber-hover"
+          className="ml-auto cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.14em] text-accent hover:text-accent-hover"
         >
           {adding ? "CANCEL" : "+ ADD LINK"}
         </button>
@@ -55,19 +55,19 @@ export function LinksPanel({ projectId, links }: { projectId: string; links: Pro
             name="label"
             required
             placeholder="LABEL — e.g. REPOSITORY"
-            className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.08em] outline-none focus:border-amber"
+            className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.08em] outline-none focus:border-accent"
           />
           <input
             name="url"
             type="url"
             required
             placeholder="https://…"
-            className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.02em] outline-none focus:border-amber"
+            className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.02em] outline-none focus:border-accent"
           />
           <button
             type="submit"
             disabled={isPending}
-            className="self-start cursor-pointer bg-amber px-3 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg hover:bg-amber-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="self-start cursor-pointer bg-accent px-3 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
             SAVE LINK
           </button>
@@ -91,7 +91,7 @@ export function LinksPanel({ projectId, links }: { projectId: string; links: Pro
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-1 block truncate font-mono text-xs tracking-[0.02em] text-amber hover:text-amber-hover"
+                  className="mt-1 block truncate font-mono text-xs tracking-[0.02em] text-accent hover:text-accent-hover"
                 >
                   {link.url}
                 </a>

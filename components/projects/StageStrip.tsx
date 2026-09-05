@@ -3,7 +3,7 @@ import type { Project } from "@/lib/types";
 
 const STATE_INK: Record<"done" | "active" | "upcoming", string> = {
   done: "text-ink-3",
-  active: "text-amber",
+  active: "text-accent",
   upcoming: "text-ink-disabled",
 };
 

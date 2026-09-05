@@ -31,7 +31,7 @@ export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveDat
           message: result.done
             ? `"${directive.task.title}" closed.`
             : `"${directive.task.title}" is back in the queue.`,
-          tone: result.done ? "teal" : "amber",
+          tone: result.done ? "teal" : "accent",
         });
         router.refresh();
       } catch {
@@ -42,13 +42,13 @@ export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveDat
 
   return (
     <div className="relative border border-border-strong bg-surface-raised p-[clamp(20px,3vw,30px)]">
-      <div className="pointer-events-none absolute -top-px -left-px h-[11px] w-[11px] border-t border-l border-amber" />
-      <div className="pointer-events-none absolute -top-px -right-px h-[11px] w-[11px] border-t border-r border-amber" />
-      <div className="pointer-events-none absolute -bottom-px -left-px h-[11px] w-[11px] border-b border-l border-amber" />
-      <div className="pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r border-amber" />
+      <div className="pointer-events-none absolute -top-px -left-px h-[11px] w-[11px] border-t border-l border-accent" />
+      <div className="pointer-events-none absolute -top-px -right-px h-[11px] w-[11px] border-t border-r border-accent" />
+      <div className="pointer-events-none absolute -bottom-px -left-px h-[11px] w-[11px] border-b border-l border-accent" />
+      <div className="pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r border-accent" />
 
       <div className="flex flex-wrap items-baseline gap-3">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-amber">▸ PRIMARY DIRECTIVE</span>
+        <span className="font-mono text-[9px] tracking-[0.2em] text-accent">▸ PRIMARY DIRECTIVE</span>
         <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
           {directive.projectRef} · {directive.projectName.toUpperCase()}
         </span>
@@ -65,7 +65,7 @@ export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveDat
           <button
             onClick={complete}
             disabled={isPending}
-            className="cursor-pointer bg-amber px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-amber-hover disabled:cursor-not-allowed disabled:opacity-60"
+            className="cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             MARK COMPLETE
           </button>

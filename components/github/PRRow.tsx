@@ -2,7 +2,7 @@ import type { GhPullRequest } from "@/lib/types";
 
 const STATE_META: Record<GhPullRequest["state"], { label: string; mark: string; className: string }> = {
   draft: { label: "DRAFT", mark: "○", className: "text-ink-3" },
-  open: { label: "OPEN", mark: "●", className: "text-amber" },
+  open: { label: "OPEN", mark: "●", className: "text-accent" },
   review: { label: "CHANGES REQ", mark: "◐", className: "text-red" },
   merged: { label: "MERGED", mark: "◈", className: "text-teal" },
   closed: { label: "CLOSED", mark: "×", className: "text-ink-faint" },
@@ -11,7 +11,7 @@ const STATE_META: Record<GhPullRequest["state"], { label: string; mark: string; 
 const CHECKS_META: Record<NonNullable<GhPullRequest["checksState"]>, { label: string; className: string }> = {
   pass: { label: "✓ CHECKS PASS", className: "text-teal" },
   fail: { label: "✕ CHECKS FAIL", className: "text-red" },
-  running: { label: "◌ CHECKS RUNNING", className: "text-amber" },
+  running: { label: "◌ CHECKS RUNNING", className: "text-accent" },
 };
 
 /**

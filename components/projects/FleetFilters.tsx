@@ -56,7 +56,7 @@ export function FleetFilters({
             key={opt.value}
             onClick={() => setParam("class", opt.value)}
             className={`cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.13em] ${
-              classFilter === opt.value ? "text-amber" : "text-ink-3"
+              classFilter === opt.value ? "text-accent" : "text-ink-3"
             }`}
           >
             {classFilter === opt.value ? "◆" : "◇"} {opt.label}
@@ -70,7 +70,7 @@ export function FleetFilters({
             key={opt.value}
             onClick={() => setParam("stage", opt.value)}
             className={`cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.13em] ${
-              stageFilter === opt.value ? "text-amber" : "text-ink-3"
+              stageFilter === opt.value ? "text-accent" : "text-ink-3"
             }`}
           >
             {opt.label} <span className="text-ink-faint">{String(stageCounts[opt.value]).padStart(2, "0")}</span>

@@ -26,7 +26,7 @@ export function ProjectEditForm({
     return (
       <button
         onClick={() => setEditing(true)}
-        className="cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.14em] text-ink-faint hover:text-amber"
+        className="cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.14em] text-ink-faint hover:text-accent"
       >
         EDIT DETAILS
       </button>
@@ -50,7 +50,7 @@ export function ProjectEditForm({
           name="name"
           required
           defaultValue={project.name}
-          className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm outline-none focus:border-amber"
+          className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm outline-none focus:border-accent"
         />
       </div>
 
@@ -66,7 +66,7 @@ export function ProjectEditForm({
           name="description"
           rows={3}
           defaultValue={project.description}
-          className="mt-2 w-full resize-y border border-border-strong bg-track px-3 py-2 text-sm leading-relaxed outline-none focus:border-amber"
+          className="mt-2 w-full resize-y border border-border-strong bg-track px-3 py-2 text-sm leading-relaxed outline-none focus:border-accent"
         />
       </div>
 
@@ -82,7 +82,7 @@ export function ProjectEditForm({
             id="edit-priority"
             name="priority"
             defaultValue={project.priority}
-            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-xs uppercase tracking-[0.08em] outline-none focus:border-amber"
+            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-xs uppercase tracking-[0.08em] outline-none focus:border-accent"
           >
             {PRIORITIES.map((p) => (
               <option key={p} value={p}>
@@ -103,7 +103,7 @@ export function ProjectEditForm({
             name="targetDate"
             type="date"
             defaultValue={project.targetDate ?? ""}
-            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-xs outline-none focus:border-amber"
+            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-xs outline-none focus:border-accent"
           />
         </div>
       </div>
@@ -111,7 +111,7 @@ export function ProjectEditForm({
       <div className="flex gap-2">
         <button
           type="submit"
-          className="cursor-pointer bg-amber px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg hover:bg-amber-hover"
+          className="cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg hover:bg-accent-hover"
         >
           SAVE
         </button>

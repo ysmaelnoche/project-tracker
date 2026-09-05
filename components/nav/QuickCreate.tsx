@@ -32,7 +32,7 @@ export function QuickCreate() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="cursor-pointer bg-amber px-3.5 py-1.5 font-mono text-[10px] font-medium tracking-[0.12em] text-bg transition-colors hover:bg-amber-hover"
+        className="cursor-pointer bg-accent px-3.5 py-1.5 font-mono text-[10px] font-medium tracking-[0.12em] text-bg transition-colors hover:bg-accent-hover"
       >
         + NEW
       </button>

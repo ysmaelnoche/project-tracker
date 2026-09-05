@@ -54,3 +54,18 @@ Two deliberate departures from this reference:
 
 Everything else in the mockup (screens, data model, automation rules and their default
 on/off state, copy) is the intended real behavior.
+
+**Accent color**: the mockup's amber (`#E9A94A`) became an electric HUD blue
+(`#3AC0F0`, hover `#7DD8FF`) — an Iron Man/JARVIS-console feel, at the user's request.
+Every reference to it is the CSS variable `--color-accent` (renamed from
+`--color-amber`) and the Tailwind utilities it generates (`bg-accent`, `text-accent`,
+etc.), so the whole app repainted from one token change plus a project-wide rename —
+no color is hardcoded per component. Deliberately kept clearly more saturated/vivid
+than `--color-teal` (success/deployed) so the two blues never read as the same color.
+
+Fixed in the same pass: `app/globals.css` had a bare `a { color: ... }` rule
+*outside* any `@layer`, which — per the CSS cascade layers spec — silently beat every
+Tailwind `text-*` utility on any `<Link>`, regardless of specificity. Any button built
+from a styled `<Link>` (e.g. "+ NEW PROJECT", "+ NEW TASK") had invisible label text:
+same color as its own background. Moved those base resets into `@layer base` so
+Tailwind's utilities (in a later layer) win as intended.

@@ -61,7 +61,7 @@ export function ChangePasswordForm() {
             name="currentPassword"
             type="password"
             autoComplete="current-password"
-            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-accent"
           />
         </div>
         <div>
@@ -76,7 +76,7 @@ export function ChangePasswordForm() {
             name="newPassword"
             type="password"
             autoComplete="new-password"
-            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-accent"
           />
         </div>
         <div>
@@ -91,7 +91,7 @@ export function ChangePasswordForm() {
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
-            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+            className="mt-2 w-full border border-border-strong bg-track px-3 py-2 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-accent"
           />
         </div>
       </div>
@@ -104,7 +104,7 @@ export function ChangePasswordForm() {
         <button
           type="submit"
           disabled={pending}
-          className="cursor-pointer border border-border-strong bg-transparent px-3.5 py-2 font-mono text-[9px] tracking-[0.13em] text-ink-2 transition-colors hover:border-amber hover:text-amber disabled:cursor-not-allowed disabled:opacity-40"
+          className="cursor-pointer border border-border-strong bg-transparent px-3.5 py-2 font-mono text-[9px] tracking-[0.13em] text-ink-2 transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
         >
           {pending ? "SAVING…" : "CHANGE PASSWORD"}
         </button>

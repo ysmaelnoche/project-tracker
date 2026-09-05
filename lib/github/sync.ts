@@ -273,7 +273,7 @@ export async function syncRepository(repositoryId: string): Promise<SyncResult> 
         verb: "TASK ACTIVATED",
         subject: task?.title ?? "Task",
         context_ref: task?.ref ?? null,
-        tone: "amber",
+        tone: "accent",
       });
     }
 

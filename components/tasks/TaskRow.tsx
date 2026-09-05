@@ -48,7 +48,7 @@ export function TaskRow({
       </div>
 
       {row.inProgress ? (
-        <span className="shrink-0 font-mono text-[9px] leading-[2.2] tracking-[0.12em] text-amber">
+        <span className="shrink-0 font-mono text-[9px] leading-[2.2] tracking-[0.12em] text-accent">
           ● ACTIVE
         </span>
       ) : null}

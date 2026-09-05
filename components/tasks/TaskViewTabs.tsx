@@ -26,7 +26,7 @@ export function TaskViewTabs({
             key={v.key}
             href={buildTaskQueueHref(v.key, context)}
             className={`font-mono text-[10px] tracking-[0.13em] ${
-              isActive ? "text-amber" : "text-ink-3 hover:text-ink"
+              isActive ? "text-accent" : "text-ink-3 hover:text-ink"
             }`}
           >
             {v.label} <span className="text-ink-faint">{pad2(counts[v.key])}</span>

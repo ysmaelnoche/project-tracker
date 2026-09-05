@@ -37,10 +37,10 @@ export function canTogglePause(status: ProjectStatus): boolean {
 }
 
 /** Progress-gauge color, shared between the Fleet card and Project Detail. */
-export function projectGaugeTone(status: ProjectStatus): "amber" | "teal" | "faint" {
+export function projectGaugeTone(status: ProjectStatus): "accent" | "teal" | "faint" {
   if (status === "production") return "teal";
   if (status === "paused" || status === "archived") return "faint";
-  return "amber";
+  return "accent";
 }
 
 export interface StageStripStep {

@@ -10,7 +10,7 @@ export function PaletteTrigger() {
   return (
     <button
       onClick={() => document.dispatchEvent(new CustomEvent("shipyard:open-palette"))}
-      className="cursor-pointer border border-border px-2.5 py-1.5 font-mono text-[9px] tracking-[0.12em] text-ink-2 transition-colors hover:border-amber hover:text-amber"
+      className="cursor-pointer border border-border px-2.5 py-1.5 font-mono text-[9px] tracking-[0.12em] text-ink-2 transition-colors hover:border-accent hover:text-accent"
     >
       ⌘K
     </button>

@@ -117,7 +117,7 @@ export default async function SourcePage({
               >
                 <div className="flex flex-wrap items-baseline gap-3">
                   <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">{repo.projectRef}</span>
-                  <span className="font-mono text-[13px] tracking-[0.03em] text-amber">
+                  <span className="font-mono text-[13px] tracking-[0.03em] text-accent">
                     github.com/{repo.owner}/{repo.name}
                   </span>
                   <span className="font-mono text-[9px] tracking-[0.13em] text-ink-faint">
@@ -125,7 +125,7 @@ export default async function SourcePage({
                   </span>
                   <span
                     className={`ml-auto font-mono text-[9px] tracking-[0.12em] ${
-                      repo.openPrCount ? "text-amber" : "text-ink-faint"
+                      repo.openPrCount ? "text-accent" : "text-ink-faint"
                     }`}
                   >
                     LAST PUSH{" "}
@@ -168,7 +168,7 @@ export default async function SourcePage({
               key={t.key}
               href={buildSourceTabHref(t.key)}
               className={`font-mono text-[10px] tracking-[0.16em] ${
-                tab === t.key ? "text-amber" : "text-ink-3 hover:text-ink"
+                tab === t.key ? "text-accent" : "text-ink-3 hover:text-ink"
               }`}
             >
               {t.label} <span className="text-ink-faint">{pad2(tabCounts[t.key])}</span>

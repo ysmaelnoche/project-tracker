@@ -4,7 +4,7 @@ import type { ChecksState, PullRequestState } from "@/lib/types";
 
 const STATE: Record<PullRequestState, { label: string; mark: string; className: string }> = {
   draft: { label: "DRAFT", mark: "○", className: "text-ink-3" },
-  open: { label: "OPEN", mark: "●", className: "text-amber" },
+  open: { label: "OPEN", mark: "●", className: "text-accent" },
   review: { label: "CHANGES REQ", mark: "◐", className: "text-red" },
   merged: { label: "MERGED", mark: "◈", className: "text-teal" },
   closed: { label: "CLOSED", mark: "×", className: "text-ink-faint" },
@@ -13,7 +13,7 @@ const STATE: Record<PullRequestState, { label: string; mark: string; className: 
 const CHECKS: Record<ChecksState, { label: string; className: string }> = {
   pass: { label: "✓ CHECKS PASS", className: "text-teal" },
   fail: { label: "✕ CHECKS FAIL", className: "text-red" },
-  running: { label: "◌ CHECKS RUNNING", className: "text-amber" },
+  running: { label: "◌ CHECKS RUNNING", className: "text-accent" },
 };
 
 function pad2(n: number) {
@@ -33,7 +33,7 @@ export function ReviewQueuePanel({ rows }: { rows: ReviewQueueRow[] }) {
         <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">{pad2(rows.length)} ITEMS</span>
         <Link
           href="/source"
-          className="ml-auto font-mono text-[9px] tracking-[0.14em] text-ink-3 hover:text-amber"
+          className="ml-auto font-mono text-[9px] tracking-[0.14em] text-ink-3 hover:text-accent"
         >
           SOURCE CONTROL ▸
         </Link>

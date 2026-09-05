@@ -56,7 +56,7 @@ export interface Task {
   updatedAt: string;
 }
 
-export type ActivityTone = "teal" | "amber" | "quiet" | "red";
+export type ActivityTone = "teal" | "accent" | "quiet" | "red";
 
 export interface ActivityEvent {
   id: string;

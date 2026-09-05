@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 
-type Tone = "amber" | "teal" | "red" | "quiet";
+type Tone = "accent" | "teal" | "red" | "quiet";
 
 interface ToastInput {
   label: string;
@@ -17,14 +17,14 @@ interface ToastItem extends ToastInput {
 }
 
 const TONE_BORDER: Record<Tone, string> = {
-  amber: "border-l-amber",
+  accent: "border-l-accent",
   teal: "border-l-teal",
   red: "border-l-red",
   quiet: "border-l-ink-faint",
 };
 
 const TONE_TEXT: Record<Tone, string> = {
-  amber: "text-amber",
+  accent: "text-accent",
   teal: "text-teal",
   red: "text-red",
   quiet: "text-ink-3",
@@ -59,7 +59,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex w-[min(360px,calc(100vw-2.5rem))] flex-col gap-2">
         {toasts.map((t) => {
-          const tone = t.tone ?? "amber";
+          const tone = t.tone ?? "accent";
           return (
             <div
               key={t.id}
@@ -84,7 +84,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                     dismiss(t.id);
                     t.onAction?.();
                   }}
-                  className="mt-2 cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.12em] text-amber hover:text-amber-hover"
+                  className="mt-2 cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.12em] text-accent hover:text-accent-hover"
                 >
                   {t.actionLabel}
                 </button>

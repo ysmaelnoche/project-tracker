@@ -52,7 +52,7 @@ export async function RepoPanel({ projectId }: { projectId: string }) {
           href={`https://github.com/${repoSlug}`}
           target="_blank"
           rel="noreferrer"
-          className="font-mono text-[13px] tracking-[0.02em] text-amber hover:text-amber-hover"
+          className="font-mono text-[13px] tracking-[0.02em] text-accent hover:text-accent-hover"
         >
           {repoSlug}
         </a>

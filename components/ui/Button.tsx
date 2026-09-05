@@ -7,10 +7,10 @@ function cx(...parts: Array<string | false | null | undefined>) {
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const VARIANT_CLASS: Record<Variant, string> = {
-  primary: "bg-amber text-bg hover:bg-amber-hover",
+  primary: "bg-accent text-bg hover:bg-accent-hover",
   secondary:
-    "bg-transparent border border-border-strong text-ink-2 hover:border-amber hover:text-amber",
-  ghost: "bg-transparent border-0 text-ink-3 hover:text-amber",
+    "bg-transparent border border-border-strong text-ink-2 hover:border-accent hover:text-accent",
+  ghost: "bg-transparent border-0 text-ink-3 hover:text-accent",
   danger:
     "bg-transparent border border-border-strong text-ink-2 hover:border-red hover:text-red",
 };

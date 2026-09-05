@@ -57,12 +57,12 @@ describe("canTogglePause", () => {
 });
 
 describe("projectGaugeTone", () => {
-  it("is teal for production, faint for paused/archived, amber otherwise", () => {
+  it("is teal for production, faint for paused/archived, accent otherwise", () => {
     expect(projectGaugeTone("production")).toBe("teal");
     expect(projectGaugeTone("paused")).toBe("faint");
     expect(projectGaugeTone("archived")).toBe("faint");
-    expect(projectGaugeTone("pending")).toBe("amber");
-    expect(projectGaugeTone("in_development")).toBe("amber");
+    expect(projectGaugeTone("pending")).toBe("accent");
+    expect(projectGaugeTone("in_development")).toBe("accent");
   });
 });
 

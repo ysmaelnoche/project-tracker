@@ -34,7 +34,7 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
                 <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
                   {card.type === "personal" ? "PERSONAL" : "WORK"}
                 </span>
-                <span className="ml-auto font-mono text-[9px] tracking-[0.14em] text-amber">● BUILD</span>
+                <span className="ml-auto font-mono text-[9px] tracking-[0.14em] text-accent">● BUILD</span>
               </div>
 
               {card.description ? (
@@ -46,7 +46,7 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
               <div className="mt-5 flex flex-wrap items-start gap-[18px]">
                 <ProgressGauge
                   percent={card.percent}
-                  tone="amber"
+                  tone="accent"
                   className="min-w-[150px] max-w-[320px] flex-1 basis-[220px]"
                 />
                 <div className="flex flex-wrap items-baseline gap-4">
@@ -62,7 +62,7 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
 
               {card.nextTaskTitle ? (
                 <div className="mt-4 flex flex-wrap items-baseline gap-3 border-t border-divider pt-3.5">
-                  <span className="font-mono text-[9px] leading-relaxed tracking-[0.16em] text-amber">
+                  <span className="font-mono text-[9px] leading-relaxed tracking-[0.16em] text-accent">
                     ▸ NEXT
                   </span>
                   <span className="text-sm text-ink">{card.nextTaskTitle}</span>
@@ -80,7 +80,7 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
             action={
               <Link
                 href="/projects/new"
-                className="inline-block cursor-pointer bg-amber px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-amber-hover"
+                className="inline-block cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover"
               >
                 + NEW PROJECT
               </Link>

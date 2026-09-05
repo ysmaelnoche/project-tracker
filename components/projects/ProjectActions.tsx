@@ -48,7 +48,7 @@ export function ProjectActions({
         setConfirmKind(null);
         toast.show({
           label: "BUILD INITIATED",
-          tone: "amber",
+          tone: "accent",
           message: `${project.ref} ${project.name} is in build. Start date recorded.`,
         });
         router.refresh();
@@ -83,7 +83,7 @@ export function ProjectActions({
         await togglePause(project.id);
         toast.show({
           label: goingToPause ? "BUILD HELD" : "BUILD RESUMED",
-          tone: "amber",
+          tone: "accent",
           message: goingToPause
             ? `${project.name} on hold. Progress frozen as-is.`
             : `${project.name} is moving again.`,
@@ -200,7 +200,7 @@ export function ProjectActions({
 
       <ConfirmDialog
         open={confirmKind === "start"}
-        tone="amber"
+        tone="accent"
         eyebrow="INITIATE BUILD"
         refLabel={project.ref}
         title={`Initiate build on ${project.name}?`}

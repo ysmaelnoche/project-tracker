@@ -90,7 +90,7 @@ export async function connectRepository(
     verb: "REPOSITORY LINKED",
     subject: `${owner}/${name}`,
     context_ref: project?.ref ?? null,
-    tone: "amber",
+    tone: "accent",
   });
 
   revalidateGithubSurfaces(projectId);

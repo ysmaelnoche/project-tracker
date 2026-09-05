@@ -201,7 +201,7 @@ export async function startDevelopment(id: string) {
     .eq("id", id);
   if (error) throw new Error(error.message);
 
-  await logActivity(supabase, "BUILD INITIATED", project.name, project.ref, "amber");
+  await logActivity(supabase, "BUILD INITIATED", project.name, project.ref, "accent");
   revalidateProject(id);
 }
 

@@ -79,7 +79,7 @@ export function AccessForm() {
   if (stage === "form") {
     return (
       <div>
-        <div className="font-mono text-[9px] tracking-[0.2em] text-amber">
+        <div className="font-mono text-[9px] tracking-[0.2em] text-accent">
           {"// IDENTITY VERIFICATION"}
         </div>
         <h1 className="mt-4 font-mono text-[clamp(23px,2.8vw,28px)] font-light leading-tight tracking-[0.01em] text-ink">
@@ -105,7 +105,7 @@ export function AccessForm() {
             spellCheck={false}
             placeholder="operator"
             onChange={() => setFormError(null)}
-            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-accent"
           />
 
           <div className="mt-4.5 flex items-baseline gap-3">
@@ -118,7 +118,7 @@ export function AccessForm() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="ml-auto cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.13em] text-ink-3 transition-colors hover:text-amber"
+              className="ml-auto cursor-pointer border-0 bg-transparent p-0 font-mono text-[9px] tracking-[0.13em] text-ink-3 transition-colors hover:text-accent"
             >
               {showPassword ? "HIDE" : "REVEAL"}
             </button>
@@ -130,7 +130,7 @@ export function AccessForm() {
             autoComplete="current-password"
             placeholder="••••••••••••"
             onChange={() => setFormError(null)}
-            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-accent"
           />
 
           {formError ? (
@@ -139,7 +139,7 @@ export function AccessForm() {
 
           <button
             type="submit"
-            className="mt-5 w-full cursor-pointer bg-amber px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-amber-hover"
+            className="mt-5 w-full cursor-pointer bg-accent px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-accent-hover"
           >
             ▸ AUTHENTICATE
           </button>
@@ -158,7 +158,7 @@ export function AccessForm() {
   const succeeded = outcome === "ok" && revealed >= AUTH_STEPS.length;
   const lines = buildAuthLines(revealed, failed);
   const percent = computeAuthPercent(revealed, failed);
-  const tone = failed ? "red" : succeeded ? "teal" : "amber";
+  const tone = failed ? "red" : succeeded ? "teal" : "accent";
   const headline = failed ? "ACCESS DENIED" : succeeded ? "ACCESS GRANTED" : "AUTHENTICATING";
   const subline = failed
     ? "The passcode did not match the operator record."
@@ -166,8 +166,8 @@ export function AccessForm() {
       ? "Session established. Loading console…"
       : "Verifying operator credentials — do not close this terminal.";
 
-  const toneText = tone === "red" ? "text-red" : tone === "teal" ? "text-teal" : "text-amber";
-  const toneBg = tone === "red" ? "bg-red" : tone === "teal" ? "bg-teal" : "bg-amber";
+  const toneText = tone === "red" ? "text-red" : tone === "teal" ? "text-teal" : "text-accent";
+  const toneBg = tone === "red" ? "bg-red" : tone === "teal" ? "bg-teal" : "bg-accent";
 
   return (
     <div>
@@ -213,7 +213,7 @@ export function AccessForm() {
       {failed ? (
         <button
           onClick={retry}
-          className="mt-5 w-full cursor-pointer bg-amber px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-amber-hover"
+          className="mt-5 w-full cursor-pointer bg-accent px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-accent-hover"
         >
           ▸ RE-ENTER PASSCODE
         </button>

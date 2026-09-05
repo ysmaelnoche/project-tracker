@@ -29,7 +29,7 @@ export function NewProjectForm({ error }: { error?: string }) {
           required
           autoFocus
           placeholder="e.g. Orbit"
-          className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-amber"
+          className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm tracking-[0.02em] outline-none transition-colors focus:border-accent"
         />
       </div>
 
@@ -45,7 +45,7 @@ export function NewProjectForm({ error }: { error?: string }) {
           name="description"
           rows={3}
           placeholder="What is this project, in one or two sentences?"
-          className="mt-2.5 w-full resize-y border border-border-strong bg-track px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors focus:border-amber"
+          className="mt-2.5 w-full resize-y border border-border-strong bg-track px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors focus:border-accent"
         />
       </div>
 
@@ -77,7 +77,7 @@ export function NewProjectForm({ error }: { error?: string }) {
             id="priority"
             name="priority"
             defaultValue="medium"
-            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm uppercase tracking-[0.08em] outline-none transition-colors focus:border-amber"
+            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm uppercase tracking-[0.08em] outline-none transition-colors focus:border-accent"
           >
             <option value="low">LOW</option>
             <option value="medium">MEDIUM</option>
@@ -95,14 +95,14 @@ export function NewProjectForm({ error }: { error?: string }) {
             id="targetDate"
             name="targetDate"
             type="date"
-            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-amber"
+            className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-accent"
           />
         </div>
       </div>
 
       <button
         type="submit"
-        className="mt-2 w-full cursor-pointer bg-amber px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-amber-hover sm:w-auto sm:self-start"
+        className="mt-2 w-full cursor-pointer bg-accent px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-accent-hover sm:w-auto sm:self-start"
       >
         + REGISTER PROJECT
       </button>

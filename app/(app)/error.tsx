@@ -27,7 +27,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
 
         <button
           onClick={reset}
-          className="mt-7 cursor-pointer border border-border-strong bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.16em] text-ink-2 transition-colors hover:border-amber hover:text-amber"
+          className="mt-7 cursor-pointer border border-border-strong bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.16em] text-ink-2 transition-colors hover:border-accent hover:text-accent"
         >
           ▸ TRY AGAIN
         </button>

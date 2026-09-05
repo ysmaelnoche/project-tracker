@@ -10,7 +10,7 @@ import type { ActivityEvent, ActivityTone } from "@/lib/types";
 const ACTIVITY_LIMIT = 100;
 
 const TONE_INK: Record<ActivityTone, string> = {
-  amber: "text-amber",
+  accent: "text-accent",
   teal: "text-teal",
   red: "text-red",
   quiet: "text-ink-faint",

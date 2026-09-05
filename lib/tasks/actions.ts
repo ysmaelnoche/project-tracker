@@ -19,7 +19,7 @@ async function logTaskActivity(
   verb: string,
   subject: string,
   projectId: string | null,
-  tone: "teal" | "amber" | "quiet",
+  tone: "teal" | "accent" | "quiet",
 ) {
   let contextRef = "STANDALONE";
   if (projectId) {
@@ -113,7 +113,7 @@ export async function toggleTaskStatus(id: string): Promise<TaskActionResult & {
     willBeDone ? "TASK COMPLETE" : "TASK REOPENED",
     task.title,
     task.project_id,
-    willBeDone ? "teal" : "amber",
+    willBeDone ? "teal" : "accent",
   );
   revalidateTaskSurfaces(task.project_id);
 

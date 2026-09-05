@@ -124,7 +124,7 @@ export function CommandPalette({
         className="w-full max-w-[580px] animate-[lift_0.16s_cubic-bezier(0.2,0.8,0.2,1)] border border-border-strong bg-surface-raised shadow-[0_30px_70px_-20px_rgba(0,0,0,0.9)]"
       >
         <div className="flex items-center gap-3 border-b border-border px-[18px] py-[15px]">
-          <span className="font-mono text-sm text-amber">▸</span>
+          <span className="font-mono text-sm text-accent">▸</span>
           <input
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
@@ -152,7 +152,7 @@ export function CommandPalette({
                     onMouseEnter={() => setSel(index)}
                     onClick={() => execute(item)}
                     className={`flex w-full cursor-pointer items-center gap-3 border-0 border-l-2 px-[18px] py-[11px] text-left transition-colors ${
-                      active ? "border-l-amber bg-surface-hover" : "border-l-transparent bg-transparent"
+                      active ? "border-l-accent bg-surface-hover" : "border-l-transparent bg-transparent"
                     }`}
                   >
                     <span className="min-w-0 flex-1 truncate text-sm text-ink">{item.label}</span>

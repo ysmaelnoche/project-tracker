@@ -2,7 +2,7 @@ import type { MetricTile, MetricTone } from "@/lib/dashboard/metrics";
 
 const TONE_CLASS: Record<MetricTone, string> = {
   ink: "text-ink",
-  amber: "text-amber",
+  accent: "text-accent",
   teal: "text-teal",
   red: "text-red",
 };

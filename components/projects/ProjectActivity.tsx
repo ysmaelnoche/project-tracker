@@ -3,7 +3,7 @@ import { formatStamp } from "@/lib/format";
 import type { ActivityEvent, ActivityTone } from "@/lib/types";
 
 const TONE_INK: Record<ActivityTone, string> = {
-  amber: "text-amber",
+  accent: "text-accent",
   teal: "text-teal",
   red: "text-red",
   quiet: "text-ink-faint",

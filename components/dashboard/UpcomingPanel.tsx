@@ -19,7 +19,7 @@ export function UpcomingPanel({ entries }: { entries: UpcomingEntry[] }) {
                 {entry.when}
               </span>
               <span
-                className={`min-w-0 flex-1 basis-40 text-sm ${entry.isMilestone ? "text-amber" : "text-ink"}`}
+                className={`min-w-0 flex-1 basis-40 text-sm ${entry.isMilestone ? "text-accent" : "text-ink"}`}
               >
                 {entry.title}
               </span>

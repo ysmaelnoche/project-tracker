@@ -27,7 +27,7 @@ export function ConnectRepoForm({ projectId, onDone }: { projectId: string; onDo
       }
       toast.show({
         label: "REPOSITORY LINKED",
-        tone: "amber",
+        tone: "accent",
         message: "Backfilling branches, commits, and pull requests…",
       });
       onDone?.();
@@ -41,13 +41,13 @@ export function ConnectRepoForm({ projectId, onDone }: { projectId: string; onDo
         name="slug"
         required
         placeholder="owner/repo — e.g. me/my-project"
-        className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.04em] text-ink outline-none focus:border-amber"
+        className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.04em] text-ink outline-none focus:border-accent"
       />
       {error ? <p className="text-xs leading-relaxed text-red">{error}</p> : null}
       <button
         type="submit"
         disabled={isPending}
-        className="self-start cursor-pointer bg-amber px-3.5 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-amber-hover disabled:cursor-not-allowed disabled:opacity-40"
+        className="self-start cursor-pointer bg-accent px-3.5 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
       >
         {isPending ? "LINKING…" : "+ LINK REPO"}
       </button>

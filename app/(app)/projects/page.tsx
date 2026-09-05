@@ -68,7 +68,7 @@ export default async function ProjectsPage({
   const newProjectButton = (
     <Link
       href="/projects/new"
-      className="cursor-pointer bg-amber px-[15px] py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-amber-hover"
+      className="cursor-pointer bg-accent px-[15px] py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover"
     >
       + NEW PROJECT
     </Link>

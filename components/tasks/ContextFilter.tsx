@@ -13,7 +13,7 @@ export function ContextFilter({ active, view }: { active: TaskContext; view: Tas
             key={c.key}
             href={buildTaskQueueHref(view, c.key)}
             className={`font-mono text-[9px] tracking-[0.13em] ${
-              isActive ? "text-amber" : "text-ink-3 hover:text-ink"
+              isActive ? "text-accent" : "text-ink-3 hover:text-ink"
             }`}
           >
             {isActive ? "◆" : "◇"} {c.label}

@@ -10,7 +10,7 @@
 import { pad2 } from "@/lib/format";
 import type { ProjectStatus, TaskStatus } from "@/lib/types";
 
-export type MetricTone = "ink" | "amber" | "teal" | "red";
+export type MetricTone = "ink" | "accent" | "teal" | "red";
 
 export interface MetricTile {
   label: string;
@@ -45,13 +45,13 @@ export function buildMetrics(
       label: "IN BUILD",
       value: pad2(live.filter((p) => p.status === "in_development").length),
       unit: "ACTIVE",
-      tone: "amber",
+      tone: "accent",
     },
     {
       label: "OPEN PRS",
       value: pad2(openPrCount),
       unit: "IN FLIGHT",
-      tone: openPrCount > 0 ? "amber" : "ink",
+      tone: openPrCount > 0 ? "accent" : "ink",
     },
     {
       label: "DEPLOYED",

@@ -4,7 +4,7 @@ import type { EventLogRow } from "@/lib/dashboard/build-view";
 
 const TONE_CLASS: Record<EventLogRow["tone"], string> = {
   teal: "text-teal",
-  amber: "text-amber",
+  accent: "text-accent",
   quiet: "text-ink-faint",
   red: "text-red",
 };
@@ -21,7 +21,7 @@ export function EventLogPanel({ rows }: { rows: EventLogRow[] }) {
         <span className="font-mono text-[10px] tracking-[0.2em] text-ink">EVENT LOG</span>
         <Link
           href="/activity"
-          className="ml-auto font-mono text-[9px] tracking-[0.14em] text-ink-3 hover:text-amber"
+          className="ml-auto font-mono text-[9px] tracking-[0.14em] text-ink-3 hover:text-accent"
         >
           FULL LOG ▸
         </Link>

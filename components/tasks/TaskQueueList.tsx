@@ -79,7 +79,7 @@ export function TaskQueueList({
           toast.show({
             label: "TASK REOPENED",
             message: `"${row.title}" is back in the queue.`,
-            tone: "amber",
+            tone: "accent",
           });
         }
         router.refresh();

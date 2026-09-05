@@ -85,7 +85,7 @@ export function NewTaskForm({
     toast.show({
       label: "TASK CREATED",
       message: projectId ? "Queued under the selected project." : "Queued as a standalone task.",
-      tone: "amber",
+      tone: "accent",
     });
     router.push("/tasks");
   }
@@ -93,7 +93,7 @@ export function NewTaskForm({
   return (
     <form onSubmit={handleSubmit} className="max-w-[520px] border border-border bg-surface">
       <div className="flex flex-wrap items-baseline gap-3 border-b border-border px-5 py-3.5">
-        <span className="font-mono text-[9px] tracking-[0.18em] text-amber">{"// QUEUE TASK"}</span>
+        <span className="font-mono text-[9px] tracking-[0.18em] text-accent">{"// QUEUE TASK"}</span>
         <span className="ml-auto font-mono text-[9px] tracking-[0.12em] text-ink-faint">
           NEW QUEUE ENTRY
         </span>
@@ -109,7 +109,7 @@ export function NewTaskForm({
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Send follow-up email"
           autoFocus
-          className="mt-2.5 mb-6 w-full border border-border-strong bg-track px-3 py-2.5 text-[15px] outline-none transition-colors focus:border-amber"
+          className="mt-2.5 mb-6 w-full border border-border-strong bg-track px-3 py-2.5 text-[15px] outline-none transition-colors focus:border-accent"
         />
 
         <div className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">ASSIGN TO</div>
@@ -124,7 +124,7 @@ export function NewTaskForm({
                 onClick={() => setProjectId(o.id)}
                 className={`flex w-full items-center gap-3 border-b border-l-2 border-divider px-3.5 py-2.5 text-left last:border-b-0 ${
                   o.disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer"
-                } ${isSelected ? "border-l-amber bg-surface-hover" : "border-l-transparent"}`}
+                } ${isSelected ? "border-l-accent bg-surface-hover" : "border-l-transparent"}`}
               >
                 <span className="min-w-0 flex-1 truncate text-[14px] text-ink">{o.label}</span>
                 <span
@@ -157,7 +157,7 @@ export function NewTaskForm({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-[13px] outline-none transition-colors focus:border-amber"
+              className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-[13px] outline-none transition-colors focus:border-accent"
             />
           </div>
           <div className="flex-1 basis-[150px]">
@@ -170,7 +170,7 @@ export function NewTaskForm({
                   onClick={() => setPriority(p.key)}
                   className={`cursor-pointer border px-3 py-2 font-mono text-[9px] tracking-[0.12em] ${
                     priority === p.key
-                      ? "border-amber bg-amber text-bg"
+                      ? "border-accent bg-accent text-bg"
                       : "border-border-strong bg-transparent text-ink-2"
                   }`}
                 >
@@ -194,7 +194,7 @@ export function NewTaskForm({
         <button
           type="submit"
           disabled={!canSubmit}
-          className="cursor-pointer border-0 bg-amber px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-amber-hover disabled:cursor-not-allowed disabled:opacity-40"
+          className="cursor-pointer border-0 bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? "QUEUEING…" : "QUEUE TASK"}
         </button>

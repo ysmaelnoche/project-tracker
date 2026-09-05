@@ -45,7 +45,7 @@ export default async function TasksPage({
         </span>
         <Link
           href="/tasks/new"
-          className="ml-auto cursor-pointer bg-amber px-3.5 py-2 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-amber-hover"
+          className="ml-auto cursor-pointer bg-accent px-3.5 py-2 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover"
         >
           + NEW TASK
         </Link>
