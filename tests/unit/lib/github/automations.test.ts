@@ -55,6 +55,7 @@ function pr(overrides: Partial<FetchedPullRequest>): FetchedPullRequest {
     deletions: 2,
     reviewerCount: 0,
     githubUpdatedAt: "2026-09-05T09:00:00.000Z",
+    mergedAt: null,
     ...overrides,
   };
 }

@@ -1,5 +1,6 @@
 import { Panel, PanelHeader, PanelTitle } from "@/components/ui/Panel";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TrendChart } from "@/components/ui/TrendChart";
 import type { DevelopmentActivity } from "@/lib/github/dev-activity-fetch";
 
 /**
@@ -27,8 +28,6 @@ export function DevelopmentActivityPanel({ activity }: { activity: DevelopmentAc
     );
   }
 
-  const max = Math.max(1, ...activity.weeklyBuckets);
-
   return (
     <Panel>
       <PanelHeader>
@@ -39,21 +38,7 @@ export function DevelopmentActivityPanel({ activity }: { activity: DevelopmentAc
       </PanelHeader>
 
       <div className="p-4">
-        <div className="font-mono text-xs tracking-[0.04em] text-ink-2">
-          {activity.totalCommits.toLocaleString()} commit{activity.totalCommits === 1 ? "" : "s"} across
-          your connected repos
-        </div>
-
-        <div className="mt-4 flex h-[52px] items-end gap-[3px]">
-          {activity.weeklyBuckets.map((count, i) => (
-            <div
-              key={i}
-              title={`${count} commit${count === 1 ? "" : "s"}`}
-              className="flex-1 rounded-t-[2px] bg-accent/70"
-              style={{ height: count === 0 ? "2px" : `${Math.max(8, (count / max) * 100)}%` }}
-            />
-          ))}
-        </div>
+        <TrendChart commits={activity.trend.commits} merges={activity.trend.merges} />
 
         {activity.repoBreakdown.length > 0 ? (
           <div className="mt-5 flex flex-col gap-2 border-t border-divider pt-4">

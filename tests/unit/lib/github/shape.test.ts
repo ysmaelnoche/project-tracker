@@ -107,13 +107,19 @@ describe("shapePullRequest", () => {
     requested_reviewers: [{ login: "someone" }],
   };
 
-  it("maps a merged PR", () => {
+  it("maps a merged PR, carrying its exact merge timestamp", () => {
     const shaped = shapePullRequest(
       { ...base, state: "closed", merged_at: "2026-09-05T10:00:00.000Z" },
       { hasChangesRequested: false },
       null,
     );
     expect(shaped.state).toBe("merged");
+    expect(shaped.mergedAt).toBe("2026-09-05T10:00:00.000Z");
+  });
+
+  it("carries a null mergedAt for a PR that hasn't merged", () => {
+    const shaped = shapePullRequest(base, { hasChangesRequested: false }, null);
+    expect(shaped.mergedAt).toBeNull();
   });
 
   it("maps a closed-without-merge PR", () => {
@@ -208,6 +214,7 @@ describe("upsert-shape helpers", () => {
         deletions: 2,
         reviewerCount: 1,
         githubUpdatedAt: "2026-09-05T00:00:00.000Z",
+        mergedAt: null,
         taskId: "t1",
       }),
     ).toEqual({
@@ -222,6 +229,7 @@ describe("upsert-shape helpers", () => {
       deletions: 2,
       reviewer_count: 1,
       github_updated_at: "2026-09-05T00:00:00.000Z",
+      merged_at: null,
     });
   });
 });

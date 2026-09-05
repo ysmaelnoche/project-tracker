@@ -1,20 +1,32 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import {
-  bucketCommitsByWeek,
+  ACTIVITY_TREND_WEEKS,
+  buildActivityTrend,
   summarizeActivityByRepo,
+  type ActivityTrend,
   type RepoActivitySummary,
 } from "@/lib/github/dev-activity";
 
 export interface DevelopmentActivity {
   totalCommits: number;
-  weeklyBuckets: number[];
+  totalMerges: number;
+  trend: ActivityTrend;
   repoBreakdown: RepoActivitySummary[];
   hasAnyRepo: boolean;
 }
 
-const WEEKS = 12;
-const WINDOW_DAYS = WEEKS * 7;
+const WINDOW_DAYS = ACTIVITY_TREND_WEEKS * 7;
+
+function emptyActivity(): DevelopmentActivity {
+  return {
+    totalCommits: 0,
+    totalMerges: 0,
+    trend: { commits: new Array(ACTIVITY_TREND_WEEKS).fill(0), merges: new Array(ACTIVITY_TREND_WEEKS).fill(0) },
+    repoBreakdown: [],
+    hasAnyRepo: false,
+  };
+}
 
 /**
  * Real commit/PR activity across every repo connected to a project here
@@ -32,24 +44,31 @@ export async function getDevelopmentActivity(todayIso: string): Promise<Developm
   const repositories = repos ?? [];
 
   if (repositories.length === 0) {
-    return { totalCommits: 0, weeklyBuckets: new Array(WEEKS).fill(0), repoBreakdown: [], hasAnyRepo: false };
+    return emptyActivity();
   }
 
   const repositoryIds = repositories.map((r) => r.id);
   const sinceIso = new Date(Date.parse(`${todayIso}T00:00:00Z`) - WINDOW_DAYS * 86_400_000).toISOString();
 
-  const [commitsResult, prsResult, projectsResult] = await Promise.all([
+  const [commitsResult, mergedInWindowResult, allPrsResult, projectsResult] = await Promise.all([
     supabase
       .from("gh_commits")
       .select("repository_id, authored_at")
       .in("repository_id", repositoryIds)
       .gte("authored_at", sinceIso),
+    supabase
+      .from("gh_pull_requests")
+      .select("repository_id, merged_at")
+      .in("repository_id", repositoryIds)
+      .eq("state", "merged")
+      .gte("merged_at", sinceIso),
     supabase.from("gh_pull_requests").select("repository_id, state").in("repository_id", repositoryIds),
     supabase.from("projects").select("id, ref, name"),
   ]);
 
   const commits = commitsResult.data ?? [];
-  const pullRequests = prsResult.data ?? [];
+  const mergedInWindow = mergedInWindowResult.data ?? [];
+  const allPullRequests = allPrsResult.data ?? [];
   const projectById = new Map((projectsResult.data ?? []).map((p) => [p.id, p]));
 
   const repoLabels = repositories.map((r) => {
@@ -62,13 +81,17 @@ export async function getDevelopmentActivity(todayIso: string): Promise<Developm
   });
 
   const commitDates = commits.map((c) => (c.authored_at as string).slice(0, 10));
+  const mergedDates = mergedInWindow
+    .map((p) => (p.merged_at as string | null)?.slice(0, 10))
+    .filter((d): d is string => !!d);
 
   return {
     totalCommits: commits.length,
-    weeklyBuckets: bucketCommitsByWeek(commitDates, WEEKS, todayIso),
+    totalMerges: mergedInWindow.length,
+    trend: buildActivityTrend(commitDates, mergedDates, ACTIVITY_TREND_WEEKS, todayIso),
     repoBreakdown: summarizeActivityByRepo(
       commits.map((c) => ({ repositoryId: c.repository_id as string })),
-      pullRequests.map((p) => ({ repositoryId: p.repository_id as string, state: p.state as string })),
+      allPullRequests.map((p) => ({ repositoryId: p.repository_id as string, state: p.state as string })),
       repoLabels,
     ),
     hasAnyRepo: true,

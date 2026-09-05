@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bucketCommitsByWeek, summarizeActivityByRepo } from "@/lib/github/dev-activity";
+import { buildActivityTrend, bucketCommitsByWeek, summarizeActivityByRepo } from "@/lib/github/dev-activity";
 
 describe("bucketCommitsByWeek", () => {
   it("puts today's commit in the last (most recent) bucket", () => {
@@ -30,6 +30,30 @@ describe("bucketCommitsByWeek", () => {
 
   it("returns all-zero buckets for no commits", () => {
     expect(bucketCommitsByWeek([], 4, "2026-09-05")).toEqual([0, 0, 0, 0]);
+  });
+});
+
+describe("buildActivityTrend", () => {
+  it("buckets commits and merges into separate parallel series", () => {
+    const trend = buildActivityTrend(
+      ["2026-09-05", "2026-09-04"],
+      ["2026-09-05"],
+      2,
+      "2026-09-05",
+    );
+    expect(trend).toEqual({ commits: [0, 2], merges: [0, 1] });
+  });
+
+  it("returns all-zero series for no activity at all", () => {
+    expect(buildActivityTrend([], [], 3, "2026-09-05")).toEqual({
+      commits: [0, 0, 0],
+      merges: [0, 0, 0],
+    });
+  });
+
+  it("lets commits and merges land in different buckets independently", () => {
+    const trend = buildActivityTrend(["2026-09-05"], ["2026-08-29"], 2, "2026-09-05");
+    expect(trend).toEqual({ commits: [0, 1], merges: [1, 0] });
   });
 });
 

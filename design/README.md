@@ -165,3 +165,27 @@ the repository on GitHub itself is completely untouched. `archived_at` (set by
 `archiveProject`, cleared by `restoreProject`) is kept as a plain historical fact —
 when a project was decommissioned — even though nothing gates on it anymore. Requires
 `supabase/migrations/0005_project_purge.sql`.
+
+**Project Detail's task-progress bar → a commit/merge trend chart**: the mockup's
+percent-complete gauge above the STANDBY/BUILD/DEPLOYED strip read as dead, near-empty
+space on any project with few or no tasks yet — visibly the worst-proportioned part of
+the whole screen at the user's request. Replaced with a small two-line trend chart
+(`components/ui/TrendChart.tsx`, hand-rolled SVG — no charting library, matching
+every other visualization in this app being plain markup): commits in accent blue,
+merged pull requests in teal, over the same rolling 12-week window the Dashboard's
+Development Activity panel already used. Renders only when the project has a
+connected repository — nothing shows for one that doesn't, rather than an empty
+chart implying data that was never fetched. The task CLOSED/OPEN count and percent
+stayed, just as plain text now instead of driving a bar.
+
+Getting an accurate *merge* trend (not just commits) needed one real data-layer
+addition: GitHub's PR object already carries an exact `merged_at` timestamp, but this
+app was discarding it — only ever deriving a `"merged"` state from it, never
+persisting the timestamp itself. Added `gh_pull_requests.merged_at`
+(`supabase/migrations/0006_pr_merged_at.sql`), captured through the sync pipeline
+(`lib/github/shape.ts`'s `shapePullRequest`) the same way `githubUpdatedAt` already
+was. `lib/github/dev-activity.ts`'s `buildActivityTrend` buckets commit dates and
+merge dates into independent parallel weekly series — reused as-is for both the
+Dashboard's fleet-wide aggregate (`lib/github/dev-activity-fetch.ts`) and each
+project's own trend (`lib/github/queries.ts`'s `getProjectActivityTrend`), so the two
+charts are guaranteed to bucket activity identically.
