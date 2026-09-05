@@ -39,3 +39,7 @@ next-env.d.ts
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# nested agent worktrees (created by the Agent tool's isolation:"worktree" —
+# each is its own git worktree/repo checkout; never lint/typecheck/commit into it)
+.claude/
