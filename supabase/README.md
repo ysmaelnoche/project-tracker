@@ -18,14 +18,11 @@
    `GITHUB_TOKEN` in `.env.local`, or paste it into **Config → GitHub Connection**
    once signed into the app (validated against GitHub before it's saved; a
    database-stored token always takes priority over the env var). The app works fully
-   without either — repository/commit/PR panels just stay in their empty state until
-   a token and a repository are connected.
-
-   For the Dashboard's contribution-history panel specifically: try the token above
-   first with no **account permissions** granted. If that panel shows "Contributions
-   unavailable" once connected, add **Account permissions → Profile → Read-only** and
-   regenerate the token — GitHub's docs don't clearly state which case applies, so
-   this is a "try it and see" step (see `lib/github/contributions-fetch.ts`).
+   without either — repository/commit/PR panels, including the Dashboard's
+   Development Activity panel, just stay in their empty state until a token and a
+   repository are connected. No account-level permissions are needed — repository
+   permissions alone (Contents, Metadata, Pull requests, Checks) cover everything the
+   app reads, including from private repos.
 
 Migrations are plain numbered SQL files under `migrations/`. Add new ones as
 `00XX_description.sql` rather than editing an already-applied file.
