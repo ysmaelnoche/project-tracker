@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #07090C; }
+  body { -webkit-font-smoothing: antialiased; }
+  a { color: #E9A94A; text-decoration: none; }
+  a:hover { color: #F5C57E; }
+  button { font-family: inherit; color: inherit; }
+  input, textarea { font-family: inherit; color: inherit; }
+  ::selection { background: #2A343C; color: #DDE4E8; }
+  ::placeholder { color: #5C6871; }
+  ::-webkit-calendar-picker-indicator { filter: invert(.7); }
+  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes lift { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+  @keyframes inject { from { opacity: 0; transform: translateX(16px) } to { opacity: 1; transform: none } }
+  @keyframes deplete { from { transform: scaleX(1) } to { transform: scaleX(0) } }
+  @keyframes sweep { 0% { opacity: .3 } 50% { opacity: .75 } 100% { opacity: .3 } }
+  @keyframes blink { 0%, 60% { opacity: 1 } 61%, 100% { opacity: .25 } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#07090C;background-image:linear-gradient(rgba(138,152,162,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(138,152,162,.045) 1px, transparent 1px);background-size:56px 56px;color:#DDE4E8;font:400 14px/1.6 'IBM Plex Sans', system-ui, sans-serif">
+
+<sc-if value="{{ authed }}" hint-placeholder-val="{{ true }}">
+<div>
+
+<header style="position:sticky;top:0;z-index:30;background:rgba(7,9,12,.92);backdrop-filter:blur(8px);border-bottom:1px solid #1C2329">
+  <div style="max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,32px);min-height:50px;display:flex;align-items:center;gap:clamp(14px,2.5vw,32px);flex-wrap:wrap">
+    <button onClick="{{ goDash }}" style="display:flex;align-items:center;gap:9px;background:none;border:0;padding:8px 0;cursor:pointer">
+      <span style="width:7px;height:7px;background:#E9A94A;box-shadow:0 0 9px rgba(233,169,74,.8);animation:blink 3.4s ease-in-out infinite"></span>
+      <span style="font:500 13px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#DDE4E8">SHIPYARD</span>
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">// BUILD CONTROL</span>
+    </button>
+    <nav style="display:flex;gap:2px;flex-wrap:wrap">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+        <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:5px;background:none;border:0;padding:7px 10px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.14em;transition:all .16s ease;background:{{ n.bg }};color:{{ n.ink }}" style-hover="color:#DDE4E8">
+          <span style="color:{{ n.bracket }}">[</span>{{ n.label }}<span style="color:{{ n.bracket }}">]</span>
+        </button>
+      </sc-for>
+    </nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.1em;color:#78848D;font-variant-numeric:tabular-nums">{{ clock }}</span>
+      <button onClick="{{ openPalette }}" style="background:none;border:1px solid #1C2329;padding:6px 10px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#8A98A2;transition:all .16s ease" style-hover="border-color:#E9A94A;color:#E9A94A">⌘K</button>
+      <div style="position:relative">
+        <button onClick="{{ toggleCreate }}" style="background:#E9A94A;border:0;color:#07090C;padding:7px 13px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.12em;transition:all .16s ease" style-hover="background:#F5C57E">+ NEW</button>
+        <sc-if value="{{ createOpen }}">
+          <div style="position:absolute;top:calc(100% + 8px);right:0;width:262px;background:#0C1014;border:1px solid #2A343C;box-shadow:0 20px 44px -16px rgba(0,0,0,.8);z-index:40;animation:fade .13s ease">
+            <div style="padding:9px 13px;border-bottom:1px solid #1C2329;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">// NEW RECORD</div>
+            <sc-for list="{{ createItems }}" as="c" hint-placeholder-count="3">
+              <button onClick="{{ c.go }}" style="display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #131A1F;padding:11px 13px;cursor:pointer" style-hover="background:#10151A">
+                <div style="font:400 11px/1.3 'Azeret Mono', monospace;letter-spacing:.08em;color:#DDE4E8">{{ c.label }}</div>
+                <div style="margin-top:4px;font:400 9px/1.3 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871">{{ c.hint }}</div>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  <div style="border-top:1px solid #131A1F;background:#0A0D11">
+    <div style="max-width:1320px;margin:0 auto;padding:7px clamp(16px,3vw,32px);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">SCOPE</span>
+      <div style="display:flex;gap:12px">
+        <sc-for list="{{ scopes }}" as="s" hint-placeholder-count="3">
+          <button onClick="{{ s.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ s.ink }}">{{ s.mark }} {{ s.label }}</button>
+        </sc-for>
+      </div>
+      <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#5C6871">{{ statusLine }}</span>
+    </div>
+  </div>
+</header>
+
+<main style="max-width:1320px;margin:0 auto;padding:clamp(20px,3vw,34px) clamp(16px,3vw,32px) 120px">
+
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+<section data-screen-label="Overview">
+
+  <sc-if value="{{ hasDirective }}">
+    <div style="position:relative;background:#0C1014;border:1px solid #2A343C;padding:clamp(20px,3vw,30px)">
+      <div style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:1px solid #E9A94A;border-left:1px solid #E9A94A"></div>
+      <div style="position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-top:1px solid #E9A94A;border-right:1px solid #E9A94A"></div>
+      <div style="position:absolute;bottom:-1px;left:-1px;width:11px;height:11px;border-bottom:1px solid #E9A94A;border-left:1px solid #E9A94A"></div>
+      <div style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:1px solid #E9A94A;border-right:1px solid #E9A94A"></div>
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#E9A94A">▸ PRIMARY DIRECTIVE</span>
+        <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ directive.ref }}</span>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1 1 300px;min-width:0">
+          <div style="font:300 clamp(22px,3vw,30px)/1.2 'Azeret Mono', monospace;letter-spacing:-.02em;color:#DDE4E8">{{ directive.title }}</div>
+          <div style="margin-top:11px;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#8A98A2">{{ directive.meta }}</div>
+        </div>
+        <div style="flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button onClick="{{ directive.complete }}" style="background:#E9A94A;border:0;color:#07090C;padding:10px 16px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="background:#F5C57E">MARK COMPLETE</button>
+          <button onClick="{{ directive.open }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:10px 16px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#DDE4E8;color:#DDE4E8">OPEN PROJECT</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="margin-top:clamp(20px,3vw,28px);border:1px solid #1C2329;background:#0A0D11;display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr))">
+    <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="6">
+      <div style="padding:16px 18px;border-right:1px solid #131A1F">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">{{ m.label }}</div>
+        <div style="margin-top:12px;display:flex;align-items:baseline;gap:8px">
+          <span style="font:300 clamp(26px,3.4vw,34px)/1 'Azeret Mono', monospace;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:{{ m.ink }}">{{ m.value }}</span>
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ m.unit }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:clamp(28px,4vw,40px)">
+    <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:11px;border-bottom:1px solid #1C2329">
+      <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">ACTIVE BUILDS</span>
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ activeCountLabel }}</span>
+    </div>
+
+    <sc-if value="{{ loading }}">
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ three }}" as="k" hint-placeholder-count="3">
+          <div style="border:1px solid #1C2329;background:#0A0D11;padding:20px;animation:sweep 1.6s ease-in-out infinite">
+            <div style="height:11px;width:210px;background:#182027"></div>
+            <div style="height:8px;width:58%;background:#131A1F;margin-top:14px"></div>
+            <div style="height:9px;width:270px;background:#131A1F;margin-top:20px"></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showActive }}">
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ activeProjects }}" as="p" hint-placeholder-count="3">
+          <div onClick="{{ p.open }}" style="cursor:pointer;background:#0C1014;border:1px solid #1C2329;padding:clamp(16px,2vw,22px);transition:all .18s ease" style-hover="border-color:#2A343C;background:#10151A">
+            <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+              <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ p.ref }}</span>
+              <h3 style="font:400 clamp(15px,1.8vw,18px)/1.2 'Azeret Mono', monospace;letter-spacing:.05em;margin:0;color:#DDE4E8">{{ p.nameUpper }}</h3>
+              <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ p.typeLabel }}</span>
+              <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ p.stageInk }}">{{ p.stageMark }} {{ p.stageLabel }}</span>
+            </div>
+            <p style="font:400 13px/1.55 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:10px 0 0;max-width:66ch">{{ p.desc }}</p>
+            <div style="margin-top:20px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+              <div style="flex:1 1 220px;max-width:320px;min-width:150px">
+                <div style="position:relative;height:9px;border:1px solid #2A343C;background:#080B0E;padding:1px">
+                  <div style="height:100%;transition:width .55s cubic-bezier(.2,.8,.2,1);background:{{ p.gaugeInk }};box-shadow:0 0 10px {{ p.gaugeGlow }};width:{{ p.gaugeW }}"></div>
+                </div>
+                <div style="height:4px;margin-top:3px;background-image:repeating-linear-gradient(90deg,#232C33 0 1px,transparent 1px 10%)"></div>
+              </div>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:baseline">
+                <span style="font:400 13px/1 'Azeret Mono', monospace;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:#DDE4E8">{{ p.pctLabel }}</span>
+                <span style="font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.13em;color:#78848D">{{ p.metaLine }}</span>
+              </div>
+            </div>
+            <sc-if value="{{ p.hasNext }}">
+              <div style="margin-top:16px;padding-top:14px;border-top:1px solid #131A1F;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+                <span style="font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.16em;color:#E9A94A">▸ NEXT</span>
+                <span style="font:400 14px/1.4 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ p.nextTitle }}</span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ noActive }}">
+      <div style="margin-top:14px;border:1px solid #1C2329;background:#0A0D11;padding:44px 24px;text-align:center">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#5C6871">// NO ACTIVE BUILDS</div>
+        <div style="margin-top:16px;font:300 20px/1.3 'Azeret Mono', monospace;color:#DDE4E8">All bays are empty.</div>
+        <p style="font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D;margin:8px auto 20px;max-width:42ch">Initiate a build on a standby project, or register a new one.</p>
+        <button onClick="{{ newProject }}" style="background:#E9A94A;border:0;color:#07090C;padding:10px 16px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em">+ NEW PROJECT</button>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="margin-top:clamp(28px,4vw,40px);display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:clamp(16px,2.5vw,26px)">
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="display:flex;align-items:baseline;gap:12px;padding:13px 16px;border-bottom:1px solid #1C2329">
+        <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">TODAY / QUEUE</span>
+        <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ myDayInk }}">{{ myDayCount }}</span>
+      </div>
+      <sc-if value="{{ hasMyDay }}">
+        <div>
+          <sc-for list="{{ myDay }}" as="t" hint-placeholder-count="4">
+            <div style="display:flex;align-items:flex-start;gap:11px;padding:12px 16px;border-bottom:1px solid #131A1F;transition:background .16s ease" style-hover="background:#10151A">
+              <button onClick="{{ t.toggle }}" aria-label="Toggle task" style="flex:0 0 auto;margin-top:1px;background:none;border:0;padding:0;cursor:pointer;font:400 12px/1.4 'Azeret Mono', monospace;letter-spacing:-.04em;transition:color .18s ease;color:{{ t.boxInk }}" style-focus="outline:1px solid #E9A94A;outline-offset:2px">{{ t.boxText }}</button>
+              <div style="flex:1 1 auto;min-width:0">
+                <div style="font:400 14px/1.45 'IBM Plex Sans', sans-serif;color:{{ t.titleInk }};text-decoration:{{ t.deco }}">{{ t.title }}</div>
+                <div style="margin-top:4px;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ t.ctx }}</div>
+              </div>
+              <span style="flex:0 0 auto;font:400 9px/1.9 'Azeret Mono', monospace;letter-spacing:.11em;color:{{ t.dueInk }}">{{ t.rightMeta }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noMyDay }}">
+        <div style="padding:36px 18px">
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#6FB3A8">// QUEUE CLEAR</div>
+          <div style="margin-top:14px;font:300 18px/1.35 'Azeret Mono', monospace;color:#DDE4E8">Nothing on today.</div>
+          <p style="font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D;margin:7px 0 0">No deadlines, no alerts. Good window to push a build forward.</p>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="display:flex;align-items:baseline;gap:12px;padding:13px 16px;border-bottom:1px solid #1C2329">
+        <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">INBOUND</span>
+      </div>
+      <sc-if value="{{ hasUpcoming }}">
+        <div>
+          <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="4">
+            <div style="display:flex;gap:14px;padding:12px 16px;border-bottom:1px solid #131A1F;align-items:baseline;flex-wrap:wrap">
+              <span style="flex:0 0 72px;font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.12em;color:#78848D">{{ u.when }}</span>
+              <span style="flex:1 1 160px;min-width:0;font:400 14px/1.45 'IBM Plex Sans', sans-serif;color:{{ u.ink }}">{{ u.title }}</span>
+              <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ u.ctx }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noUpcoming }}">
+        <div style="padding:32px 18px;font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">No scheduled inbound items.</div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="margin-top:clamp(28px,4vw,40px);display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(16px,2.5vw,26px)">
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">STANDBY</div>
+      <sc-if value="{{ hasPending }}">
+        <div>
+          <sc-for list="{{ pendingProjects }}" as="p" hint-placeholder-count="1">
+            <div style="padding:15px 16px;border-bottom:1px solid #131A1F">
+              <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+                <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ p.ref }}</span>
+                <button onClick="{{ p.open }}" style="background:none;border:0;padding:0;cursor:pointer;text-align:left;font:400 14px/1.25 'Azeret Mono', monospace;letter-spacing:.05em;color:#DDE4E8" style-hover="color:#E9A94A">{{ p.nameUpper }}</button>
+              </div>
+              <div style="margin-top:7px;font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ p.typeLabel }} · TASKS LOCKED</div>
+              <button onClick="{{ p.start }}" style="margin-top:12px;background:none;border:1px solid #2A343C;color:#8A98A2;padding:8px 12px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;transition:all .16s ease" style-hover="border-color:#E9A94A;color:#E9A94A">▸ INITIATE BUILD</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noPending }}">
+        <div style="padding:30px 16px;font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">Nothing on standby.</div>
+      </sc-if>
+    </div>
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">DEPLOYED</div>
+      <sc-if value="{{ hasShipped }}">
+        <div>
+          <sc-for list="{{ shippedProjects }}" as="p" hint-placeholder-count="2">
+            <div style="padding:15px 16px;border-bottom:1px solid #131A1F;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap">
+              <div style="flex:1 1 150px;min-width:0">
+                <button onClick="{{ p.open }}" style="background:none;border:0;padding:0;cursor:pointer;text-align:left;font:400 14px/1.25 'Azeret Mono', monospace;letter-spacing:.05em;color:#DDE4E8" style-hover="color:#6FB3A8">{{ p.nameUpper }}</button>
+                <div style="margin-top:7px;font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ p.publishedLabel }}</div>
+              </div>
+              <span style="font:400 10px/1.5 'Azeret Mono', monospace;letter-spacing:.1em;color:#6FB3A8;font-variant-numeric:tabular-nums">{{ p.durationLabel }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noShipped }}">
+        <div style="padding:30px 16px;font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">Nothing deployed yet.</div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="margin-top:clamp(28px,4vw,40px);border:1px solid #1C2329;background:#0A0D11">
+    <div style="display:flex;align-items:baseline;gap:12px;padding:13px 16px;border-bottom:1px solid #1C2329;flex-wrap:wrap">
+      <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">REVIEW QUEUE</span>
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ reviewCount }}</span>
+      <button onClick="{{ goSource }}" style="margin-left:auto;background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#78848D" style-hover="color:#E9A94A">SOURCE CONTROL ▸</button>
+    </div>
+    <sc-if value="{{ hasReviewQueue }}">
+      <div>
+        <sc-for list="{{ reviewQueue }}" as="p" hint-placeholder-count="3">
+          <div style="padding:13px 16px;border-bottom:1px solid #131A1F;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;transition:background .16s ease" style-hover="background:#10151A">
+            <span style="font:400 10px/1.5 'Azeret Mono', monospace;letter-spacing:.05em;color:#78848D">{{ p.num }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ p.stateInk }}">{{ p.stateMark }} {{ p.stateLabel }}</span>
+            <span style="flex:1 1 180px;min-width:0;font:400 14px/1.4 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ p.title }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.12em;color:{{ p.checkInk }}">{{ p.checkLabel }}</span>
+            <sc-if value="{{ p.canMerge }}">
+              <button onClick="{{ p.merge }}" style="background:none;border:1px solid #2A343C;padding:6px 11px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#6FB3A8;transition:all .16s ease" style-hover="background:#6FB3A8;color:#07090C;border-color:#6FB3A8">MERGE</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noReviewQueue }}">
+      <div style="padding:30px 16px;font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">No pull requests waiting on you.</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ showActivityBlock }}">
+    <div style="margin-top:clamp(28px,4vw,40px);border:1px solid #1C2329;background:#0A0D11">
+      <div style="display:flex;align-items:baseline;gap:12px;padding:13px 16px;border-bottom:1px solid #1C2329">
+        <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">EVENT LOG</span>
+        <button onClick="{{ goActivity }}" style="margin-left:auto;background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#78848D" style-hover="color:#E9A94A">FULL LOG ▸</button>
+      </div>
+      <sc-for list="{{ activityShort }}" as="a" hint-placeholder-count="4">
+        <div style="display:flex;gap:16px;padding:11px 16px;border-bottom:1px solid #131A1F;align-items:baseline;flex-wrap:wrap">
+          <span style="flex:0 0 76px;font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871">{{ a.when }}</span>
+          <span style="flex:0 0 auto;font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ a.ink }}">{{ a.verb }}</span>
+          <span style="flex:1 1 160px;min-width:0;font:400 13px/1.5 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ a.subj }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{ isProjects }}">
+<section data-screen-label="Fleet">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+    <h1 style="font:300 clamp(24px,3.4vw,32px)/1.1 'Azeret Mono', monospace;letter-spacing:.02em;margin:0">FLEET</h1>
+    <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ projectsCountLabel }}</span>
+    <button onClick="{{ newProject }}" style="margin-left:auto;background:#E9A94A;border:0;color:#07090C;padding:9px 15px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="background:#F5C57E">+ NEW PROJECT</button>
+  </div>
+
+  <div style="margin-top:22px;border:1px solid #1C2329;background:#0A0D11;padding:13px 16px;display:flex;gap:clamp(16px,3vw,36px);flex-wrap:wrap">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">CLASS</span>
+      <sc-for list="{{ typeFilters }}" as="f" hint-placeholder-count="3">
+        <button onClick="{{ f.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ f.ink }}">{{ f.mark }} {{ f.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">STAGE</span>
+      <sc-for list="{{ statusFilters }}" as="f" hint-placeholder-count="6">
+        <button onClick="{{ f.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ f.ink }}">{{ f.label }} <span style="color:#5C6871">{{ f.count }}</span></button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ loading }}">
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ five }}" as="k" hint-placeholder-count="5">
+        <div style="border:1px solid #1C2329;background:#0A0D11;padding:16px;display:flex;gap:18px;align-items:center;animation:sweep 1.6s ease-in-out infinite">
+          <div style="height:10px;width:180px;background:#182027"></div>
+          <div style="height:9px;flex:1;max-width:220px;background:#131A1F"></div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasFiltered }}">
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ filteredProjects }}" as="p" hint-placeholder-count="6">
+        <div onClick="{{ p.open }}" style="cursor:pointer;background:#0C1014;border:1px solid #1C2329;padding:16px 18px;transition:all .18s ease" style-hover="border-color:#2A343C;background:#10151A">
+          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+            <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ p.ref }}</span>
+            <h3 style="font:400 15px/1.2 'Azeret Mono', monospace;letter-spacing:.05em;margin:0;flex:1 1 180px;min-width:0;color:#DDE4E8">{{ p.nameUpper }}</h3>
+            <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ p.typeLabel }}</span>
+            <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ p.stageInk }}">{{ p.stageMark }} {{ p.stageLabel }}</span>
+            <div style="flex:0 0 auto;width:112px">
+              <div style="position:relative;height:7px;border:1px solid #2A343C;background:#080B0E;padding:1px">
+                <div style="height:100%;background:{{ p.gaugeInk }};width:{{ p.gaugeW }}"></div>
+              </div>
+            </div>
+            <span style="flex:0 0 44px;text-align:right;font:400 12px/1 'Azeret Mono', monospace;font-variant-numeric:tabular-nums;color:#DDE4E8">{{ p.pctLabel }}</span>
+          </div>
+          <div style="margin-top:10px;font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ p.metaLine }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ noFiltered }}">
+    <div style="margin-top:12px;border:1px solid #1C2329;background:#0A0D11;padding:56px 24px;text-align:center">
+      <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#5C6871">// NO RECORDS</div>
+      <div style="margin-top:14px;font:300 20px/1.3 'Azeret Mono', monospace">{{ emptyProjectsTitle }}</div>
+      <p style="font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D;margin:8px auto 20px;max-width:44ch">{{ emptyProjectsBody }}</p>
+      <button onClick="{{ newProject }}" style="background:#E9A94A;border:0;color:#07090C;padding:10px 16px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em">+ NEW PROJECT</button>
+    </div>
+  </sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{ isProject }}">
+<section data-screen-label="Project detail">
+  <button onClick="{{ goProjects }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871" style-hover="color:#DDE4E8">◂ FLEET</button>
+
+  <div style="margin-top:20px;background:#0C1014;border:1px solid #2A343C;padding:clamp(18px,2.6vw,28px)">
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1 1 340px;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">{{ pd.ref }}</span>
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">{{ pd.typeLabel }} CLASS</span>
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:{{ pd.stageInk }}">{{ pd.stageMark }} {{ pd.stageLabel }}</span>
+        </div>
+        <h1 style="font:300 clamp(26px,3.8vw,38px)/1.12 'Azeret Mono', monospace;letter-spacing:.01em;margin:16px 0 0;color:#DDE4E8">{{ pd.nameUpper }}</h1>
+        <p style="font:400 clamp(14px,1.5vw,16px)/1.65 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:14px 0 0;max-width:60ch;text-wrap:pretty">{{ pd.desc }}</p>
+      </div>
+      <div style="flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ pd.actions }}" as="a" hint-placeholder-count="2">
+          <button onClick="{{ a.go }}" style="padding:10px 15px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em;transition:all .16s ease;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.ink }}" style-hover="opacity:.82">{{ a.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1 1 260px;min-width:180px">
+        <div style="position:relative;height:13px;border:1px solid #2A343C;background:#080B0E;padding:2px">
+          <div style="height:100%;transition:width .6s cubic-bezier(.2,.8,.2,1);background:{{ pd.gaugeInk }};box-shadow:0 0 14px {{ pd.gaugeGlow }};width:{{ pd.gaugeW }}"></div>
+        </div>
+        <div style="height:5px;margin-top:3px;background-image:repeating-linear-gradient(90deg,#232C33 0 1px,transparent 1px 5%)"></div>
+        <div style="margin-top:9px;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#78848D">{{ pd.tickLegend }}</div>
+      </div>
+      <div style="flex:0 0 auto">
+        <div style="font:300 clamp(30px,4vw,40px)/1 'Azeret Mono', monospace;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:#DDE4E8">{{ pd.pctLabel }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;border:1px solid #1C2329;background:#0A0D11;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+    <sc-for list="{{ pd.stages }}" as="st" hint-placeholder-count="3">
+      <div style="padding:16px 18px;border-right:1px solid #131A1F">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:{{ st.ink }}">{{ st.step }}</span>
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:{{ st.ink }}">{{ st.code }}</span>
+        </div>
+        <div style="margin-top:11px;font:400 15px/1.2 'Azeret Mono', monospace;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:{{ st.valueInk }}">{{ st.value }}</div>
+        <div style="margin-top:6px;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.11em;color:#5C6871">{{ st.note }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:clamp(24px,3.5vw,34px);display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:clamp(16px,2.5vw,26px);align-items:start">
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="display:flex;align-items:baseline;gap:12px;padding:13px 16px;border-bottom:1px solid #1C2329;flex-wrap:wrap">
+        <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">TASKS</span>
+        <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#5C6871">{{ pd.doneLabel }}</span>
+        <sc-if value="{{ pd.canAddTask }}">
+          <button onClick="{{ newProjectTaskHere }}" style="margin-left:auto;background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#E9A94A" style-hover="color:#F5C57E">+ ADD TASK</button>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ pd.taskLocked }}">
+        <div style="padding:26px 18px;border-left:2px solid #E9A94A;margin:12px;background:#10151A">
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#E9A94A">⚠ TASK CREATION LOCKED</div>
+          <div style="margin-top:14px;font:300 19px/1.35 'Azeret Mono', monospace;color:#DDE4E8">Build hasn't started.</div>
+          <p style="font:400 13px/1.65 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:8px 0 18px;max-width:44ch">Tasks unlock the moment you initiate the build — that's also when the start date is recorded for you.</p>
+          <button onClick="{{ pd.start }}" style="background:#E9A94A;border:0;color:#07090C;padding:10px 15px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em">▸ INITIATE BUILD</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ pd.hasTasks }}">
+        <div>
+          <sc-for list="{{ pd.tasks }}" as="t" hint-placeholder-count="6">
+            <div style="display:flex;align-items:flex-start;gap:11px;padding:12px 16px;border-bottom:1px solid #131A1F;transition:background .16s ease" style-hover="background:#10151A">
+              <button onClick="{{ t.toggle }}" aria-label="Toggle task" style="flex:0 0 auto;margin-top:1px;background:none;border:0;padding:0;cursor:pointer;font:400 12px/1.4 'Azeret Mono', monospace;letter-spacing:-.04em;transition:color .18s ease;color:{{ t.boxInk }}" style-focus="outline:1px solid #E9A94A;outline-offset:2px">{{ t.boxText }}</button>
+              <div style="flex:1 1 auto;min-width:0">
+                <div style="font:400 14px/1.45 'IBM Plex Sans', sans-serif;color:{{ t.titleInk }};text-decoration:{{ t.deco }}">{{ t.title }}</div>
+                <div style="margin-top:4px;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ t.idLabel }}</div>
+                <sc-if value="{{ t.hasSrc }}">
+                  <div style="margin-top:5px;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.11em;color:{{ t.srcInk }}">{{ t.srcLabel }}</div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ t.inProgress }}"><span style="font:400 9px/1.9 'Azeret Mono', monospace;letter-spacing:.12em;color:#E9A94A">● ACTIVE</span></sc-if>
+              <span style="flex:0 0 auto;font:400 9px/1.9 'Azeret Mono', monospace;letter-spacing:.11em;color:{{ t.dueInk }}">{{ t.rightMeta }}</span>
+              <button onClick="{{ t.del }}" aria-label="Delete task" style="flex:0 0 auto;background:none;border:0;padding:0 2px;cursor:pointer;font:400 11px/1.7 'Azeret Mono', monospace;color:#3D474F" style-hover="color:#E4614A">✕</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ pd.noTasks }}">
+        <div style="padding:34px 18px">
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#5C6871">// NO TASKS ON RECORD</div>
+          <div style="margin-top:14px;font:300 18px/1.35 'Azeret Mono', monospace;color:#DDE4E8">Nothing logged yet.</div>
+          <p style="font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D;margin:7px 0 16px">Break the work into the next few concrete steps.</p>
+          <button onClick="{{ newProjectTaskHere }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:9px 13px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#E9A94A;color:#E9A94A">+ ADD FIRST TASK</button>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(16px,2.5vw,26px)">
+      <div style="border:1px solid #1C2329;background:#0A0D11">
+        <div style="padding:13px 16px;border-bottom:1px solid #1C2329;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap">
+          <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">SOURCE</span>
+          <button onClick="{{ goSource }}" style="margin-left:auto;background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#78848D" style-hover="color:#E9A94A">ALL REPOS ▸</button>
+        </div>
+        <sc-if value="{{ pd.hasRepo }}">
+          <div>
+            <div style="padding:14px 16px;border-bottom:1px solid #131A1F">
+              <div style="font:400 12px/1.4 'Azeret Mono', monospace;letter-spacing:.03em;color:#E9A94A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pd.repoSlug }}</div>
+              <div style="margin-top:6px;font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ pd.repoBadge }}</div>
+              <div style="margin-top:4px;font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.11em;color:#78848D">{{ pd.repoMeta }}</div>
+            </div>
+            <sc-if value="{{ pd.hasRepoPRs }}">
+              <div>
+                <div style="padding:10px 16px 5px;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">// PULL REQUESTS</div>
+                <sc-for list="{{ pd.repoPRs }}" as="p" hint-placeholder-count="2">
+                  <div style="padding:10px 16px;border-bottom:1px solid #131A1F;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
+                    <span style="font:400 10px/1.5 'Azeret Mono', monospace;letter-spacing:.05em;color:#78848D">{{ p.num }}</span>
+                    <span style="flex:1 1 130px;min-width:0;font:400 13px/1.4 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ p.title }}</span>
+                    <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ p.stateInk }}">{{ p.stateMark }} {{ p.stateLabel }}</span>
+                    <sc-if value="{{ p.canMerge }}">
+                      <button onClick="{{ p.merge }}" style="background:none;border:1px solid #2A343C;padding:5px 9px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#6FB3A8" style-hover="background:#6FB3A8;color:#07090C">MERGE</button>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ pd.hasRepoBranches }}">
+              <div>
+                <div style="padding:10px 16px 5px;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">// BRANCHES</div>
+                <sc-for list="{{ pd.repoBranches }}" as="b" hint-placeholder-count="2">
+                  <div style="padding:10px 16px;border-bottom:1px solid #131A1F;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
+                    <span style="flex:1 1 130px;min-width:0;font:400 12px/1.4 'Azeret Mono', monospace;letter-spacing:.02em;color:#DDE4E8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ b.name }}</span>
+                    <span style="font:400 10px/1.5 'Azeret Mono', monospace;color:#78848D;font-variant-numeric:tabular-nums">{{ b.driftLabel }}</span>
+                    <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.12em;color:{{ b.stateInk }}">{{ b.stateLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ pd.hasRepoCommits }}">
+              <div>
+                <div style="padding:10px 16px 5px;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">// RECENT COMMITS</div>
+                <sc-for list="{{ pd.repoCommits }}" as="c" hint-placeholder-count="3">
+                  <div style="padding:10px 16px;border-bottom:1px solid #131A1F">
+                    <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
+                      <span style="font:400 10px/1.5 'Azeret Mono', monospace;letter-spacing:.04em;color:#E9A94A">{{ c.sha }}</span>
+                      <span style="flex:1 1 130px;min-width:0;font:400 13px/1.4 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ c.msg }}</span>
+                    </div>
+                    <div style="margin-top:5px;font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.11em;color:#5C6871">{{ c.when }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ pd.noRepo }}">
+          <div style="padding:24px 16px">
+            <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#5C6871">// NO REPOSITORY BOUND</div>
+            <p style="font:400 13px/1.65 'IBM Plex Sans', sans-serif;color:#78848D;margin:12px 0 14px">Bind a repository and this project's tasks start closing themselves when their pull requests merge.</p>
+            <button onClick="{{ pd.linkRepo }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:8px 13px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#E9A94A;color:#E9A94A">+ LINK REPOSITORY</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="border:1px solid #1C2329;background:#0A0D11">
+        <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">UPLINKS</div>
+        <sc-if value="{{ pd.hasLinks }}">
+          <div>
+            <sc-for list="{{ pd.links }}" as="l" hint-placeholder-count="2">
+              <div style="padding:12px 16px;border-bottom:1px solid #131A1F">
+                <div style="font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ l.label }}</div>
+                <div style="margin-top:5px;font:400 12px/1.45 'Azeret Mono', monospace;letter-spacing:.02em;color:#E9A94A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.url }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ pd.noLinks }}">
+          <div style="padding:24px 16px;font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">No uplinks attached.</div>
+        </sc-if>
+      </div>
+
+      <div style="border:1px solid #1C2329;background:#0A0D11">
+        <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">NOTES</div>
+        <sc-if value="{{ pd.hasNotes }}">
+          <p style="font:400 14px/1.7 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:0;padding:16px;text-wrap:pretty">{{ pd.notes }}</p>
+        </sc-if>
+        <sc-if value="{{ pd.noNotes }}">
+          <div style="padding:24px 16px;font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">Nothing written down yet.</div>
+        </sc-if>
+      </div>
+
+      <div style="border:1px solid #1C2329;background:#0A0D11">
+        <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">EVENT LOG</div>
+        <sc-for list="{{ pd.activity }}" as="a" hint-placeholder-count="3">
+          <div style="padding:11px 16px;border-bottom:1px solid #131A1F">
+            <div style="font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ a.when }} · <span style="color:{{ a.ink }}">{{ a.verb }}</span></div>
+            <div style="margin-top:5px;font:400 13px/1.45 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ a.subj }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isTasks }}">
+<section data-screen-label="Queue">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+    <h1 style="font:300 clamp(24px,3.4vw,32px)/1.1 'Azeret Mono', monospace;letter-spacing:.02em;margin:0">QUEUE</h1>
+    <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ clockDate }}</span>
+    <button onClick="{{ newPersonalTask }}" style="margin-left:auto;background:#E9A94A;border:0;color:#07090C;padding:9px 15px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="background:#F5C57E">+ NEW TASK</button>
+  </div>
+
+  <div style="margin-top:22px;border:1px solid #1C2329;background:#0A0D11;padding:13px 16px;display:flex;gap:clamp(16px,3vw,32px);flex-wrap:wrap">
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <sc-for list="{{ taskViews }}" as="v" hint-placeholder-count="5">
+        <button onClick="{{ v.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ v.ink }}">{{ v.label }} <span style="color:#5C6871">{{ v.count }}</span></button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-left:auto;align-items:center">
+      <sc-for list="{{ ctxFilters }}" as="f" hint-placeholder-count="3">
+        <button onClick="{{ f.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ f.ink }}">{{ f.mark }} {{ f.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ hasTaskRows }}">
+    <div style="margin-top:12px;border:1px solid #1C2329;background:#0A0D11">
+      <sc-for list="{{ taskRows }}" as="t" hint-placeholder-count="7">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid #131A1F;transition:background .16s ease" style-hover="background:#10151A">
+          <button onClick="{{ t.toggle }}" aria-label="Toggle task" style="flex:0 0 auto;margin-top:2px;background:none;border:0;padding:0;cursor:pointer;font:400 13px/1.4 'Azeret Mono', monospace;letter-spacing:-.04em;transition:color .18s ease;color:{{ t.boxInk }}" style-focus="outline:1px solid #E9A94A;outline-offset:2px">{{ t.boxText }}</button>
+          <div style="flex:1 1 auto;min-width:0">
+            <div style="font:400 15px/1.45 'IBM Plex Sans', sans-serif;color:{{ t.titleInk }};text-decoration:{{ t.deco }}">{{ t.title }}</div>
+            <div style="margin-top:5px;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ t.ctxFull }}</div>
+          </div>
+          <sc-if value="{{ t.inProgress }}"><span style="font:400 9px/2.2 'Azeret Mono', monospace;letter-spacing:.12em;color:#E9A94A">● ACTIVE</span></sc-if>
+          <span style="flex:0 0 auto;font:400 9px/2.2 'Azeret Mono', monospace;letter-spacing:.11em;color:{{ t.dueInk }}">{{ t.rightMeta }}</span>
+          <button onClick="{{ t.del }}" aria-label="Delete task" style="flex:0 0 auto;background:none;border:0;padding:0 2px;cursor:pointer;font:400 11px/2 'Azeret Mono', monospace;color:#3D474F" style-hover="color:#E4614A">✕</button>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noTaskRows }}">
+    <div style="margin-top:12px;border:1px solid #1C2329;background:#0A0D11;padding:56px 24px;text-align:center">
+      <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#6FB3A8">// {{ emptyTasksCode }}</div>
+      <div style="margin-top:14px;font:300 20px/1.3 'Azeret Mono', monospace">{{ emptyTasksTitle }}</div>
+      <p style="font:400 13px/1.6 'IBM Plex Sans', sans-serif;color:#78848D;margin:8px auto 0;max-width:44ch">{{ emptyTasksBody }}</p>
+    </div>
+  </sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{ isSource }}">
+<section data-screen-label="Source control">
+  <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+    <h1 style="font:300 clamp(24px,3.4vw,32px)/1.1 'Azeret Mono', monospace;letter-spacing:.02em;margin:0">SOURCE CONTROL</h1>
+    <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">READ-ONLY MIRROR OF GITHUB</span>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+      <button onClick="{{ simulatePush }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:9px 14px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;transition:all .16s ease" style-hover="border-color:#E9A94A;color:#E9A94A">▸ SIMULATE PUSH</button>
+      <button onClick="{{ newRepoLink }}" style="background:#E9A94A;border:0;color:#07090C;padding:9px 15px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="background:#F5C57E">+ LINK REPO</button>
+    </div>
+  </div>
+
+  <div style="margin-top:22px;border:1px solid #1C2329;background:#0A0D11;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+    <sc-for list="{{ srcMetrics }}" as="m" hint-placeholder-count="6">
+      <div style="padding:15px 17px;border-right:1px solid #131A1F">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.15em;color:#5C6871">{{ m.label }}</div>
+        <div style="margin-top:11px;display:flex;align-items:baseline;gap:7px">
+          <span style="font:300 clamp(22px,2.8vw,28px)/1 'Azeret Mono', monospace;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:{{ m.ink }}">{{ m.value }}</span>
+          <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.11em;color:#5C6871">{{ m.unit }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:clamp(20px,3vw,28px);border:1px solid #1C2329;background:#0A0D11">
+    <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">REPOSITORIES</div>
+    <sc-if value="{{ hasRepos }}">
+      <div>
+        <sc-for list="{{ repoRows }}" as="r" hint-placeholder-count="4">
+          <div onClick="{{ r.open }}" style="cursor:pointer;padding:15px 16px;border-bottom:1px solid #131A1F;transition:background .16s ease" style-hover="background:#10151A">
+            <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+              <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ r.ref }}</span>
+              <span style="font:400 13px/1.3 'Azeret Mono', monospace;letter-spacing:.03em;color:#E9A94A">{{ r.slug }}</span>
+              <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#5C6871">{{ r.badge }}</span>
+              <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:{{ r.prInk }}">{{ r.metaLine }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noRepos }}">
+      <div style="padding:38px 18px">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#5C6871">// NO REPOSITORIES LINKED</div>
+        <div style="margin-top:14px;font:300 19px/1.35 'Azeret Mono', monospace;color:#DDE4E8">Nothing is wired up yet.</div>
+        <p style="font:400 13px/1.65 'IBM Plex Sans', sans-serif;color:#78848D;margin:8px 0 16px;max-width:46ch">Link a repository and the console stops needing manual ticking — commits, branches and pull requests bind themselves to tasks.</p>
+        <button onClick="{{ newRepoLink }}" style="background:#E9A94A;border:0;color:#07090C;padding:10px 15px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em">+ LINK REPO</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ hasUnlinked }}">
+      <div style="padding:13px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:#080B0E">
+        <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">UNLINKED</span>
+        <sc-for list="{{ unlinked }}" as="u" hint-placeholder-count="2">
+          <button onClick="{{ u.link }}" style="background:none;border:1px solid #1C2329;padding:6px 10px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.11em;color:#78848D;transition:all .16s ease" style-hover="border-color:#E9A94A;color:#E9A94A">{{ u.ref }} {{ u.name }} +</button>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="margin-top:clamp(20px,3vw,28px);border:1px solid #1C2329;background:#0A0D11">
+    <div style="padding:13px 16px;border-bottom:1px solid #1C2329;display:flex;gap:18px;flex-wrap:wrap">
+      <sc-for list="{{ srcTabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:{{ t.ink }}">{{ t.label }} <span style="color:#5C6871">{{ t.count }}</span></button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showPRs }}">
+      <div>
+        <sc-for list="{{ prRows }}" as="p" hint-placeholder-count="5">
+          <div style="padding:15px 16px;border-bottom:1px solid #131A1F;transition:background .16s ease" style-hover="background:#10151A">
+            <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+              <span style="font:400 11px/1.3 'Azeret Mono', monospace;letter-spacing:.06em;color:#78848D">{{ p.num }}</span>
+              <span style="font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ p.stateInk }}">{{ p.stateMark }} {{ p.stateLabel }}</span>
+              <span style="flex:1 1 200px;min-width:0;font:400 14px/1.4 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ p.title }}</span>
+              <span style="font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.12em;color:{{ p.checkInk }}">{{ p.checkLabel }}</span>
+              <span style="font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871;font-variant-numeric:tabular-nums">{{ p.diffLabel }}</span>
+              <sc-if value="{{ p.canMerge }}">
+                <button onClick="{{ p.merge }}" style="background:none;border:1px solid #2A343C;padding:6px 11px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#6FB3A8;transition:all .16s ease" style-hover="background:#6FB3A8;color:#07090C;border-color:#6FB3A8">MERGE</button>
+              </sc-if>
+            </div>
+            <div style="margin-top:8px;font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.11em;color:#5C6871">{{ p.metaLine }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showBranches }}">
+      <div>
+        <sc-for list="{{ branchRows }}" as="b" hint-placeholder-count="6">
+          <div onClick="{{ b.open }}" style="cursor:pointer;padding:14px 16px;border-bottom:1px solid #131A1F;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;transition:background .16s ease" style-hover="background:#10151A">
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ b.ref }}</span>
+            <span style="flex:1 1 200px;min-width:0;font:400 13px/1.4 'Azeret Mono', monospace;letter-spacing:.02em;color:#DDE4E8">{{ b.name }}</span>
+            <span style="font:400 10px/1.5 'Azeret Mono', monospace;letter-spacing:.06em;color:#78848D;font-variant-numeric:tabular-nums">{{ b.driftLabel }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.12em;color:{{ b.taskInk }}">{{ b.taskLabel }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871">{{ b.last }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ b.stateInk }}">{{ b.stateLabel }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showCommits }}">
+      <div>
+        <sc-for list="{{ commitRows }}" as="c" hint-placeholder-count="7">
+          <div onClick="{{ c.open }}" style="cursor:pointer;padding:14px 16px;border-bottom:1px solid #131A1F;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;transition:background .16s ease" style-hover="background:#10151A">
+            <span style="flex:0 0 68px;font:400 11px/1.4 'Azeret Mono', monospace;letter-spacing:.04em;color:#E9A94A">{{ c.sha }}</span>
+            <span style="flex:1 1 220px;min-width:0;font:400 13px/1.45 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ c.msg }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.11em;color:{{ c.taskInk }}">{{ c.metaLine }}</span>
+            <span style="font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871">{{ c.when }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="margin-top:clamp(20px,3vw,28px);display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:clamp(16px,2.5vw,26px);align-items:start">
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="padding:13px 16px;border-bottom:1px solid #1C2329;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">AUTOMATION RULES</div>
+      <sc-for list="{{ automations }}" as="a" hint-placeholder-count="6">
+        <div style="padding:14px 16px;border-bottom:1px solid #131A1F;display:flex;gap:14px;align-items:flex-start">
+          <button onClick="{{ a.go }}" aria-label="Toggle rule" style="flex:0 0 auto;margin-top:2px;width:28px;height:15px;border:1px solid #2A343C;background:#080B0E;padding:0;cursor:pointer;position:relative;transition:border-color .16s ease" style-focus="outline:1px solid #E9A94A;outline-offset:2px">
+            <span style="position:absolute;top:1px;width:11px;height:11px;transition:left .18s cubic-bezier(.2,.8,.2,1), background .18s ease;background:{{ a.knobBg }};left:{{ a.knobX }}"></span>
+          </button>
+          <div style="flex:1 1 auto;min-width:0">
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+              <span style="font:400 10px/1.4 'Azeret Mono', monospace;letter-spacing:.13em;color:#DDE4E8">{{ a.label }}</span>
+              <span style="font:400 9px/1.5 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ a.ink }}">{{ a.stateLabel }}</span>
+            </div>
+            <div style="margin-top:5px;font:400 12px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">{{ a.detail }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="border:1px solid #1C2329;background:#0A0D11">
+      <div style="padding:13px 16px;border-bottom:1px solid #1C2329;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap">
+        <span style="font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#DDE4E8">INTEGRATION SPEC</span>
+        <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#5C6871">FOR REVIEW</span>
+      </div>
+      <div style="padding:4px 0">
+        <sc-for list="{{ spec }}" as="l" hint-placeholder-count="8">
+          <div style="padding:9px 16px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap">
+            <span style="flex:0 0 88px;font:400 9px/1.6 'Azeret Mono', monospace;letter-spacing:.14em;color:#5C6871">{{ l.k }}</span>
+            <span style="flex:1 1 180px;min-width:0;font:400 11px/1.65 'Azeret Mono', monospace;letter-spacing:.02em;color:#8A98A2">{{ l.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:13px 16px;border-top:1px solid #131A1F;font:400 11px/1.7 'IBM Plex Sans', sans-serif;color:#78848D">Nothing here writes to GitHub. The console mirrors events and derives state, so a failed webhook costs freshness, never data.</div>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isActivity }}">
+<section data-screen-label="Log">
+  <h1 style="font:300 clamp(24px,3.4vw,32px)/1.1 'Azeret Mono', monospace;letter-spacing:.02em;margin:0">EVENT LOG</h1>
+  <p style="font:400 14px/1.65 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:12px 0 0;max-width:56ch">Every state change the system recorded on your behalf. None of it was entered by hand.</p>
+  <div style="margin-top:26px;border:1px solid #1C2329;background:#0A0D11">
+    <sc-for list="{{ activityAll }}" as="a" hint-placeholder-count="8">
+      <div style="display:flex;gap:18px;padding:13px 16px;border-bottom:1px solid #131A1F;align-items:baseline;flex-wrap:wrap">
+        <span style="flex:0 0 78px;font:400 9px/1.7 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871">{{ a.when }}</span>
+        <span style="flex:0 0 148px;font:400 9px/1.7 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ a.ink }}">{{ a.verb }}</span>
+        <span style="flex:1 1 180px;min-width:0;font:400 14px/1.5 'IBM Plex Sans', sans-serif;color:#DDE4E8">{{ a.subj }}</span>
+        <span style="font:400 9px/1.7 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ a.ctx }}</span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isSettings }}">
+<section data-screen-label="Config">
+  <h1 style="font:300 clamp(24px,3.4vw,32px)/1.1 'Azeret Mono', monospace;letter-spacing:.02em;margin:0">CONFIG</h1>
+  <div style="margin-top:26px;max-width:620px;border:1px solid #1C2329;background:#0A0D11">
+    <div style="padding:18px 18px;border-bottom:1px solid #131A1F;display:flex;gap:18px;align-items:baseline;flex-wrap:wrap">
+      <div style="flex:1 1 200px">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">OPERATOR</div>
+        <div style="margin-top:9px;font:400 14px/1.4 'Azeret Mono', monospace;letter-spacing:.02em">{{ email }}</div>
+      </div>
+      <button onClick="{{ signOut }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:9px 14px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#E4614A;color:#E4614A">SIGN OUT</button>
+    </div>
+    <div style="padding:18px;border-bottom:1px solid #131A1F;display:flex;gap:18px;align-items:baseline;flex-wrap:wrap">
+      <div style="flex:1 1 200px">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">DEFAULT SCOPE</div>
+        <div style="margin-top:9px;font:400 13px/1.5 'IBM Plex Sans', sans-serif;color:#78848D">Which slice of the fleet loads first.</div>
+      </div>
+      <div style="display:flex;gap:12px">
+        <sc-for list="{{ scopes }}" as="s" hint-placeholder-count="3">
+          <button onClick="{{ s.go }}" style="background:none;border:0;padding:0;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ s.ink }}">{{ s.mark }} {{ s.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="padding:18px;border-bottom:1px solid #131A1F;display:flex;gap:18px;align-items:baseline;flex-wrap:wrap">
+      <div style="flex:1 1 200px">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">TELEMETRY REFRESH</div>
+        <div style="margin-top:9px;font:400 13px/1.5 'IBM Plex Sans', sans-serif;color:#78848D">Re-poll the fleet to see loading states.</div>
+      </div>
+      <button onClick="{{ refetch }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:9px 14px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#E9A94A;color:#E9A94A">RE-POLL</button>
+    </div>
+    <div style="padding:18px;display:flex;gap:18px;align-items:baseline;flex-wrap:wrap">
+      <div style="flex:1 1 200px">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">SYSTEM MESSAGES</div>
+        <div style="margin-top:9px;font:400 13px/1.5 'IBM Plex Sans', sans-serif;color:#78848D">Preview a transmission.</div>
+      </div>
+      <button onClick="{{ demoToast }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:9px 14px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#E9A94A;color:#E9A94A">TRANSMIT</button>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+</main>
+</div>
+</sc-if>
+
+<sc-if value="{{ notAuthed }}">
+<section data-screen-label="Access" style="position:fixed;inset:0;z-index:60;background:#07090C;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto">
+  <div style="width:100%;max-width:392px;background:#0C1014;border:1px solid #2A343C;position:relative;padding:clamp(24px,4vw,34px)">
+    <div style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:1px solid #E9A94A;border-left:1px solid #E9A94A"></div>
+    <div style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:1px solid #E9A94A;border-right:1px solid #E9A94A"></div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <span style="width:7px;height:7px;background:#E9A94A;box-shadow:0 0 9px rgba(233,169,74,.8)"></span>
+      <span style="font:500 12px/1 'Azeret Mono', monospace;letter-spacing:.16em">SHIPYARD</span>
+    </div>
+    <div style="margin-top:34px;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.2em;color:#5C6871">// IDENTITY VERIFICATION</div>
+    <h1 style="font:300 26px/1.25 'Azeret Mono', monospace;letter-spacing:.01em;margin:16px 0 0">Request access.</h1>
+    <p style="font:400 14px/1.65 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:10px 0 0">Single operator, single log. A one-time link is issued to your address — no credentials stored.</p>
+    <div style="margin-top:28px">
+      <label for="authmail" style="display:block;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">ADDRESS</label>
+      <input id="authmail" type="email" value="{{ email }}" onChange="{{ setEmail }}" placeholder="operator@somewhere.dev" style="width:100%;margin-top:10px;background:#080B0E;border:1px solid #2A343C;padding:11px 12px;font:400 14px/1.3 'Azeret Mono', monospace;letter-spacing:.02em;outline:none;transition:all .16s ease" style-focus="border-color:#E9A94A" />
+    </div>
+    <button onClick="{{ signIn }}" style="margin-top:16px;width:100%;background:#E9A94A;border:0;color:#07090C;padding:13px;cursor:pointer;font:500 11px/1 'Azeret Mono', monospace;letter-spacing:.16em" style-hover="background:#F5C57E">▸ ISSUE ACCESS LINK</button>
+    <div style="margin-top:22px;font:400 9px/1.9 'Azeret Mono', monospace;letter-spacing:.12em;color:#3D474F">ROW-LEVEL SECURITY ACTIVE<br />OWNERSHIP ENFORCED AT DATABASE LAYER</div>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ paletteOpen }}">
+<div style="position:fixed;inset:0;z-index:70;background:rgba(4,6,8,.72);display:flex;align-items:flex-start;justify-content:center;padding:clamp(44px,11vh,130px) 20px 20px;animation:fade .12s ease" onClick="{{ closePalette }}">
+  <div onClick="{{ stop }}" style="width:100%;max-width:580px;background:#0C1014;border:1px solid #2A343C;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);animation:lift .16s cubic-bezier(.2,.8,.2,1)">
+    <div style="display:flex;align-items:center;gap:11px;padding:15px 18px;border-bottom:1px solid #1C2329">
+      <span style="font:400 14px/1 'Azeret Mono', monospace;color:#E9A94A">▸</span>
+      <input value="{{ q }}" onChange="{{ setQ }}" placeholder="query fleet, queue, or command…" autoFocus="{{ true }}" style="flex:1;background:none;border:0;outline:none;font:400 15px/1.3 'Azeret Mono', monospace;letter-spacing:.01em" />
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">ESC</span>
+    </div>
+    <div style="max-height:min(52vh,420px);overflow:auto">
+      <sc-for list="{{ paletteGroups }}" as="g" hint-placeholder-count="2">
+        <div>
+          <div style="padding:11px 18px 6px;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#5C6871">// {{ g.label }}</div>
+          <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
+            <button onClick="{{ i.go }}" onMouseEnter="{{ i.hover }}" style="display:flex;width:100%;text-align:left;align-items:center;gap:11px;border:0;border-left:2px solid transparent;padding:11px 18px;cursor:pointer;background:{{ i.bg }};border-left-color:{{ i.mark }}">
+              <span style="flex:1 1 auto;min-width:0;font:400 14px/1.3 'IBM Plex Sans', sans-serif;color:#DDE4E8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ i.label }}</span>
+              <span style="flex:0 0 auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ i.meta }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-for>
+      <sc-if value="{{ paletteEmpty }}">
+        <div style="padding:42px 18px">
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#E4614A">// NO MATCH</div>
+          <div style="margin-top:12px;font:300 17px/1.4 'Azeret Mono', monospace">Nothing for “{{ q }}”.</div>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex;gap:16px;padding:10px 18px;border-top:1px solid #1C2329;background:#0A0D11;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">
+      <span>↑↓ SELECT</span><span>↵ EXECUTE</span><span style="margin-left:auto">{{ paletteCount }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasConfirm }}">
+<div style="position:fixed;inset:0;z-index:80;background:rgba(4,6,8,.76);display:flex;align-items:center;justify-content:center;padding:22px;animation:fade .12s ease;overflow:auto" onClick="{{ closeModal }}">
+  <div onClick="{{ stop }}" role="dialog" aria-modal="true" style="width:100%;max-width:472px;background:#0C1014;border:1px solid #2A343C;position:relative;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);animation:lift .18s cubic-bezier(.2,.8,.2,1);margin:auto">
+    <div style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:1px solid {{ cf.accent }};border-left:1px solid {{ cf.accent }}"></div>
+    <div style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:1px solid {{ cf.accent }};border-right:1px solid {{ cf.accent }}"></div>
+    <div style="display:flex;align-items:baseline;gap:12px;padding:13px 20px;border-bottom:1px solid #1C2329;flex-wrap:wrap">
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:{{ cf.accent }}">// {{ cf.eyebrow }}</span>
+      <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ cf.ref }}</span>
+    </div>
+    <div style="padding:26px 20px 22px">
+      <h2 style="font:300 22px/1.35 'Azeret Mono', monospace;letter-spacing:.005em;margin:0;color:#DDE4E8">{{ cf.title }}</h2>
+      <p style="font:400 14px/1.65 'IBM Plex Sans', sans-serif;color:#8A98A2;margin:12px 0 0;text-wrap:pretty">{{ cf.body }}</p>
+
+      <sc-if value="{{ cf.hasTransition }}">
+        <div style="margin-top:22px;border:1px solid #1C2329;background:#080B0E;padding:15px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">CURRENT</div>
+            <div style="margin-top:8px;font:400 12px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#78848D">{{ cf.fromLabel }}</div>
+          </div>
+          <span style="font:400 13px/1 'Azeret Mono', monospace;color:{{ cf.accent }}">▸▸</span>
+          <div>
+            <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">TARGET</div>
+            <div style="margin-top:8px;font:400 12px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:{{ cf.accent }}">{{ cf.toLabel }}</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ cf.hasList }}">
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ cf.list }}" as="l" hint-placeholder-count="3">
+            <div style="display:flex;gap:10px;align-items:baseline">
+              <span style="font:400 10px/1.5 'Azeret Mono', monospace;color:{{ cf.accent }}">▸</span>
+              <span style="font:400 12px/1.55 'Azeret Mono', monospace;letter-spacing:.02em;color:#8A98A2">{{ l.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ cf.hasStat }}">
+        <div style="margin-top:22px;border:1px solid #1C2329;background:#080B0E;display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr))">
+          <sc-for list="{{ cf.stats }}" as="st" hint-placeholder-count="3">
+            <div style="padding:14px 15px;border-right:1px solid #131A1F">
+              <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.15em;color:#5C6871">{{ st.label }}</div>
+              <div style="margin-top:9px;font:300 19px/1 'Azeret Mono', monospace;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:{{ st.ink }}">{{ st.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding:0 20px 22px;flex-wrap:wrap">
+      <button onClick="{{ closeModal }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:10px 15px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#DDE4E8;color:#DDE4E8">{{ cf.cancelLabel }}</button>
+      <sc-if value="{{ cf.hasConfirmBtn }}">
+        <button onClick="{{ cf.confirm }}" style="border:0;padding:10px 17px;cursor:pointer;font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#07090C;background:{{ cf.accent }}" style-hover="opacity:.85">{{ cf.confirmLabel }}</button>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasForm }}">
+<div style="position:fixed;inset:0;z-index:80;background:rgba(4,6,8,.76);display:flex;align-items:center;justify-content:center;padding:22px;animation:fade .12s ease;overflow:auto" onClick="{{ closeModal }}">
+  <div onClick="{{ stop }}" role="dialog" aria-modal="true" style="width:100%;max-width:500px;background:#0C1014;border:1px solid #2A343C;position:relative;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);animation:lift .18s cubic-bezier(.2,.8,.2,1);margin:auto">
+    <div style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:1px solid #E9A94A;border-left:1px solid #E9A94A"></div>
+    <div style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:1px solid #E9A94A;border-right:1px solid #E9A94A"></div>
+    <div style="display:flex;align-items:baseline;gap:12px;padding:13px 20px;border-bottom:1px solid #1C2329;flex-wrap:wrap">
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#E9A94A">// {{ fm.eyebrow }}</span>
+      <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">{{ fm.ref }}</span>
+    </div>
+    <div style="padding:24px 20px">
+      <label for="f-title" style="display:block;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">{{ fm.nameLabel }}</label>
+      <input id="f-title" value="{{ fm.name }}" onChange="{{ setFormName }}" placeholder="{{ fm.namePlaceholder }}" style="width:100%;margin:10px 0 22px;background:#080B0E;border:1px solid #2A343C;padding:11px 12px;font:400 15px/1.3 'IBM Plex Sans', sans-serif;outline:none;transition:all .16s ease" style-focus="border-color:#E9A94A" />
+
+      <sc-if value="{{ fm.isProject }}">
+        <div>
+          <label for="f-desc" style="display:block;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">DESCRIPTION</label>
+          <textarea id="f-desc" value="{{ fm.desc }}" onChange="{{ setFormDesc }}" rows="2" placeholder="One sentence on what this is." style="width:100%;margin:10px 0 22px;background:#080B0E;border:1px solid #2A343C;padding:11px 12px;font:400 14px/1.55 'IBM Plex Sans', sans-serif;outline:none;resize:vertical;transition:all .16s ease" style-focus="border-color:#E9A94A"></textarea>
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">CLASS</div>
+          <div style="display:flex;gap:8px;margin:11px 0 22px">
+            <sc-for list="{{ fm.types }}" as="t" hint-placeholder-count="2">
+              <button onClick="{{ t.go }}" style="padding:9px 14px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.12em;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.ink }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ fm.isTask }}">
+        <div>
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">ASSIGN TO</div>
+          <div style="margin:11px 0 8px;border:1px solid #1C2329;background:#080B0E;max-height:186px;overflow:auto">
+            <sc-for list="{{ fm.projectOptions }}" as="o" hint-placeholder-count="4">
+              <button onClick="{{ o.go }}" disabled="{{ o.disabled }}" style="display:flex;width:100%;text-align:left;gap:11px;align-items:center;border:0;border-bottom:1px solid #131A1F;border-left:2px solid transparent;padding:11px 13px;cursor:{{ o.cursor }};background:{{ o.bg }};border-left-color:{{ o.mark }};opacity:{{ o.opacity }}">
+                <span style="flex:1 1 auto;min-width:0;font:400 14px/1.3 'IBM Plex Sans', sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ o.label }}</span>
+                <span style="flex:0 0 auto;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.11em;color:{{ o.metaInk }}">{{ o.meta }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ fm.showLockNote }}">
+            <p style="margin:0 0 22px;font:400 12px/1.6 'IBM Plex Sans', sans-serif;color:#78848D">Standby projects can't accept tasks — initiate their build first.</p>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="flex:1 1 150px">
+          <label for="f-date" style="display:block;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">{{ fm.dateLabel }}</label>
+          <input id="f-date" type="date" value="{{ fm.date }}" onChange="{{ setFormDate }}" style="width:100%;margin-top:10px;background:#080B0E;border:1px solid #2A343C;padding:10px 12px;font:400 13px/1.3 'Azeret Mono', monospace;outline:none;transition:all .16s ease" style-focus="border-color:#E9A94A" />
+        </div>
+        <div style="flex:1 1 150px">
+          <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">PRIORITY</div>
+          <div style="display:flex;gap:7px;margin-top:10px">
+            <sc-for list="{{ fm.priorities }}" as="p" hint-placeholder-count="3">
+              <button onClick="{{ p.go }}" style="padding:9px 12px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;background:{{ p.bg }};border:1px solid {{ p.border }};color:{{ p.ink }}">{{ p.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding:0 20px 22px;flex-wrap:wrap">
+      <button onClick="{{ closeModal }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:10px 15px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#DDE4E8;color:#DDE4E8">ABORT</button>
+      <button onClick="{{ fm.submit }}" disabled="{{ fm.disabled }}" style="border:0;padding:10px 17px;cursor:{{ fm.cursor }};font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#07090C;background:{{ fm.btnBg }}">{{ fm.submitLabel }}</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasRepoForm }}">
+<div style="position:fixed;inset:0;z-index:80;background:rgba(4,6,8,.76);display:flex;align-items:center;justify-content:center;padding:22px;animation:fade .12s ease;overflow:auto" onClick="{{ closeRepoForm }}">
+  <div onClick="{{ stop }}" role="dialog" aria-modal="true" style="width:100%;max-width:512px;background:#0C1014;border:1px solid #2A343C;position:relative;box-shadow:0 30px 70px -20px rgba(0,0,0,.9);animation:lift .18s cubic-bezier(.2,.8,.2,1);margin:auto">
+    <div style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:1px solid #E9A94A;border-left:1px solid #E9A94A"></div>
+    <div style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:1px solid #E9A94A;border-right:1px solid #E9A94A"></div>
+    <div style="display:flex;align-items:baseline;gap:12px;padding:13px 20px;border-bottom:1px solid #1C2329;flex-wrap:wrap">
+      <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.18em;color:#E9A94A">// LINK REPOSITORY</span>
+      <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.12em;color:#5C6871">GITHUB APP · READ-ONLY</span>
+    </div>
+    <div style="padding:24px 20px">
+      <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">BIND TO PROJECT</div>
+      <div style="margin:11px 0 22px;border:1px solid #1C2329;background:#080B0E;max-height:150px;overflow:auto">
+        <sc-for list="{{ rf.options }}" as="o" hint-placeholder-count="3">
+          <button onClick="{{ o.go }}" style="display:flex;width:100%;text-align:left;gap:11px;align-items:center;border:0;border-bottom:1px solid #131A1F;border-left:2px solid transparent;padding:11px 13px;cursor:pointer;background:{{ o.bg }};border-left-color:{{ o.mark }}">
+            <span style="flex:1 1 auto;min-width:0;font:400 13px/1.3 'Azeret Mono', monospace;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ o.label }}</span>
+            <span style="flex:0 0 auto;font:400 9px/1.4 'Azeret Mono', monospace;letter-spacing:.11em;color:#5C6871">{{ o.meta }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <label for="rf-slug" style="display:block;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">REPOSITORY</label>
+      <input id="rf-slug" value="{{ rf.slug }}" onChange="{{ rf.setSlug }}" placeholder="owner/repo" style="width:100%;margin:10px 0 22px;background:#080B0E;border:1px solid #2A343C;padding:11px 12px;font:400 14px/1.3 'Azeret Mono', monospace;letter-spacing:.02em;outline:none;transition:all .16s ease" style-focus="border-color:#E9A94A" />
+
+      <label for="rf-branch" style="display:block;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">DEFAULT BRANCH</label>
+      <input id="rf-branch" value="{{ rf.branch }}" onChange="{{ rf.setBranch }}" placeholder="main" style="width:100%;margin:10px 0 22px;background:#080B0E;border:1px solid #2A343C;padding:11px 12px;font:400 14px/1.3 'Azeret Mono', monospace;letter-spacing:.02em;outline:none;transition:all .16s ease" style-focus="border-color:#E9A94A" />
+
+      <div style="border:1px solid #1C2329;background:#080B0E;padding:14px 15px">
+        <div style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:#5C6871">ON LINK</div>
+        <div style="margin-top:11px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="font:400 10px/1.5 'Azeret Mono', monospace;color:#E9A94A">▸</span><span style="font:400 11px/1.6 'Azeret Mono', monospace;letter-spacing:.02em;color:#8A98A2">BACKFILL BRANCHES, OPEN PRS, LAST 100 COMMITS</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="font:400 10px/1.5 'Azeret Mono', monospace;color:#E9A94A">▸</span><span style="font:400 11px/1.6 'Azeret Mono', monospace;letter-spacing:.02em;color:#8A98A2">BIND ANYTHING REFERENCING TSK-####</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="font:400 10px/1.5 'Azeret Mono', monospace;color:#E9A94A">▸</span><span style="font:400 11px/1.6 'Azeret Mono', monospace;letter-spacing:.02em;color:#8A98A2">SUBSCRIBE TO push · pull_request · create · delete</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding:0 20px 22px;flex-wrap:wrap">
+      <button onClick="{{ closeRepoForm }}" style="background:none;border:1px solid #2A343C;color:#8A98A2;padding:10px 15px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;letter-spacing:.13em" style-hover="border-color:#DDE4E8;color:#DDE4E8">ABORT</button>
+      <button onClick="{{ rf.submit }}" disabled="{{ rf.disabled }}" style="border:0;padding:10px 17px;cursor:{{ rf.cursor }};font:500 10px/1 'Azeret Mono', monospace;letter-spacing:.13em;color:#07090C;background:{{ rf.btnBg }}">LINK</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<div style="position:fixed;bottom:24px;right:clamp(14px,3vw,28px);z-index:90;display:flex;flex-direction:column-reverse;gap:10px;align-items:flex-end;pointer-events:none">
+  <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="0">
+    <div style="pointer-events:auto;width:min(336px,calc(100vw - 36px));background:#0C1014;border:1px solid #2A343C;border-left:2px solid {{ t.ink }};box-shadow:0 16px 40px -14px rgba(0,0,0,.85);animation:inject .2s cubic-bezier(.2,.8,.2,1)">
+      <div style="display:flex;align-items:baseline;gap:10px;padding:10px 13px;border-bottom:1px solid #131A1F">
+        <span style="font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.16em;color:{{ t.ink }}">▸ {{ t.label }}</span>
+        <span style="margin-left:auto;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.1em;color:#5C6871">{{ t.stamp }}</span>
+        <button onClick="{{ t.close }}" aria-label="Dismiss" style="background:none;border:0;padding:0 0 0 3px;cursor:pointer;font:400 10px/1 'Azeret Mono', monospace;color:#3D474F" style-hover="color:#DDE4E8">✕</button>
+      </div>
+      <div style="padding:12px 13px">
+        <div style="font:400 14px/1.5 'IBM Plex Sans', sans-serif;color:#DDE4E8;text-wrap:pretty">{{ t.msg }}</div>
+        <sc-if value="{{ t.hasAction }}">
+          <button onClick="{{ t.act }}" style="margin-top:11px;background:none;border:1px solid #2A343C;padding:6px 11px;cursor:pointer;font:400 9px/1 'Azeret Mono', monospace;letter-spacing:.14em;color:{{ t.ink }}" style-hover="border-color:#DDE4E8;color:#DDE4E8">{{ t.actionLabel }}</button>
+        </sc-if>
+      </div>
+      <div style="height:1px;background:#1C2329">
+        <div style="height:1px;transform-origin:left;background:{{ t.ink }};animation:deplete 5s linear forwards"></div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;demoState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;live&quot;,&quot;loading&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;live&quot;,&quot;tsType&quot;:&quot;'live' | 'loading' | 'empty'&quot;,&quot;section&quot;:&quot;Prototype states&quot;},&quot;defaultScope&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;all&quot;,&quot;personal&quot;,&quot;work&quot;],&quot;default&quot;:&quot;all&quot;,&quot;tsType&quot;:&quot;'all' | 'personal' | 'work'&quot;,&quot;section&quot;:&quot;Prototype states&quot;},&quot;showRecentActivity&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Overview&quot;},&quot;confirmBeforeArchive&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.TODAY = '2026-09-05';
+    this.seq = 0;
+    this.state = {
+      authed: true,
+      route: 'dashboard',
+      projectId: 'shipyard',
+      scope: props.defaultScope || 'all',
+      pType: 'all',
+      pStatus: 'all',
+      tView: 'today',
+      tCtx: 'all',
+      projects: this.seedProjects(),
+      tasks: this.seedTasks(),
+      activity: this.seedActivity(),
+      repos: this.seedRepos(),
+      branches: this.seedBranches(),
+      prs: this.seedPRs(),
+      commits: this.seedCommits(),
+      autos: [true, true, true, true, false, true],
+      srcTab: 'prs',
+      repoForm: null,
+      toasts: [],
+      modal: null,
+      form: null,
+      paletteOpen: false,
+      q: '',
+      sel: 0,
+      createOpen: false,
+      loading: false,
+      email: 'operator@localhost',
+      now: new Date()
+    };
+    this.onKey = this.onKey.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKey);
+    this.tick = setInterval(() => this.setState({ now: new Date() }), 1000);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onKey);
+    clearInterval(this.tick);
+    this.state.toasts.forEach(t => clearTimeout(t.timer));
+  }
+
+  onKey(e) {
+    const s = this.state;
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.setState({ paletteOpen: !s.paletteOpen, q: '', sel: 0, createOpen: false }); return; }
+    if (e.key === 'Escape') {
+      if (s.paletteOpen) { this.setState({ paletteOpen: false }); return; }
+      if (s.modal || s.form || s.repoForm) { this.setState({ modal: null, form: null, repoForm: null }); return; }
+      if (s.createOpen) { this.setState({ createOpen: false }); return; }
+    }
+    if (!s.paletteOpen) return;
+    const flat = this.paletteFlat();
+    if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ sel: Math.min(s.sel + 1, flat.length - 1) }); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ sel: Math.max(s.sel - 1, 0) }); }
+    if (e.key === 'Enter') { const it = flat[s.sel]; if (it) { e.preventDefault(); it.run(); } }
+  }
+
+  seedProjects() {
+    const P = (id, ref, name, desc, type, status, priority, devStart, target, published, links, notes) =>
+      ({ id, ref, name, desc, type, status, priority, devStart, target, published, links: links || [], notes: notes || '' });
+    return [
+      P('shipyard', 'PRJ-01', 'Shipyard', 'Personal command console for every system I build — one record for work and side builds.', 'personal', 'in_development', 'high', '2026-08-22', '2026-09-20', null,
+        [{ label: 'REPOSITORY', url: 'github.com/me/shipyard' }, { label: 'STAGING', url: 'shipyard.vercel.app' }],
+        'Keep the surface small. Every readout must answer a question I actually ask. If a field needs explaining, it does not belong.'),
+      P('lakehouse', 'PRJ-02', 'Lakehouse Migration', 'Move the legacy warehouse marts onto Databricks with Unity Catalog governance.', 'work', 'in_development', 'high', '2026-07-14', '2026-09-30', null,
+        [{ label: 'WORKSPACE', url: 'adb-4471.azuredatabricks.net' }, { label: 'RUNBOOK', url: 'confluence/lakehouse-cutover' }],
+        'Silver reconciliation is the risk. Nothing deploys until row counts tie out three days running.'),
+      P('orbit', 'PRJ-03', 'Orbit', 'Focus timer that keeps session history and streaks without asking anything of you.', 'personal', 'in_development', 'medium', '2026-08-26', '2026-10-01', null,
+        [{ label: 'REPOSITORY', url: 'github.com/me/orbit' }],
+        'Drift correction matters more than the interface. Get the clock honest first.'),
+      P('docint', 'PRJ-04', 'Doc Intelligence API', 'Extraction service for scanned supplier invoices, with a deterministic fallback path.', 'work', 'in_development', 'medium', '2026-08-31', '2026-10-15', null,
+        [{ label: 'REPOSITORY', url: 'github.com/org/doc-intelligence' }],
+        'Eval set before model choice. 200 real invoices, labelled by hand, or the numbers mean nothing.'),
+      P('churn', 'PRJ-05', 'Churn Signals', 'Feature store for retention modelling, held pending a decision on the serving layer.', 'work', 'paused', 'low', '2026-06-02', null, null, [],
+        'On hold until the platform team lands the online store. Point-in-time tests already pass.'),
+      P('halyard', 'PRJ-06', 'Halyard', 'Self-hosted read-later with full-text search over everything I have ever saved.', 'personal', 'pending', 'medium', null, '2026-11-01', null,
+        [{ label: 'NOTES', url: 'notes/halyard-sketch' }],
+        'Scope guard: no recommendations, no feeds, no summaries. Save, search, read.'),
+      P('kpi', 'PRJ-07', 'Exec KPI Dashboard', 'Power BI semantic model plus the executive report pack, now handed over.', 'work', 'production', 'high', '2026-05-11', null, '2026-07-02',
+        [{ label: 'REPORT', url: 'app.powerbi.com/exec-kpi' }],
+        'Incremental refresh saved the whole thing. Handover deck is in the shared drive.'),
+      P('chroma', 'PRJ-08', 'Chroma', 'Palette generator built on oklch, so the ramps stay perceptually even.', 'personal', 'production', 'low', '2026-04-03', null, '2026-04-29',
+        [{ label: 'LIVE', url: 'chroma.tools' }], 'Small, finished, still use it weekly.'),
+      P('digest', 'PRJ-09', 'Signal Digest', 'Weekly RSS summariser. Superseded by Halyard.', 'personal', 'archived', 'low', '2026-01-12', null, '2026-02-20', [], '')
+    ];
+  }
+
+  seedTasks() {
+    const T = (id, title, projectId, status, priority, due, completedAt, time) =>
+      ({ id, title, projectId, status, priority, due, completedAt, time });
+    return [
+      T('TSK-0101', 'Design the telemetry gauge', 'shipyard', 'done', 'high', '2026-08-24', '2026-08-25'),
+      T('TSK-0102', 'Row-level security policies', 'shipyard', 'todo', 'high', '2026-09-02'),
+      T('TSK-0103', 'Command palette shell', 'shipyard', 'done', 'medium', '2026-09-04', '2026-09-05'),
+      T('TSK-0104', 'Finish the overview console', 'shipyard', 'in_progress', 'high', '2026-09-05'),
+      T('TSK-0105', 'Project detail workspace', 'shipyard', 'done', 'high', '2026-09-01', '2026-09-01'),
+      T('TSK-0106', 'Quick create flows', 'shipyard', 'done', 'medium', '2026-09-03', '2026-09-03'),
+      T('TSK-0107', 'Draft README and deploy notes', 'shipyard', 'todo', 'low', '2026-09-12'),
+      T('TSK-0201', 'Inventory legacy marts', 'lakehouse', 'done', 'high', '2026-07-18', '2026-07-18'),
+      T('TSK-0202', 'Bronze ingestion notebooks', 'lakehouse', 'done', 'high', '2026-08-02', '2026-08-02'),
+      T('TSK-0203', 'Silver transformations', 'lakehouse', 'done', 'medium', '2026-08-20', '2026-08-20'),
+      T('TSK-0204', 'Reconcile silver layer row counts', 'lakehouse', 'todo', 'high', '2026-09-03'),
+      T('TSK-0205', 'Unity Catalog grants audit', 'lakehouse', 'todo', 'medium', '2026-09-10'),
+      T('TSK-0206', 'Cutover runbook', 'lakehouse', 'todo', 'medium', '2026-09-24'),
+      T('TSK-0301', 'Session model and persistence', 'orbit', 'done', 'high', '2026-08-28', '2026-08-28'),
+      T('TSK-0302', 'Timer core with drift correction', 'orbit', 'done', 'high', '2026-09-01', '2026-09-01'),
+      T('TSK-0303', 'Implement media controls', 'orbit', 'todo', 'high', '2026-09-07'),
+      T('TSK-0304', 'Streak logic', 'orbit', 'todo', 'medium', '2026-09-14'),
+      T('TSK-0305', 'Widget extension', 'orbit', 'todo', 'low', null),
+      T('TSK-0306', 'Sound pack selection', 'orbit', 'todo', 'low', null),
+      T('TSK-0401', 'Service scaffold and auth', 'docint', 'done', 'high', '2026-09-02', '2026-09-02'),
+      T('TSK-0402', 'Prototype OCR fallback path', 'docint', 'in_progress', 'high', '2026-09-08'),
+      T('TSK-0403', 'Schema for line-item extraction', 'docint', 'todo', 'high', '2026-09-16'),
+      T('TSK-0404', 'Label eval set of 200 invoices', 'docint', 'todo', 'medium', null),
+      T('TSK-0405', 'Batch endpoint', 'docint', 'todo', 'low', null),
+      T('TSK-0501', 'Define retention windows', 'churn', 'done', 'high', '2026-06-08', '2026-06-08'),
+      T('TSK-0502', 'Feature backfill job', 'churn', 'done', 'medium', '2026-06-20', '2026-06-20'),
+      T('TSK-0503', 'Point-in-time correctness tests', 'churn', 'done', 'high', '2026-06-28', '2026-06-28'),
+      T('TSK-0504', 'Online serving layer', 'churn', 'todo', 'medium', null),
+      T('TSK-0505', 'Model card and handoff', 'churn', 'todo', 'low', null),
+      T('TSK-0701', 'Semantic model', 'kpi', 'done', 'high', '2026-05-30', '2026-05-30'),
+      T('TSK-0702', 'Incremental refresh', 'kpi', 'done', 'high', '2026-06-12', '2026-06-12'),
+      T('TSK-0703', 'Executive report pack', 'kpi', 'done', 'medium', '2026-06-24', '2026-06-24'),
+      T('TSK-0704', 'Row-level security roles', 'kpi', 'done', 'high', '2026-06-28', '2026-06-28'),
+      T('TSK-0705', 'Handover session', 'kpi', 'done', 'medium', '2026-07-02', '2026-07-02'),
+      T('TSK-0801', 'Ramp generator', 'chroma', 'done', 'high', '2026-04-14', '2026-04-14'),
+      T('TSK-0802', 'Contrast checker', 'chroma', 'done', 'medium', '2026-04-20', '2026-04-20'),
+      T('TSK-0803', 'Export to CSS variables', 'chroma', 'done', 'medium', '2026-04-25', '2026-04-25'),
+      T('TSK-0804', 'Ship to chroma.tools', 'chroma', 'done', 'high', '2026-04-29', '2026-04-29'),
+      T('TSK-0901', 'Feed parser', 'digest', 'done', 'medium', '2026-01-20', '2026-01-20'),
+      T('TSK-0902', 'Weekly email job', 'digest', 'done', 'medium', '2026-02-10', '2026-02-10'),
+      T('TSK-0903', 'Decommission', 'digest', 'done', 'low', '2026-02-20', '2026-02-20'),
+      T('TSK-1001', 'BTL sync', null, 'todo', 'medium', '2026-09-05', null, '14:00'),
+      T('TSK-1002', 'Send follow-up on invoice schema', null, 'todo', 'high', '2026-09-05'),
+      T('TSK-1003', 'Renew domain for chroma.tools', null, 'todo', 'low', '2026-09-02'),
+      T('TSK-1004', '1:1 with lead', null, 'todo', 'medium', '2026-09-07', null, '10:30'),
+      T('TSK-1005', 'Review Power BI refresh notes', null, 'todo', 'medium', '2026-09-09'),
+      T('TSK-1006', 'Read Databricks Asset Bundles docs', null, 'done', 'low', '2026-09-04', '2026-09-04'),
+      T('TSK-1007', 'Book dentist', null, 'todo', 'low', null)
+    ];
+  }
+
+  seedActivity() {
+    return [
+      { verb: 'TASK COMPLETE', subj: 'Command palette shell', ctx: 'PRJ-01', when: 'T-02:14', tone: 'teal' },
+      { verb: 'TASK COMPLETE', subj: 'Read Databricks Asset Bundles docs', ctx: 'STANDALONE', when: '2026.09.04', tone: 'teal' },
+      { verb: 'TASK COMPLETE', subj: 'Quick create flows', ctx: 'PRJ-01', when: '2026.09.03', tone: 'teal' },
+      { verb: 'BUILD INITIATED', subj: 'Doc Intelligence API', ctx: 'PRJ-04', when: '2026.08.31', tone: 'amber' },
+      { verb: 'RECORD CREATED', subj: 'Halyard', ctx: 'PRJ-06', when: '2026.08.30', tone: 'quiet' },
+      { verb: 'TASK COMPLETE', subj: 'Silver transformations', ctx: 'PRJ-02', when: '2026.08.20', tone: 'teal' },
+      { verb: 'BUILD HELD', subj: 'Churn Signals', ctx: 'PRJ-05', when: '2026.07.08', tone: 'quiet' },
+      { verb: 'DEPLOYED', subj: 'Exec KPI Dashboard', ctx: 'PRJ-07', when: '2026.07.02', tone: 'teal' }
+    ];
+  }
+
+  seedRepos() {
+    const R = (projectId, slug, defaultBranch, visibility, lastPush) => ({ projectId, provider: 'GITHUB', slug, defaultBranch, visibility, lastPush });
+    return [
+      R('shipyard', 'me/shipyard', 'main', 'PRIVATE', '2026.09.05 09:41'),
+      R('lakehouse', 'org/lakehouse-migration', 'main', 'PRIVATE', '2026.09.04 17:12'),
+      R('orbit', 'me/orbit', 'main', 'PUBLIC', '2026.09.01 22:03'),
+      R('docint', 'org/doc-intelligence', 'develop', 'PRIVATE', '2026.09.05 08:15'),
+      R('kpi', 'org/exec-kpi-pbi', 'main', 'PRIVATE', '2026.07.02 11:04'),
+      R('chroma', 'me/chroma', 'main', 'PUBLIC', '2026.04.29 20:18')
+    ];
+  }
+
+  seedBranches() {
+    const B = (id, projectId, name, taskId, ahead, behind, last, state) => ({ id, projectId, name, taskId, ahead, behind, last, state });
+    return [
+      B('b1', 'shipyard', 'tsk-0102-rls-policies', 'TSK-0102', 4, 0, '2026.09.05 09:41', 'active'),
+      B('b2', 'shipyard', 'tsk-0104-overview-console', 'TSK-0104', 11, 2, '2026.09.05 08:52', 'active'),
+      B('b3', 'lakehouse', 'tsk-0204-silver-reconcile', 'TSK-0204', 6, 1, '2026.09.04 17:12', 'active'),
+      B('b4', 'lakehouse', 'tsk-0205-uc-grants', 'TSK-0205', 0, 0, '2026.09.04 09:02', 'fresh'),
+      B('b5', 'orbit', 'tsk-0303-media-controls', 'TSK-0303', 2, 5, '2026.08.24 21:40', 'stale'),
+      B('b6', 'docint', 'tsk-0402-ocr-fallback', 'TSK-0402', 9, 0, '2026.09.05 08:15', 'active'),
+      B('b7', 'docint', 'spike/layoutlm-eval', null, 3, 12, '2026.08.19 14:07', 'stale')
+    ];
+  }
+
+  seedPRs() {
+    const P = (num, projectId, title, branch, taskId, state, checks, add, del, updated, reviewers) =>
+      ({ num, projectId, title, branch, taskId, state, checks, add, del, updated, reviewers });
+    return [
+      P(212, 'docint', 'OCR fallback path with confidence gate', 'tsk-0402-ocr-fallback', 'TSK-0402', 'open', 'pass', 640, 22, 'T-01:12', 1),
+      P(128, 'lakehouse', 'Reconcile silver layer row counts', 'tsk-0204-silver-reconcile', 'TSK-0204', 'open', 'pass', 412, 88, 'T-02:04', 1),
+      P(64, 'shipyard', 'Row-level security policies', 'tsk-0102-rls-policies', 'TSK-0102', 'review', 'pass', 190, 12, 'T-05:20', 1),
+      P(65, 'shipyard', 'Overview console panels', 'tsk-0104-overview-console', 'TSK-0104', 'draft', 'running', 1204, 330, 'T-00:22', 0),
+      P(31, 'orbit', 'Media controls + lock screen', 'tsk-0303-media-controls', 'TSK-0303', 'open', 'fail', 88, 4, '2026.08.24', 0),
+      P(211, 'docint', 'Service scaffold and auth', 'tsk-0401-scaffold', 'TSK-0401', 'merged', 'pass', 980, 5, '2026.09.02', 1)
+    ];
+  }
+
+  seedCommits() {
+    const C = (sha, projectId, msg, taskId, when, branch) => ({ sha, projectId, msg, taskId, when, branch });
+    return [
+      C('4a91c2e', 'shipyard', 'feat: rls policies for projects and tasks', 'TSK-0102', '2026.09.05 09:41', 'tsk-0102-rls-policies'),
+      C('7b30fd1', 'shipyard', 'wip: overview console panels', 'TSK-0104', '2026.09.05 08:52', 'tsk-0104-overview-console'),
+      C('c18ee40', 'docint', 'fix: fall back when ocr confidence below .6', 'TSK-0402', '2026.09.05 08:15', 'tsk-0402-ocr-fallback'),
+      C('9d4a71b', 'lakehouse', 'test: silver row-count parity harness', 'TSK-0204', '2026.09.04 17:12', 'tsk-0204-silver-reconcile'),
+      C('2f8c503', 'lakehouse', 'chore: bump dbr runtime to 15.4 lts', null, '2026.09.04 16:30', 'main'),
+      C('e05b9aa', 'shipyard', 'feat: quick create flows', 'TSK-0106', '2026.09.03 19:22', 'main'),
+      C('3cc1d90', 'orbit', 'feat: drift-corrected timer core', 'TSK-0302', '2026.09.01 22:03', 'main')
+    ];
+  }
+
+  sha() { return Math.random().toString(16).slice(2, 9); }
+  nowStamp() { const n = this.state.now; return '2026.09.05 ' + this.pad(n.getHours()) + ':' + this.pad(n.getMinutes()); }
+
+  toggleAuto(i) {
+    const labels = ['COMMIT LINKING', 'BRANCH BINDING', 'FIRST COMMIT → ACTIVE', 'PR MERGED → TASK CLOSED', 'TAG → DEPLOY', 'STALE BUILD ALERT'];
+    this.setState(s => ({ autos: s.autos.map((v, idx) => idx === i ? !v : v) }));
+    const on = !this.state.autos[i];
+    this.toast({ label: on ? 'RULE ENABLED' : 'RULE DISABLED', ink: on ? '#6FB3A8' : '#78848D', msg: labels[i] + ' is now ' + (on ? 'active' : 'inactive') + '.' });
+  }
+
+  simulatePush() {
+    const t = this.state.tasks.find(x => x.id === 'TSK-0102');
+    const sha = this.sha();
+    this.setState(s => ({
+      commits: [{ sha: sha, projectId: 'shipyard', msg: 'feat: policy tests for TSK-0102', taskId: 'TSK-0102', when: this.nowStamp(), branch: 'tsk-0102-rls-policies' }].concat(s.commits),
+      branches: s.branches.map(b => b.id === 'b1' ? Object.assign({}, b, { ahead: b.ahead + 1, last: this.nowStamp(), state: 'active' }) : b),
+      repos: s.repos.map(r => r.projectId === 'shipyard' ? Object.assign({}, r, { lastPush: this.nowStamp() }) : r)
+    }));
+    this.log('PUSH RECEIVED', '1 commit to tsk-0102-rls-policies', 'PRJ-01', 'amber');
+    this.toast({ label: 'PUSH RECEIVED', ink: '#E9A94A', msg: sha + ' on tsk-0102-rls-policies — linked to TSK-0102 by message reference.' });
+    if (t && t.status === 'todo' && this.state.autos[2]) {
+      setTimeout(() => {
+        this.setState(s => ({ tasks: s.tasks.map(x => x.id === 'TSK-0102' ? Object.assign({}, x, { status: 'in_progress' }) : x) }));
+        this.log('TASK ACTIVATED', t.title, 'PRJ-01', 'amber');
+        this.toast({ label: 'RULE FIRED', ink: '#6FB3A8', msg: 'First commit on a bound branch — TSK-0102 moved to ACTIVE automatically.' });
+      }, 900);
+    }
+  }
+
+  askMerge(num) {
+    const pr = this.state.prs.find(p => p.num === num);
+    if (!pr) return;
+    const proj = this.state.projects.find(p => p.id === pr.projectId);
+    const task = pr.taskId ? this.state.tasks.find(t => t.id === pr.taskId) : null;
+    const list = [{ text: 'SQUASH MERGE INTO ' + (this.state.repos.find(r => r.projectId === pr.projectId) || {}).defaultBranch }];
+    if (task && this.state.autos[3]) list.push({ text: 'CLOSE ' + task.id + ' — ' + task.title.toUpperCase() });
+    list.push({ text: 'DELETE BRANCH ' + pr.branch });
+    list.push({ text: 'WRITE MERGE EVENT TO LOG' });
+    this.setState({
+      modal: {
+        tone: 'teal', eyebrow: 'MERGE PULL REQUEST', ref: proj.ref + ' · #' + pr.num,
+        title: 'Merge #' + pr.num + '?', body: pr.title + (pr.checks === 'pass' ? ' — all checks green.' : ' — checks are not green yet.'),
+        fromLabel: 'OPEN', toLabel: 'MERGED', list: list,
+        confirmLabel: 'MERGE', cancelLabel: 'CANCEL',
+        run: () => {
+          const sha = this.sha();
+          this.setState(s => ({
+            prs: s.prs.map(p => p.num === num ? Object.assign({}, p, { state: 'merged', updated: this.nowStamp() }) : p),
+            branches: s.branches.filter(b => b.name !== pr.branch),
+            commits: [{ sha: sha, projectId: pr.projectId, msg: 'merge: #' + pr.num + ' ' + pr.title.toLowerCase(), taskId: pr.taskId, when: this.nowStamp(), branch: 'main' }].concat(s.commits),
+            tasks: (task && s.autos[3]) ? s.tasks.map(x => x.id === task.id ? Object.assign({}, x, { status: 'done', completedAt: this.TODAY }) : x) : s.tasks,
+            modal: null
+          }));
+          this.log('PR MERGED', '#' + pr.num + ' ' + pr.title, proj.ref, 'teal');
+          this.toast({ label: 'PR MERGED', ink: '#6FB3A8', msg: '#' + pr.num + ' merged as ' + sha + '.' });
+          if (task && this.state.autos[3]) {
+            setTimeout(() => {
+              this.log('TASK COMPLETE', task.title, proj.ref, 'teal');
+              this.toast({ label: 'RULE FIRED', ink: '#6FB3A8', msg: task.id + ' closed automatically — ' + proj.ref + ' telemetry updated.', hasAction: true, actionLabel: 'VIEW PROJECT', act: () => this.openProject(proj.id) });
+            }, 800);
+          }
+        }
+      }
+    });
+  }
+
+  openRepoForm(projectId) { this.setState({ createOpen: false, repoForm: { projectId: projectId || '', slug: '', branch: 'main' } }); }
+  setRepoForm(patch) { this.setState(s => ({ repoForm: Object.assign({}, s.repoForm, patch) })); }
+  submitRepo() {
+    const f = this.state.repoForm;
+    if (!f || !f.slug.trim() || !f.projectId) return;
+    const proj = this.state.projects.find(p => p.id === f.projectId);
+    this.setState(s => ({
+      repos: [{ projectId: f.projectId, provider: 'GITHUB', slug: f.slug.trim(), defaultBranch: f.branch.trim() || 'main', visibility: 'PRIVATE', lastPush: '—' }].concat(s.repos),
+      repoForm: null
+    }));
+    this.log('REPOSITORY LINKED', f.slug.trim(), proj ? proj.ref : '', 'amber');
+    this.toast({ label: 'REPOSITORY LINKED', ink: '#E9A94A', msg: f.slug.trim() + ' bound to ' + (proj ? proj.ref + ' ' + proj.name : 'project') + '. Backfilling branches and pull requests…' });
+  }
+
+  D(s) { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  stamp(s) { return s ? String(s).replace(/-/g, '.') : ''; }
+  short(s) { if (!s) return ''; const p = String(s).split('-'); return p[1] + '.' + p[2]; }
+  diff(a, b) { return Math.round((this.D(b) - this.D(a)) / 86400000); }
+  relU(s) {
+    const d = this.diff(this.TODAY, s);
+    if (d === 0) return 'TODAY';
+    if (d === 1) return 'T+1';
+    if (d < 0) return this.stamp(s);
+    if (d < 7) return 'T+' + d;
+    return this.stamp(s);
+  }
+  pad(n) { return String(n).padStart(2, '0'); }
+  clockStr() {
+    const n = this.state.now;
+    return '2026.09.05 ' + this.pad(n.getHours()) + ':' + this.pad(n.getMinutes()) + ':' + this.pad(n.getSeconds());
+  }
+
+  toast(o) {
+    const id = 'tst' + (++this.seq);
+    const n = new Date();
+    const st = this.pad(n.getHours()) + ':' + this.pad(n.getMinutes()) + ':' + this.pad(n.getSeconds());
+    const t = Object.assign({ id: id, ink: '#E9A94A', label: 'SYSTEM', stamp: st }, o);
+    t.timer = setTimeout(() => this.drop(id), 5000);
+    this.setState(s => ({ toasts: [t].concat(s.toasts).slice(0, 3) }));
+  }
+  drop(id) {
+    this.setState(s => {
+      const t = s.toasts.find(x => x.id === id);
+      if (t) clearTimeout(t.timer);
+      return { toasts: s.toasts.filter(x => x.id !== id) };
+    });
+  }
+  log(verb, subj, ctx, tone) {
+    this.setState(s => ({ activity: [{ verb: verb, subj: subj, ctx: (ctx || '').toUpperCase(), when: 'JUST NOW', tone: tone || 'quiet' }].concat(s.activity) }));
+  }
+
+  go(route) { this.setState({ route: route, createOpen: false, paletteOpen: false }); if (typeof window !== 'undefined') window.scrollTo(0, 0); }
+  openProject(id) { this.setState({ route: 'project', projectId: id, createOpen: false, paletteOpen: false }); if (typeof window !== 'undefined') window.scrollTo(0, 0); }
+  refetch() { this.setState({ loading: true, route: 'dashboard' }); setTimeout(() => this.setState({ loading: false }), 1200); }
+
+  toggleTask(id) {
+    const t = this.state.tasks.find(x => x.id === id);
+    if (!t) return;
+    const done = t.status === 'done';
+    this.setState(s => ({
+      tasks: s.tasks.map(x => x.id === id ? Object.assign({}, x, { status: done ? 'todo' : 'done', completedAt: done ? null : this.TODAY }) : x)
+    }));
+    const p = t.projectId ? this.state.projects.find(x => x.id === t.projectId) : null;
+    if (done) {
+      this.log('TASK REOPENED', t.title, p ? p.ref : 'STANDALONE', 'amber');
+      this.toast({ label: 'TASK REOPENED', ink: '#E9A94A', msg: '“' + t.title + '” is back in the queue.' });
+    } else {
+      this.log('TASK COMPLETE', t.title, p ? p.ref : 'STANDALONE', 'teal');
+      this.toast({
+        label: 'TASK COMPLETE', ink: '#6FB3A8',
+        msg: '“' + t.title + '” closed' + (p ? ' — ' + p.ref + ' telemetry updated.' : '.'),
+        hasAction: true, actionLabel: 'UNDO', act: () => { this.toggleTask(id); }
+      });
+    }
+  }
+
+  confirmDelete(id) {
+    const t = this.state.tasks.find(x => x.id === id);
+    if (!t) return;
+    this.setState({
+      modal: {
+        tone: 'danger', eyebrow: 'PURGE RECORD', ref: t.id,
+        title: 'Purge this task?',
+        body: '“' + t.title + '” will be removed permanently. Tasks are not recoverable — projects get decommissioned instead.',
+        confirmLabel: 'PURGE', cancelLabel: 'KEEP',
+        run: () => {
+          this.setState(s => ({ tasks: s.tasks.filter(x => x.id !== id), modal: null }));
+          this.toast({ label: 'RECORD PURGED', ink: '#E4614A', msg: '“' + t.title + '” removed from the log.' });
+        }
+      }
+    });
+  }
+
+  askStart(id) {
+    const p = this.state.projects.find(x => x.id === id);
+    if (!p) return;
+    this.setState({
+      createOpen: false,
+      modal: {
+        tone: 'amber', eyebrow: 'INITIATE BUILD', ref: p.ref,
+        title: 'Initiate build on ' + p.name + '?',
+        body: 'This is the point where the system starts keeping time for you.',
+        fromLabel: 'STANDBY', toLabel: 'BUILD',
+        list: [
+          { text: 'START DATE SET TO ' + this.stamp(this.TODAY) },
+          { text: 'TASK CREATION UNLOCKED' },
+          { text: 'PROMOTED TO ACTIVE BUILDS' },
+          { text: 'EVENT WRITTEN TO LOG' }
+        ],
+        confirmLabel: 'INITIATE', cancelLabel: 'HOLD',
+        run: () => {
+          this.setState(s => ({
+            projects: s.projects.map(x => x.id === id ? Object.assign({}, x, { status: 'in_development', devStart: this.TODAY }) : x),
+            modal: null, route: 'project', projectId: id
+          }));
+          this.log('BUILD INITIATED', p.name, p.ref, 'amber');
+          this.toast({ label: 'BUILD INITIATED', ink: '#E9A94A', msg: p.ref + ' ' + p.name + ' is in build. Start date recorded.' });
+        }
+      }
+    });
+  }
+
+  askProduction(id) {
+    const p = this.state.projects.find(x => x.id === id);
+    if (!p) return;
+    const ts = this.state.tasks.filter(t => t.projectId === id);
+    const open = ts.filter(t => t.status !== 'done').length;
+    const dur = p.devStart ? this.diff(p.devStart, this.TODAY) : 0;
+    this.setState({
+      modal: {
+        tone: 'teal', eyebrow: 'DEPLOY', ref: p.ref,
+        title: 'Deploy ' + p.name + '?',
+        body: open > 0
+          ? open + ' task' + (open === 1 ? '' : 's') + ' still open. Deploying keeps them — nothing is discarded, the record just changes stage.'
+          : 'All tasks closed. The system records the deployment date and computes build duration.',
+        fromLabel: 'BUILD', toLabel: 'DEPLOYED',
+        stats: [
+          { label: 'BUILD START', value: this.stamp(p.devStart), ink: '#DDE4E8' },
+          { label: 'DEPLOY DATE', value: this.stamp(this.TODAY), ink: '#DDE4E8' },
+          { label: 'DURATION', value: dur + ' D', ink: '#6FB3A8' }
+        ],
+        confirmLabel: 'DEPLOY', cancelLabel: 'CANCEL',
+        run: () => {
+          this.setState(s => ({
+            projects: s.projects.map(x => x.id === id ? Object.assign({}, x, { status: 'production', published: this.TODAY }) : x),
+            modal: {
+              tone: 'teal', eyebrow: 'DEPLOYMENT CONFIRMED', ref: p.ref,
+              title: p.name + ' is live.',
+              body: 'Tasks, notes, uplinks and dates are preserved in full. Post-deploy work goes in as ordinary tasks.',
+              stats: [
+                { label: 'BUILD START', value: this.stamp(p.devStart), ink: '#DDE4E8' },
+                { label: 'DEPLOYED', value: this.stamp(this.TODAY), ink: '#DDE4E8' },
+                { label: 'DURATION', value: dur + ' D', ink: '#6FB3A8' }
+              ],
+              noConfirm: true, cancelLabel: 'CLOSE'
+            }
+          }));
+          this.log('DEPLOYED', p.name, p.ref, 'teal');
+          this.toast({ label: 'DEPLOYED', ink: '#6FB3A8', msg: p.name + ' shipped — ' + dur + ' days from build start to deployment.' });
+        }
+      }
+    });
+  }
+
+  askArchive(id) {
+    const p = this.state.projects.find(x => x.id === id);
+    if (!p) return;
+    const run = () => {
+      this.setState(s => ({ projects: s.projects.map(x => x.id === id ? Object.assign({}, x, { status: 'archived' }) : x), modal: null, route: 'projects' }));
+      this.log('DECOMMISSIONED', p.name, p.ref, 'quiet');
+      this.toast({
+        label: 'DECOMMISSIONED', ink: '#E4614A', msg: p.name + ' removed from active views. Nothing was deleted.',
+        hasAction: true, actionLabel: 'RESTORE', act: () => {
+          this.setState(s => ({ projects: s.projects.map(x => x.id === id ? Object.assign({}, x, { status: p.status }) : x) }));
+          this.toast({ label: 'RESTORED', ink: '#6FB3A8', msg: p.name + ' returned to active views.' });
+        }
+      });
+    };
+    if (this.props.confirmBeforeArchive === false) { run(); return; }
+    this.setState({
+      modal: {
+        tone: 'danger', eyebrow: 'DECOMMISSION', ref: p.ref,
+        title: 'Decommission ' + p.name + '?',
+        body: 'The record leaves active views but stays retrievable, with its tasks, notes and dates intact.',
+        fromLabel: p.status === 'production' ? 'DEPLOYED' : 'BUILD', toLabel: 'DECOMMISSIONED',
+        confirmLabel: 'DECOMMISSION', cancelLabel: 'CANCEL', run: run
+      }
+    });
+  }
+
+  togglePause(id) {
+    const p = this.state.projects.find(x => x.id === id);
+    if (!p) return;
+    const next = p.status === 'paused' ? 'in_development' : 'paused';
+    this.setState(s => ({ projects: s.projects.map(x => x.id === id ? Object.assign({}, x, { status: next }) : x) }));
+    this.log(next === 'paused' ? 'BUILD HELD' : 'BUILD RESUMED', p.name, p.ref, 'quiet');
+    this.toast({ label: next === 'paused' ? 'BUILD HELD' : 'BUILD RESUMED', ink: '#E9A94A', msg: next === 'paused' ? p.name + ' on hold. Telemetry frozen as-is.' : p.name + ' is moving again.' });
+  }
+
+  restore(id) {
+    const p = this.state.projects.find(x => x.id === id);
+    this.setState(s => ({ projects: s.projects.map(x => x.id === id ? Object.assign({}, x, { status: x.published ? 'production' : 'pending' }) : x) }));
+    this.toast({ label: 'RESTORED', ink: '#6FB3A8', msg: (p ? p.name : 'Record') + ' returned to active views.' });
+  }
+
+  openForm(kind, projectId) {
+    this.setState({
+      createOpen: false, paletteOpen: false,
+      form: { kind: kind, name: '', desc: '', type: 'personal', priority: 'medium', date: '', projectId: projectId || null }
+    });
+  }
+  setForm(patch) { this.setState(s => ({ form: Object.assign({}, s.form, patch) })); }
+
+  submitForm() {
+    const f = this.state.form;
+    if (!f || !f.name.trim()) return;
+    if (f.kind === 'project') {
+      const id = 'p' + (++this.seq);
+      const ref = 'PRJ-' + String(this.state.projects.length + 1).padStart(2, '0');
+      const p = { id: id, ref: ref, name: f.name.trim(), desc: f.desc.trim() || 'No description on record.', type: f.type, status: 'pending', priority: f.priority, devStart: null, target: f.date || null, published: null, links: [], notes: '' };
+      this.setState(s => ({ projects: [p].concat(s.projects), form: null, route: 'project', projectId: id }));
+      this.log('RECORD CREATED', p.name, ref, 'quiet');
+      this.toast({ label: 'RECORD CREATED', ink: '#E9A94A', msg: ref + ' ' + p.name + ' registered on standby. Initiate the build to add tasks.' });
+    } else {
+      const id = 'TSK-' + String(2000 + (++this.seq));
+      const t = { id: id, title: f.name.trim(), projectId: f.projectId || null, status: 'todo', priority: f.priority, due: f.date || null, completedAt: null, time: null };
+      const p = f.projectId ? this.state.projects.find(x => x.id === f.projectId) : null;
+      this.setState(s => ({ tasks: [t].concat(s.tasks), form: null }));
+      this.log('TASK CREATED', t.title, p ? p.ref : 'STANDALONE', 'quiet');
+      this.toast({ label: 'TASK CREATED', ink: '#E9A94A', msg: id + ' queued' + (p ? ' under ' + p.ref + '.' : ' as a standalone task.') });
+    }
+  }
+
+  paletteFlat() {
+    const s = this.state, q = s.q.trim().toLowerCase();
+    const hit = (str) => !q || String(str).toLowerCase().indexOf(q) > -1;
+    const out = [];
+    s.projects.filter(p => hit(p.name) || hit(p.ref)).slice(0, 5).forEach(p => out.push({
+      group: 'FLEET', label: p.ref + '  ' + p.name,
+      meta: { pending: 'STANDBY', in_development: 'BUILD', production: 'DEPLOYED', paused: 'HOLD', archived: 'DECOMM' }[p.status],
+      run: () => this.openProject(p.id)
+    }));
+    s.tasks.filter(t => t.status !== 'done' && hit(t.title)).slice(0, 5).forEach(t => {
+      const p = t.projectId ? s.projects.find(x => x.id === t.projectId) : null;
+      out.push({ group: 'QUEUE', label: t.title, meta: p ? p.ref : 'STANDALONE', run: () => { this.setState({ paletteOpen: false }); if (p) this.openProject(p.id); else this.go('tasks'); } });
+    });
+    s.prs.filter(p => hit(p.title) || hit('#' + p.num)).slice(0, 4).forEach(p => out.push({
+      group: 'PULL REQUESTS', label: '#' + p.num + '  ' + p.title,
+      meta: { open: 'OPEN', review: 'CHANGES REQ', draft: 'DRAFT', merged: 'MERGED' }[p.state],
+      run: () => { this.setState({ paletteOpen: false }); this.go('source'); }
+    }));
+    [
+      { label: 'New project', meta: 'CREATE', run: () => this.openForm('project') },
+      { label: 'New standalone task', meta: 'CREATE', run: () => this.openForm('task') },
+      { label: 'New project task', meta: 'CREATE', run: () => this.openForm('task', null) },
+      { label: 'Overview', meta: 'JUMP', run: () => this.go('dashboard') },
+      { label: 'Fleet', meta: 'JUMP', run: () => this.go('projects') },
+      { label: 'Queue', meta: 'JUMP', run: () => this.go('tasks') },
+      { label: 'Source control', meta: 'JUMP', run: () => this.go('source') },
+      { label: 'Link a repository', meta: 'CREATE', run: () => this.openRepoForm('') },
+      { label: 'Event log', meta: 'JUMP', run: () => this.go('activity') },
+      { label: 'Config', meta: 'JUMP', run: () => this.go('settings') }
+    ].filter(c => hit(c.label)).forEach(c => out.push({ group: 'COMMANDS', label: c.label, meta: c.meta, run: c.run }));
+    return out;
+  }
+
+  renderVals() {
+    const s = this.state, pr = this.props;
+    const ink = '#DDE4E8', ink2 = '#8A98A2', ink3 = '#78848D', faint = '#5C6871', amber = '#E9A94A', teal = '#6FB3A8', red = '#E4614A', track = '#2A343C';
+    const loading = pr.demoState === 'loading' || s.loading;
+    const isEmpty = pr.demoState === 'empty';
+    const projects = isEmpty ? [] : s.projects;
+    const tasks = isEmpty ? [] : s.tasks;
+    const activity = isEmpty ? [] : s.activity;
+    const toneInk = (t) => t === 'teal' ? teal : (t === 'amber' ? amber : faint);
+
+    const stageLabel = { pending: 'STANDBY', in_development: 'BUILD', production: 'DEPLOYED', paused: 'HOLD', archived: 'DECOMM' };
+    const stageMark = { pending: '○', in_development: '●', production: '◈', paused: '◐', archived: '×' };
+    const stageInk = { pending: faint, in_development: amber, production: teal, paused: ink3, archived: faint };
+
+    const dec = (p) => {
+      const ts = tasks.filter(t => t.projectId === p.id);
+      const done = ts.filter(t => t.status === 'done').length;
+      const pct = ts.length ? Math.round(done / ts.length * 100) : 0;
+      const next = ts.filter(t => t.status !== 'done').sort((a, b) => {
+        if ((a.status === 'in_progress') !== (b.status === 'in_progress')) return a.status === 'in_progress' ? -1 : 1;
+        const pw = { high: 0, medium: 1, low: 2 };
+        if (pw[a.priority] !== pw[b.priority]) return pw[a.priority] - pw[b.priority];
+        if (!!a.due !== !!b.due) return a.due ? -1 : 1;
+        if (a.due && b.due && a.due !== b.due) return a.due < b.due ? -1 : 1;
+        return 0;
+      })[0];
+      const gi = p.status === 'production' ? teal : (p.status === 'paused' || p.status === 'archived' ? '#5C6871' : amber);
+      const bits = [];
+      bits.push(ts.length ? this.pad(done) + '/' + this.pad(ts.length) + ' TASKS' : 'NO TASKS');
+      if (p.devStart && !p.published) bits.push('T+' + this.diff(p.devStart, this.TODAY) + 'D');
+      if (p.devStart) bits.push('START ' + this.stamp(p.devStart));
+      if (p.target && p.status !== 'production') bits.push('TARGET ' + this.stamp(p.target));
+      if (p.published) bits.push('DEPLOYED ' + this.stamp(p.published));
+      return Object.assign({}, p, {
+        nameUpper: p.name.toUpperCase(),
+        typeLabel: p.type === 'personal' ? 'PERSONAL' : 'WORK',
+        stageLabel: stageLabel[p.status], stageMark: stageMark[p.status], stageInk: stageInk[p.status],
+        pct: pct, pctLabel: ts.length ? pct + '%' : '—',
+        gaugeW: (p.status === 'pending' ? 0 : pct) + '%',
+        gaugeInk: gi, gaugeGlow: p.status === 'production' ? 'rgba(111,179,168,.4)' : 'rgba(233,169,74,.35)',
+        doneLabel: ts.length ? this.pad(done) + ' / ' + this.pad(ts.length) + ' CLOSED' : 'NO TASKS',
+        tickLegend: ts.length ? this.pad(done) + ' CLOSED · ' + this.pad(ts.length - done) + ' OPEN' : 'NO TASKS ON RECORD',
+        metaLine: bits.join(' · '),
+        publishedLabel: p.published ? 'DEPLOYED ' + this.stamp(p.published) : '',
+        durationLabel: (p.devStart && p.published) ? this.diff(p.devStart, p.published) + ' D' : '',
+        hasNext: !!next, nextTitle: next ? next.title : '',
+        open: () => this.openProject(p.id), start: () => this.askStart(p.id),
+        _tasks: ts, _done: done, _next: next
+      });
+    };
+
+    const decT = (t) => {
+      const p = t.projectId ? projects.find(x => x.id === t.projectId) : null;
+      const done = t.status === 'done';
+      const overdue = !done && t.due && t.due < this.TODAY;
+      const br = isEmpty ? null : s.branches.find(b => b.taskId === t.id);
+      const pr = isEmpty ? null : s.prs.find(x => x.taskId === t.id);
+      const srcBits = [];
+      if (br) srcBits.push('⎇ ' + br.name);
+      if (pr) srcBits.push('#' + pr.num + ' ' + { open: 'OPEN', review: 'CHANGES REQ', draft: 'DRAFT', merged: 'MERGED' }[pr.state]);
+      let right = '';
+      if (done) right = '✓ ' + this.stamp(t.completedAt);
+      else if (overdue) right = '⚠ OVERDUE T+' + this.diff(t.due, this.TODAY);
+      else if (t.time) right = t.time;
+      else if (t.due) right = this.relU(t.due);
+      return Object.assign({}, t, {
+        done: done,
+        boxText: done ? '[×]' : '[ ]',
+        boxInk: done ? teal : (overdue ? red : '#4A555D'),
+        titleInk: done ? faint : ink, deco: done ? 'line-through' : 'none',
+        idLabel: t.id + (p ? ' · ' + p.ref : ' · STANDALONE'),
+        hasSrc: srcBits.length > 0, srcLabel: srcBits.join(' · '),
+        srcInk: pr && pr.state === 'merged' ? '#6FB3A8' : (pr && pr.state === 'review' ? '#E4614A' : '#E9A94A'),
+        ctx: p ? p.ref + ' ' + p.name.toUpperCase() : 'STANDALONE',
+        ctxFull: p ? t.id + ' · ' + p.ref + ' ' + p.name.toUpperCase() + ' · ' + (p.type === 'personal' ? 'PERSONAL' : 'WORK') : t.id + ' · STANDALONE · PERSONAL',
+        rightMeta: right, dueInk: overdue ? red : (done ? teal : ink3),
+        inProgress: t.status === 'in_progress',
+        toggle: () => this.toggleTask(t.id), del: () => this.confirmDelete(t.id)
+      });
+    };
+
+    const scopeOk = (p) => s.scope === 'all' || p.type === s.scope;
+    const all = projects.map(dec);
+    const active = all.filter(p => p.status === 'in_development' && scopeOk(p));
+    const pending = all.filter(p => p.status === 'pending' && scopeOk(p));
+    const shipped = all.filter(p => p.status === 'production' && scopeOk(p)).slice(0, 3);
+    const live = all.filter(p => p.status !== 'archived');
+
+    const taskScopeOk = (t) => {
+      if (s.scope === 'all') return true;
+      const p = t.projectId ? projects.find(x => x.id === t.projectId) : null;
+      if (!p) return s.scope === 'personal';
+      return p.type === s.scope;
+    };
+    const openTasks = tasks.filter(t => t.status !== 'done');
+    const dueToday = openTasks.filter(t => t.due === this.TODAY);
+    const overdue = openTasks.filter(t => t.due && t.due < this.TODAY);
+    const myDay = overdue.concat(dueToday).filter(taskScopeOk).map(decT);
+
+    const up = openTasks.filter(t => t.due && t.due > this.TODAY).filter(taskScopeOk)
+      .sort((a, b) => a.due < b.due ? -1 : 1).slice(0, 5).map(t => {
+        const p = t.projectId ? projects.find(x => x.id === t.projectId) : null;
+        return { when: this.relU(t.due), title: t.title, ctx: p ? p.ref : 'STANDALONE', ink: ink };
+      });
+    active.forEach(p => { if (p.target && p.target > this.TODAY) up.push({ when: this.relU(p.target), title: 'Target deployment — ' + p.name, ctx: 'MILESTONE', ink: amber }); });
+    const upcoming = up.slice(0, 6);
+
+    let dirTask = null, dirProj = null;
+    const pw = { high: 0, medium: 1, low: 2 };
+    active.forEach(p => {
+      if (!p._next) return;
+      const t = p._next;
+      const score = (t.status === 'in_progress' ? 0 : 10) + pw[t.priority] + (t.due && t.due < this.TODAY ? -5 : 0);
+      if (!dirTask || score < dirTask._score) { dirTask = Object.assign({ _score: score }, t); dirProj = p; }
+    });
+    const directive = dirTask ? {
+      ref: dirProj.ref + ' · ' + dirProj.nameUpper,
+      title: dirTask.title,
+      meta: (dirTask.status === 'in_progress' ? '● ACTIVE · ' : '') + dirTask.priority.toUpperCase() + ' PRIORITY · ' + (dirTask.due ? (dirTask.due < this.TODAY ? '⚠ OVERDUE T+' + this.diff(dirTask.due, this.TODAY) : 'DUE ' + this.relU(dirTask.due)) : 'NO DEADLINE'),
+      complete: () => this.toggleTask(dirTask.id),
+      open: () => this.openProject(dirProj.id)
+    } : {};
+
+    /* ---- source control ---- */
+    const repos = isEmpty ? [] : s.repos;
+    const branches = isEmpty ? [] : s.branches;
+    const prs = isEmpty ? [] : s.prs;
+    const commits = isEmpty ? [] : s.commits;
+    const repoOf = (pid) => repos.find(r => r.projectId === pid);
+    const refOf = (pid) => { const p = projects.find(x => x.id === pid); return p ? p.ref : '—'; };
+    const nameOf = (pid) => { const p = projects.find(x => x.id === pid); return p ? p.name.toUpperCase() : ''; };
+
+    const prMeta = {
+      open: { label: 'OPEN', mark: '●', ink: amber },
+      review: { label: 'CHANGES REQ', mark: '◐', ink: red },
+      draft: { label: 'DRAFT', mark: '○', ink: ink3 },
+      merged: { label: 'MERGED', mark: '◈', ink: teal }
+    };
+    const checkMeta = {
+      pass: { label: '✓ CHECKS PASS', ink: teal },
+      fail: { label: '✕ CHECKS FAIL', ink: red },
+      running: { label: '◌ CHECKS RUNNING', ink: amber }
+    };
+    const brMeta = {
+      active: { label: '● ACTIVE', ink: amber },
+      fresh: { label: '○ NO COMMITS', ink: ink3 },
+      stale: { label: '⚠ STALE', ink: red }
+    };
+
+    const openPRs = prs.filter(p => p.state !== 'merged');
+    const decPR = (p) => {
+      const st = prMeta[p.state], ck = checkMeta[p.checks];
+      const task = p.taskId ? tasks.find(t => t.id === p.taskId) : null;
+      return {
+        num: '#' + p.num, title: p.title, stateLabel: st.label, stateMark: st.mark, stateInk: st.ink,
+        checkLabel: ck.label, checkInk: ck.ink,
+        metaLine: refOf(p.projectId) + ' · ⎇ ' + p.branch + (p.taskId ? ' → ' + p.taskId : ' → UNBOUND') + ' · ' + p.updated,
+        diffLabel: '+' + p.add + ' −' + p.del,
+        taskLabel: task ? task.title : 'No bound task',
+        canMerge: p.state === 'open' || p.state === 'review',
+        merge: () => this.askMerge(p.num),
+        open: () => this.openProject(p.projectId)
+      };
+    };
+    const decBr = (b) => {
+      const st = brMeta[b.state];
+      return {
+        name: '⎇ ' + b.name, ref: refOf(b.projectId),
+        driftLabel: '↑' + this.pad(b.ahead) + ' ↓' + this.pad(b.behind),
+        taskLabel: b.taskId || 'UNBOUND', taskInk: b.taskId ? ink2 : faint,
+        last: b.last, stateLabel: st.label, stateInk: st.ink,
+        open: () => this.openProject(b.projectId)
+      };
+    };
+    const decCm = (c) => ({
+      sha: c.sha, msg: c.msg, when: c.when,
+      metaLine: refOf(c.projectId) + ' · ⎇ ' + c.branch + (c.taskId ? ' · ' + c.taskId : ''),
+      taskInk: c.taskId ? teal : faint,
+      open: () => this.openProject(c.projectId)
+    });
+
+    const pushedToday = commits.filter(c => c.when.indexOf('2026.09.05') === 0);
+    const staleBranches = branches.filter(b => b.state === 'stale');
+    const srcMetrics = [
+      { label: 'LINKED REPOS', value: this.pad(repos.length), unit: 'OF ' + this.pad(live.length), ink: ink },
+      { label: 'OPEN PRS', value: this.pad(openPRs.length), unit: 'IN FLIGHT', ink: amber },
+      { label: 'AWAITING ME', value: this.pad(prs.filter(p => p.state === 'review').length), unit: 'REVIEW', ink: prs.filter(p => p.state === 'review').length ? red : ink },
+      { label: 'CHECKS FAILING', value: this.pad(prs.filter(p => p.checks === 'fail' && p.state !== 'merged').length), unit: 'PRS', ink: prs.some(p => p.checks === 'fail' && p.state !== 'merged') ? red : ink },
+      { label: 'PUSHED TODAY', value: this.pad(pushedToday.length), unit: 'COMMITS', ink: ink },
+      { label: 'STALE BRANCHES', value: this.pad(staleBranches.length), unit: '14D+ IDLE', ink: staleBranches.length ? red : ink }
+    ];
+
+    const srcTabDef = [['prs', 'PULL REQUESTS', openPRs.length], ['branches', 'BRANCHES', branches.length], ['commits', 'COMMIT FEED', commits.length]];
+    const srcTabs = srcTabDef.map(t => ({
+      label: t[1], count: this.pad(t[2]), ink: s.srcTab === t[0] ? amber : ink3, go: () => this.setState({ srcTab: t[0] })
+    }));
+
+    const repoRows = repos.map(r => {
+      const p = projects.find(x => x.id === r.projectId) || {};
+      const rb = branches.filter(b => b.projectId === r.projectId).length;
+      const rp = prs.filter(x => x.projectId === r.projectId && x.state !== 'merged').length;
+      return {
+        ref: p.ref || '—', name: (p.name || '').toUpperCase(), slug: r.provider.toLowerCase() + '.com/' + r.slug,
+        badge: r.visibility + ' · ⎇ ' + r.defaultBranch,
+        metaLine: 'LAST PUSH ' + r.lastPush + ' · ' + this.pad(rb) + ' BRANCHES · ' + this.pad(rp) + ' OPEN PR',
+        prInk: rp ? amber : faint,
+        open: () => this.openProject(r.projectId)
+      };
+    });
+    const unlinked = live.filter(p => !repoOf(p.id)).map(p => ({
+      ref: p.ref, name: p.nameUpper, link: () => this.openRepoForm(p.id)
+    }));
+
+    const autoDef = [
+      ['COMMIT LINKING', 'Commit messages containing TSK-#### bind that commit to the task.'],
+      ['BRANCH BINDING', 'Branches named tsk-####-* bind to their task on creation.'],
+      ['FIRST COMMIT → ACTIVE', 'A task flips to ACTIVE on the first commit to its bound branch.'],
+      ['PR MERGED → TASK CLOSED', 'Merging a pull request closes every task it references.'],
+      ['TAG → DEPLOY', 'A v* tag on the default branch moves the project to DEPLOYED and records the date.'],
+      ['STALE BUILD ALERT', 'Flag an active build with no commits for 14 days.']
+    ];
+    const automations = autoDef.map((a, i) => ({
+      label: a[0], detail: a[1],
+      stateLabel: s.autos[i] ? 'ON' : 'OFF',
+      ink: s.autos[i] ? teal : faint,
+      knobBg: s.autos[i] ? teal : '#2A343C',
+      knobX: s.autos[i] ? '14px' : '1px',
+      go: () => this.toggleAuto(i)
+    }));
+
+    const spec = [
+      { k: 'AUTH', v: 'GITHUB APP · INSTALLATION TOKEN PER REPO' },
+      { k: 'EVENTS', v: 'push · pull_request · create · delete · check_suite' },
+      { k: 'DELIVERY', v: 'WEBHOOK → EDGE FUNCTION → SUPABASE (SERVICE ROLE)' },
+      { k: 'TABLES', v: 'repos · branches · pull_requests · commits · commit_task_links' },
+      { k: 'BACKFILL', v: 'REST PULL ON LINK, EVENT-DRIVEN THEREAFTER' },
+      { k: 'IDEMPOTENCY', v: 'DEDUPE ON X-GITHUB-DELIVERY + COMMIT SHA' },
+      { k: 'BINDING', v: 'REGEX TSK-\\d{4} ON MESSAGE, BRANCH, PR TITLE + BODY' },
+      { k: 'WRITE PATH', v: 'READ-ONLY FROM GITHUB — NO PUSHES FROM THIS APP' }
+    ];
+
+    const reviewQueue = prs.filter(p => p.state === 'review' || (p.state === 'open' && p.checks === 'fail') || (p.state === 'open' && p.reviewers > 0))
+      .slice(0, 4).map(decPR);
+
+    const navDef = [['dashboard', 'OVERVIEW'], ['projects', 'FLEET'], ['tasks', 'QUEUE'], ['source', 'SOURCE'], ['activity', 'LOG'], ['settings', 'CONFIG']];
+    const nav = navDef.map(n => {
+      const on = s.route === n[0] || (n[0] === 'projects' && s.route === 'project');
+      return { label: n[1], ink: on ? amber : ink3, bracket: on ? amber : 'transparent', bg: on ? '#10151A' : 'transparent', go: () => this.go(n[0]) };
+    });
+
+    const scopeDef = [['all', 'ALL'], ['personal', 'PERSONAL'], ['work', 'WORK']];
+    const scopes = scopeDef.map(x => ({
+      label: x[1], ink: s.scope === x[0] ? amber : ink3, mark: s.scope === x[0] ? '◆' : '◇',
+      go: () => this.setState({ scope: x[0] })
+    }));
+
+    const metrics = [
+      { label: 'FLEET', value: this.pad(live.length), unit: 'RECORDS', ink: ink },
+      { label: 'IN BUILD', value: this.pad(live.filter(p => p.status === 'in_development').length), unit: 'ACTIVE', ink: amber },
+      { label: 'OPEN PRS', value: this.pad(openPRs.length), unit: 'IN FLIGHT', ink: openPRs.length ? amber : ink },
+      { label: 'DEPLOYED', value: this.pad(live.filter(p => p.status === 'production').length), unit: 'LIVE', ink: teal },
+      { label: 'DUE TODAY', value: this.pad(dueToday.length), unit: 'TASKS', ink: ink },
+      { label: 'ALERTS', value: this.pad(overdue.length), unit: 'OVERDUE', ink: overdue.length ? red : ink }
+    ];
+
+    const typeDef = [['all', 'ALL'], ['personal', 'PERSONAL'], ['work', 'WORK']];
+    const typeFilters = typeDef.map(x => ({
+      label: x[1], ink: s.pType === x[0] ? amber : ink3, mark: s.pType === x[0] ? '◆' : '◇',
+      go: () => this.setState({ pType: x[0] })
+    }));
+    const statusDef = [['all', 'ALL'], ['pending', 'STANDBY'], ['in_development', 'BUILD'], ['production', 'DEPLOYED'], ['paused', 'HOLD'], ['archived', 'DECOMM']];
+    const matchType = (p) => s.pType === 'all' || p.type === s.pType;
+    const statusFilters = statusDef.map(x => {
+      const n = x[0] === 'all' ? all.filter(p => matchType(p) && p.status !== 'archived').length : all.filter(p => matchType(p) && p.status === x[0]).length;
+      return { label: x[1], count: this.pad(n), ink: s.pStatus === x[0] ? amber : ink3, go: () => this.setState({ pStatus: x[0] }) };
+    });
+    const filteredProjects = all.filter(p => matchType(p) && (s.pStatus === 'all' ? p.status !== 'archived' : p.status === s.pStatus));
+
+    const raw = projects.find(p => p.id === s.projectId) || projects[0];
+    let pd = {};
+    if (raw) {
+      const d = dec(raw);
+      const acts = [];
+      if (raw.status === 'pending') acts.push({ label: '▸ INITIATE BUILD', bg: amber, border: amber, ink: '#07090C', go: () => this.askStart(raw.id) });
+      if (raw.status === 'in_development') {
+        acts.push({ label: '◈ DEPLOY', bg: teal, border: teal, ink: '#07090C', go: () => this.askProduction(raw.id) });
+        acts.push({ label: 'HOLD', bg: 'transparent', border: track, ink: ink2, go: () => this.togglePause(raw.id) });
+      }
+      if (raw.status === 'paused') acts.push({ label: '▸ RESUME BUILD', bg: amber, border: amber, ink: '#07090C', go: () => this.togglePause(raw.id) });
+      if (raw.status === 'archived') acts.push({ label: 'RESTORE', bg: amber, border: amber, ink: '#07090C', go: () => this.restore(raw.id) });
+      if (raw.status !== 'archived') acts.push({ label: 'DECOMMISSION', bg: 'transparent', border: track, ink: ink2, go: () => this.askArchive(raw.id) });
+
+      const stageOf = { pending: 0, in_development: 1, paused: 1, archived: 1, production: 2 }[raw.status];
+      const stages = [
+        { step: '01', code: 'STANDBY', value: raw.devStart ? 'CLEARED' : 'HOLDING', note: raw.devStart ? 'REGISTERED' : 'BUILD NOT STARTED' },
+        { step: '02', code: 'BUILD', value: raw.devStart ? this.stamp(raw.devStart) : '——.——.——', note: raw.devStart ? (raw.published ? 'BUILD WINDOW OPENED' : 'T+' + this.diff(raw.devStart, this.TODAY) + ' DAYS ELAPSED') : 'UNLOCKS ON INITIATE' },
+        { step: '03', code: 'DEPLOYED', value: raw.published ? this.stamp(raw.published) : (raw.target ? this.stamp(raw.target) : '——.——.——'), note: raw.published ? (raw.devStart ? this.diff(raw.devStart, raw.published) + ' DAYS TOTAL' : 'DEPLOYED') : (raw.target ? 'TARGET DATE' : 'NO TARGET SET') }
+      ].map((st, i) => Object.assign(st, {
+        ink: i === stageOf ? (i === 2 ? teal : amber) : (i < stageOf ? ink3 : '#3D474F'),
+        valueInk: i === stageOf ? ink : (i < stageOf ? ink2 : '#3D474F')
+      }));
+
+      const ptasks = d._tasks.slice().sort((a, b) => {
+        if ((a.status === 'done') !== (b.status === 'done')) return a.status === 'done' ? 1 : -1;
+        if ((a.status === 'in_progress') !== (b.status === 'in_progress')) return a.status === 'in_progress' ? -1 : 1;
+        if (!!a.due !== !!b.due) return a.due ? -1 : 1;
+        if (a.due && b.due && a.due !== b.due) return a.due < b.due ? -1 : 1;
+        return 0;
+      }).map(decT);
+      const canAdd = raw.status === 'in_development' || raw.status === 'paused';
+      const rrepo = repoOf(raw.id);
+      const rbr = branches.filter(b => b.projectId === raw.id).map(decBr);
+      const rpr = prs.filter(x => x.projectId === raw.id).map(decPR);
+      const rcm = commits.filter(c => c.projectId === raw.id).slice(0, 4).map(decCm);
+      pd = Object.assign({}, d, {
+        hasRepo: !!rrepo, noRepo: !rrepo,
+        repoSlug: rrepo ? 'github.com/' + rrepo.slug : '',
+        repoBadge: rrepo ? rrepo.visibility + ' · ⎇ ' + rrepo.defaultBranch : '',
+        repoMeta: rrepo ? 'LAST PUSH ' + rrepo.lastPush + ' · ' + this.pad(rbr.length) + ' BRANCHES · ' + this.pad(rpr.filter(x => x.canMerge).length) + ' OPEN PR' : '',
+        repoBranches: rbr, hasRepoBranches: rbr.length > 0,
+        repoPRs: rpr, hasRepoPRs: rpr.length > 0,
+        repoCommits: rcm, hasRepoCommits: rcm.length > 0,
+        linkRepo: () => this.openRepoForm(raw.id),
+        actions: acts, stages: stages, tasks: ptasks,
+        canAddTask: canAdd, taskLocked: raw.status === 'pending',
+        hasTasks: raw.status !== 'pending' && ptasks.length > 0,
+        noTasks: raw.status !== 'pending' && ptasks.length === 0,
+        links: raw.links, hasLinks: raw.links.length > 0, noLinks: raw.links.length === 0,
+        notes: raw.notes, hasNotes: !!raw.notes, noNotes: !raw.notes,
+        activity: activity.filter(a => a.subj === raw.name || a.ctx === raw.ref).slice(0, 4)
+          .map(a => ({ verb: a.verb, subj: a.subj, when: a.when, ink: toneInk(a.tone) }))
+      });
+    }
+
+    const viewDef = [['today', 'TODAY'], ['upcoming', 'INBOUND'], ['overdue', 'ALERTS'], ['all', 'ALL OPEN'], ['completed', 'CLOSED']];
+    const byView = (v) => {
+      if (v === 'today') return openTasks.filter(t => t.due && t.due <= this.TODAY);
+      if (v === 'upcoming') return openTasks.filter(t => t.due && t.due > this.TODAY);
+      if (v === 'overdue') return overdue;
+      if (v === 'completed') return tasks.filter(t => t.status === 'done');
+      return tasks.filter(t => t.status !== 'done');
+    };
+    const ctxOk = (t) => {
+      if (s.tCtx === 'all') return true;
+      if (s.tCtx === 'standalone') return !t.projectId;
+      return !!t.projectId;
+    };
+    const taskViews = viewDef.map(v => ({
+      label: v[1], count: this.pad(byView(v[0]).filter(ctxOk).length),
+      ink: s.tView === v[0] ? amber : ink3, go: () => this.setState({ tView: v[0] })
+    }));
+    const ctxDef = [['all', 'ALL'], ['project', 'PROJECT'], ['standalone', 'STANDALONE']];
+    const ctxFilters = ctxDef.map(x => ({
+      label: x[1], ink: s.tCtx === x[0] ? amber : ink3, mark: s.tCtx === x[0] ? '◆' : '◇',
+      go: () => this.setState({ tCtx: x[0] })
+    }));
+    const taskRows = byView(s.tView).filter(ctxOk).sort((a, b) => {
+      if (!!a.due !== !!b.due) return a.due ? -1 : 1;
+      if (a.due && b.due && a.due !== b.due) return a.due < b.due ? -1 : 1;
+      return 0;
+    }).map(decT);
+    const emptyCopy = {
+      today: ['QUEUE CLEAR', 'Nothing on today.', 'No deadlines, no alerts. Good window to push a build forward.'],
+      upcoming: ['NO INBOUND', 'The horizon is clear.', 'Nothing scheduled ahead. Set dates only when they matter.'],
+      overdue: ['NO ALERTS', 'All clear.', 'Everything with a deadline is still ahead of you.'],
+      all: ['QUEUE EMPTY', 'No open tasks.', 'Create one, or initiate a build to unlock a project queue.'],
+      completed: ['NO RECORDS', 'Nothing closed yet.', 'Close a task and the system records it here automatically.']
+    };
+    const etc = emptyCopy[s.tView] || emptyCopy.all;
+
+    const flat = this.paletteFlat();
+    const groups = [];
+    flat.forEach((it, i) => {
+      let g = groups.find(x => x.label === it.group);
+      if (!g) { g = { label: it.group, items: [] }; groups.push(g); }
+      g.items.push({
+        label: it.label, meta: it.meta,
+        bg: i === s.sel ? '#10151A' : 'transparent', mark: i === s.sel ? amber : 'transparent',
+        go: () => it.run(), hover: () => this.setState({ sel: i })
+      });
+    });
+
+    const m = s.modal;
+    const cf = m ? {
+      eyebrow: m.eyebrow, ref: m.ref || '',
+      accent: m.tone === 'danger' ? red : (m.tone === 'teal' ? teal : amber),
+      title: m.title, body: m.body,
+      hasTransition: !!m.fromLabel, fromLabel: m.fromLabel || '', toLabel: m.toLabel || '',
+      hasList: !!m.list, list: m.list || [],
+      hasStat: !!m.stats, stats: m.stats || [],
+      confirmLabel: m.confirmLabel || 'CONFIRM', cancelLabel: m.cancelLabel || 'CANCEL',
+      hasConfirmBtn: !m.noConfirm,
+      confirm: () => { if (m.run) m.run(); }
+    } : {};
+
+    const f = s.form;
+    const projectOptions = f && f.kind === 'task' ? [{ id: null, label: 'No project — standalone task', meta: 'STANDALONE', disabled: false }]
+      .concat(projects.filter(p => p.status !== 'archived').map(p => ({
+        id: p.id, label: p.ref + '  ' + p.name,
+        meta: p.status === 'pending' ? '⚠ LOCKED' : stageLabel[p.status],
+        disabled: p.status === 'pending'
+      }))).map(o => ({
+        label: o.label, meta: o.meta, disabled: o.disabled,
+        cursor: o.disabled ? 'not-allowed' : 'pointer', opacity: o.disabled ? '.4' : '1',
+        metaInk: o.disabled ? red : faint,
+        bg: f.projectId === o.id ? '#10151A' : 'transparent', mark: f.projectId === o.id ? amber : 'transparent',
+        go: () => { if (!o.disabled) this.setForm({ projectId: o.id }); }
+      })) : [];
+
+    const fm = f ? {
+      isProject: f.kind === 'project', isTask: f.kind === 'task',
+      eyebrow: f.kind === 'project' ? 'REGISTER PROJECT' : 'QUEUE TASK',
+      ref: f.kind === 'project' ? 'ENTERS AT STAGE 01 / STANDBY' : 'NEW QUEUE ENTRY',
+      title: '',
+      nameLabel: f.kind === 'project' ? 'DESIGNATION' : 'TASK',
+      namePlaceholder: f.kind === 'project' ? 'e.g. Halyard' : 'e.g. Send follow-up email',
+      name: f.name, desc: f.desc, date: f.date,
+      dateLabel: f.kind === 'project' ? 'TARGET DEPLOYMENT' : 'DEADLINE',
+      types: [['personal', 'PERSONAL'], ['work', 'WORK']].map(t => ({
+        label: t[1], bg: f.type === t[0] ? amber : 'transparent', border: f.type === t[0] ? amber : track, ink: f.type === t[0] ? '#07090C' : ink2,
+        go: () => this.setForm({ type: t[0] })
+      })),
+      priorities: [['low', 'LOW'], ['medium', 'MED'], ['high', 'HIGH']].map(p => ({
+        label: p[1], bg: f.priority === p[0] ? amber : 'transparent', border: f.priority === p[0] ? amber : track, ink: f.priority === p[0] ? '#07090C' : ink2,
+        go: () => this.setForm({ priority: p[0] })
+      })),
+      projectOptions: projectOptions,
+      showLockNote: f.kind === 'task' && projects.some(p => p.status === 'pending'),
+      submitLabel: f.kind === 'project' ? 'REGISTER' : 'QUEUE TASK',
+      disabled: !f.name.trim(), cursor: f.name.trim() ? 'pointer' : 'not-allowed',
+      btnBg: f.name.trim() ? amber : '#2A343C',
+      submit: () => this.submitForm()
+    } : {};
+
+    return {
+      authed: s.authed, notAuthed: !s.authed, email: s.email,
+      setEmail: (e) => this.setState({ email: e.target.value }),
+      signIn: () => { this.setState({ authed: true, route: 'dashboard' }); this.toast({ label: 'ACCESS GRANTED', ink: '#6FB3A8', msg: 'Operator verified. Three items require attention today.' }); },
+      signOut: () => this.setState({ authed: false }),
+
+      isDash: s.route === 'dashboard', isProjects: s.route === 'projects', isProject: s.route === 'project',
+      isTasks: s.route === 'tasks', isActivity: s.route === 'activity', isSettings: s.route === 'settings',
+      isSource: s.route === 'source',
+      srcMetrics: srcMetrics, srcTabs: srcTabs,
+      showPRs: s.srcTab === 'prs', showBranches: s.srcTab === 'branches', showCommits: s.srcTab === 'commits',
+      prRows: openPRs.concat(prs.filter(p => p.state === 'merged')).map(decPR),
+      branchRows: branches.map(decBr), commitRows: commits.map(decCm),
+      repoRows: repoRows, hasRepos: repoRows.length > 0, noRepos: repoRows.length === 0,
+      unlinked: unlinked, hasUnlinked: unlinked.length > 0,
+      automations: automations, spec: spec,
+      reviewQueue: reviewQueue, hasReviewQueue: reviewQueue.length > 0, noReviewQueue: reviewQueue.length === 0,
+      reviewCount: this.pad(reviewQueue.length) + ' ITEMS',
+      simulatePush: () => this.simulatePush(),
+      goSource: () => this.go('source'),
+      newRepoLink: () => this.openRepoForm(''),
+      hasRepoForm: !!s.repoForm,
+      rf: s.repoForm ? {
+        slug: s.repoForm.slug, branch: s.repoForm.branch,
+        projectLabel: (projects.find(p => p.id === s.repoForm.projectId) || {}).name || '',
+        options: live.filter(p => !repoOf(p.id)).map(p => ({
+          label: p.ref + '  ' + p.name, meta: p.stageLabel,
+          bg: s.repoForm.projectId === p.id ? '#10151A' : 'transparent',
+          mark: s.repoForm.projectId === p.id ? amber : 'transparent',
+          go: () => this.setRepoForm({ projectId: p.id })
+        })),
+        setSlug: (e) => this.setRepoForm({ slug: e.target.value }),
+        setBranch: (e) => this.setRepoForm({ branch: e.target.value }),
+        disabled: !(s.repoForm.slug.trim() && s.repoForm.projectId),
+        cursor: (s.repoForm.slug.trim() && s.repoForm.projectId) ? 'pointer' : 'not-allowed',
+        btnBg: (s.repoForm.slug.trim() && s.repoForm.projectId) ? amber : '#2A343C',
+        submit: () => this.submitRepo()
+      } : {},
+      closeRepoForm: () => this.setState({ repoForm: null }),
+      nav: nav, scopes: scopes,
+      goDash: () => this.go('dashboard'), goProjects: () => this.go('projects'), goActivity: () => this.go('activity'),
+      clock: this.clockStr(), clockDate: '2026.09.05',
+      statusLine: 'FLEET ' + this.pad(live.length) + ' · BUILD ' + this.pad(live.filter(p => p.status === 'in_development').length) + ' · QUEUE ' + this.pad(openTasks.length) + ' · ALERTS ' + this.pad(overdue.length),
+      metrics: metrics, loading: loading, three: [1, 2, 3], five: [1, 2, 3, 4, 5],
+
+      hasDirective: !loading && !!dirTask, directive: directive,
+      activeProjects: active, showActive: !loading && active.length > 0, noActive: !loading && active.length === 0,
+      activeCountLabel: this.pad(active.length) + ' IN BAY',
+      myDay: myDay, hasMyDay: myDay.length > 0, noMyDay: myDay.length === 0,
+      myDayCount: this.pad(myDay.length) + ' ITEMS', myDayInk: overdue.length ? red : ink3,
+      upcoming: upcoming, hasUpcoming: upcoming.length > 0, noUpcoming: upcoming.length === 0,
+      pendingProjects: pending, hasPending: pending.length > 0, noPending: pending.length === 0,
+      shippedProjects: shipped, hasShipped: shipped.length > 0, noShipped: shipped.length === 0,
+      showActivityBlock: pr.showRecentActivity !== false && activity.length > 0,
+      activityShort: activity.slice(0, 4).map(a => ({ verb: a.verb, subj: a.subj, ctx: a.ctx, when: a.when, ink: toneInk(a.tone) })),
+      activityAll: activity.map(a => ({ verb: a.verb, subj: a.subj, ctx: a.ctx, when: a.when, ink: toneInk(a.tone) })),
+
+      projectsCountLabel: this.pad(live.length) + ' ACTIVE · ' + this.pad(all.filter(p => p.status === 'archived').length) + ' DECOMMISSIONED',
+      typeFilters: typeFilters, statusFilters: statusFilters, filteredProjects: filteredProjects,
+      hasFiltered: !loading && filteredProjects.length > 0, noFiltered: !loading && filteredProjects.length === 0,
+      emptyProjectsTitle: isEmpty ? 'The fleet is empty.' : 'No records match.',
+      emptyProjectsBody: isEmpty ? 'Register your first project. Everything else in the console follows from it.' : 'Loosen a filter, or register something new.',
+
+      pd: pd, newProjectTaskHere: () => this.openForm('task', raw ? raw.id : null),
+
+      taskViews: taskViews, ctxFilters: ctxFilters, taskRows: taskRows,
+      hasTaskRows: taskRows.length > 0, noTaskRows: taskRows.length === 0,
+      emptyTasksCode: etc[0], emptyTasksTitle: etc[1], emptyTasksBody: etc[2],
+
+      createOpen: s.createOpen, toggleCreate: () => this.setState(x => ({ createOpen: !x.createOpen })),
+      createItems: [
+        { label: 'New project', hint: 'ENTERS ON STANDBY', go: () => this.openForm('project') },
+        { label: 'New standalone task', hint: 'NO PROJECT REQUIRED', go: () => this.openForm('task') },
+        { label: 'New project task', hint: 'ACTIVE BUILDS ONLY', go: () => this.openForm('task', null) }
+      ],
+      newProject: () => this.openForm('project'), newPersonalTask: () => this.openForm('task'),
+
+      paletteOpen: s.paletteOpen, openPalette: () => this.setState({ paletteOpen: true, q: '', sel: 0, createOpen: false }),
+      closePalette: () => this.setState({ paletteOpen: false }), stop: (e) => e.stopPropagation(),
+      q: s.q, setQ: (e) => this.setState({ q: e.target.value, sel: 0 }),
+      paletteGroups: groups, paletteEmpty: flat.length === 0, paletteCount: this.pad(flat.length) + ' RESULTS',
+
+      hasConfirm: !!m, cf: cf, closeModal: () => this.setState({ modal: null, form: null }),
+      hasForm: !!f, fm: fm,
+      setFormName: (e) => this.setForm({ name: e.target.value }),
+      setFormDesc: (e) => this.setForm({ desc: e.target.value }),
+      setFormDate: (e) => this.setForm({ date: e.target.value }),
+
+      refetch: () => this.refetch(),
+      demoToast: () => this.toast({ label: 'TRANSMISSION', ink: '#E9A94A', msg: 'System messages arrive stamped, act once, and clear themselves.', hasAction: true, actionLabel: 'ACKNOWLEDGE' }),
+      toasts: s.toasts.map(t => Object.assign({}, t, { close: () => this.drop(t.id), act: () => { this.drop(t.id); if (t.act) t.act(); } }))
+    };
+  }
+}
+</script>
+</body>
+</html>
