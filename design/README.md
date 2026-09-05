@@ -319,3 +319,19 @@ to this app's single `--color-accent` / `--color-teal` tokens (still literal hex
 in the SVG, for the same `stop-color` cross-browser reliability reason as
 before) rather than introducing a second, competing color pair alongside the one
 every other screen already uses.
+
+**Every project-completion progress bar and percentage removed, at the operator's
+request**: the mockup's `ProgressGauge` bar (Fleet list, Active Builds, Project
+Detail) and the `X%` readout next to it were both dropped — first the bar alone
+on the Fleet list, then the bar on Active Builds, then the operator asked for the
+percentage itself gone everywhere, calling task-completion percentage "unhonest
+and irrelevant": it treats every task as equal weight, which isn't true, and
+reads as a more precise signal than it actually is. `computeTaskProgress`
+(`lib/projects/progress.ts`) now returns only `{ done, total }` — real counts,
+already shown as "NN/NN TASKS" / "NN CLOSED · NN OPEN" everywhere a percentage
+used to sit alongside them — with no derived percentage at all, `ProgressGauge`
+deleted, and `projectGaugeTone` (its only consumer) removed with it. The COMMITTING/
+AUTHENTICATING buffering sequences' own `percent` (`lib/ui/sequence.ts`,
+`BufferPanel`) is a different thing — a loading-animation readout of how many
+steps have played, not a claim about how much of the operator's actual work is
+done — and was left alone.

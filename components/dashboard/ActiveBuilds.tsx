@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ProgressGauge } from "@/components/ui/ProgressGauge";
 import type { ActiveBuildCard } from "@/lib/dashboard/build-view";
 
 function pad2(n: number) {
@@ -43,21 +42,9 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
                 </p>
               ) : null}
 
-              <div className="mt-5 flex flex-wrap items-start gap-[18px]">
-                <ProgressGauge
-                  percent={card.percent}
-                  tone="accent"
-                  className="min-w-[150px] max-w-[320px] flex-1 basis-[220px]"
-                />
-                <div className="flex flex-wrap items-baseline gap-4">
-                  <span className="font-mono text-[13px] tracking-[0.04em] tabular-nums text-ink">
-                    {card.totalTasks ? `${card.percent}%` : "—"}
-                  </span>
-                  <span className="font-mono text-[9px] leading-relaxed tracking-[0.13em] text-ink-3">
-                    {card.metaLine}
-                    {card.githubSnippet ? ` · ${card.githubSnippet}` : ""}
-                  </span>
-                </div>
+              <div className="mt-5 font-mono text-[9px] leading-relaxed tracking-[0.13em] text-ink-3">
+                {card.metaLine}
+                {card.githubSnippet ? ` · ${card.githubSnippet}` : ""}
               </div>
 
               {card.nextTaskTitle ? (

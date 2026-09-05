@@ -13,7 +13,7 @@ const VALUE_INK: Record<"done" | "active" | "upcoming", string> = {
   upcoming: "text-ink-disabled",
 };
 
-/** The Standby / Build / Deployed strip under the progress gauge on Project Detail. */
+/** The Standby / Build / Deployed strip on Project Detail. */
 export function StageStrip({
   project,
   today,

@@ -40,7 +40,6 @@ export interface ActiveBuildCard {
   name: string;
   type: ProjectType;
   description: string;
-  percent: number;
   doneTasks: number;
   totalTasks: number;
   metaLine: string;
@@ -148,7 +147,7 @@ export function buildDashboardView(input: BuildDashboardViewInput): DashboardVie
 
   const activeBuilds: ActiveBuildCard[] = activeProjects.map((p) => {
     const projectTasks = tasksByProject.get(p.id) ?? [];
-    const { done, total, percent } = computeTaskProgress(projectTasks);
+    const { done, total } = computeTaskProgress(projectTasks);
     const nextTask = nextTaskByProject.get(p.id) ?? null;
     const repo = repoByProject.get(p.id);
 
@@ -169,7 +168,6 @@ export function buildDashboardView(input: BuildDashboardViewInput): DashboardVie
       name: p.name,
       type: p.type,
       description: p.description,
-      percent,
       doneTasks: done,
       totalTasks: total,
       metaLine: buildCardMetaLine(p, done, total),
