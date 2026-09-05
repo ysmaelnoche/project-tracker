@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
@@ -15,27 +14,32 @@ export type ProfileActionResult = { ok: true } | { ok: false; error: string };
  * we never store or compare a password ourselves. Deliberately returns the
  * same generic error whether the username is unknown or the password is
  * wrong, so a failed attempt can't be used to enumerate valid usernames.
+ *
+ * Returns a result rather than redirecting: the Access screen drives a
+ * step-by-step "authenticating" animation and needs to know the real outcome
+ * to react to, not have navigation happen out from under it. The caller
+ * (AccessForm) navigates on success.
  */
-export async function signInWithUsername(formData: FormData) {
+export async function signInWithUsername(formData: FormData): Promise<ProfileActionResult> {
   const username = normalizeUsername(String(formData.get("username") ?? ""));
   const password = String(formData.get("password") ?? "");
 
   if (!username || !password) {
-    redirect("/access?error=missing_fields");
+    return { ok: false, error: "Enter both an operator ID and a passcode." };
   }
 
   const email = await resolveEmailForUsername(username);
   if (!email) {
-    redirect("/access?error=invalid_credentials");
+    return { ok: false, error: "That username or password is incorrect." };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    redirect("/access?error=invalid_credentials");
+    return { ok: false, error: "That username or password is incorrect." };
   }
 
-  redirect("/dashboard");
+  return { ok: true };
 }
 
 /** Changes the signed-in operator's username. Server-side is authoritative — the

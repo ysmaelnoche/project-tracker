@@ -26,10 +26,31 @@ Two deliberate departures from this reference:
 - **GitHub integration**: the mockup's Settings screen describes a GitHub App +
   webhooks + Edge Function pipeline as flavor text. We built a personal-access-token +
   on-demand refresh instead — see `PLAN.md` ("GitHub Data Strategy") and `lib/github/`.
-- **Access screen**: the mockup's Access screen is a single-field magic-link sign-in
-  ("issue access link", no password). The real app uses username + password instead
-  (a `profiles` table maps a username to the underlying Supabase Auth account) so a
-  Change Password / Change Username profile flow is possible — see `lib/auth/`.
+- **Access screen**: the mockup's Access screen went through two versions. The first
+  was a single-field magic-link sign-in ("issue access link", no password); the real
+  app uses username + password instead (a `profiles` table maps a username to the
+  underlying Supabase Auth account) so a Change Password / Change Username profile
+  flow is possible — see `lib/auth/`. The second version redesigned it into a
+  two-column layout with a step-by-step "authenticating" sequence — that part was
+  built faithfully (`components/auth/AccessForm.tsx`, `lib/auth/auth-sequence.ts`),
+  with a few things changed because they don't have a real backing:
+  - The demo's auth steps invent specific technical detail ("PASSCODE HASH VERIFIED ·
+    ARGON2ID · 64MB · T=3", fake record counts) to sell the fiction, since the demo
+    has no real backend. The real steps describe the same moments honestly instead
+    (resolving the username, verifying the passcode, the session being established) —
+    no fabricated crypto parameters or numbers we don't actually know.
+  - "No password is ever stored" (accurate for magic-link) became "Supabase verifies
+    your passcode — this app never stores it" (accurate for password auth: Supabase's
+    managed auth schema stores the hash, this app's own code and database never do).
+  - "TRUST THIS TERMINAL FOR 30 DAYS" and a "Sign in with GitHub" alternate path are
+    UI-only in the demo (no session-length or OAuth-provider change behind them) —
+    left out rather than shipping a toggle that does nothing.
+  - "LAST SESSION" is real: Supabase Auth's own `last_sign_in_at` for the one
+    operator account, read fresh on every visit (`getLastSessionInfo()` in
+    `lib/auth/queries.ts`) — not a placeholder string. The demo's "TERMINAL" (device
+    recognition) and "CONSOLE" (build stamp) footer rows were dropped along with it,
+    since they'd need real device-trust tracking and build-metadata plumbing this app
+    doesn't have yet.
 
 Everything else in the mockup (screens, data model, automation rules and their default
 on/off state, copy) is the intended real behavior.
