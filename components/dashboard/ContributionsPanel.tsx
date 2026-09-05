@@ -97,7 +97,13 @@ function Calendar({
         {totalContributions.toLocaleString()} contributions in this window
       </div>
 
-      <div className="mt-4 inline-grid min-w-full" style={{ gridTemplateColumns: `28px repeat(${weeks.length}, 11px)` }}>
+      <div
+        className="mt-4 grid w-full gap-[3px]"
+        style={{
+          gridTemplateColumns: `28px repeat(${weeks.length}, minmax(0, 1fr))`,
+          minWidth: `${28 + weeks.length * 12}px`,
+        }}
+      >
         <div />
         {monthLabels.map(({ weekIndex, label }) => (
           <span
@@ -124,7 +130,7 @@ function Calendar({
             <div
               key={day.date}
               title={`${day.contributionCount} contribution${day.contributionCount === 1 ? "" : "s"} on ${day.date}`}
-              className={`h-[10px] w-[10px] justify-self-center self-center ${LEVEL_CLASS[contributionLevel(day.contributionCount, max)]}`}
+              className={`aspect-square w-full rounded-[2px] ${LEVEL_CLASS[contributionLevel(day.contributionCount, max)]}`}
               style={{ gridColumn: weekIndex + 2, gridRow: day.weekday + 2 }}
             />
           )),
