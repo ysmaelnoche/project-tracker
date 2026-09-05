@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { updatePassword } from "@/lib/auth/actions";
 import { passwordsMatch, validatePassword } from "@/lib/auth/validation";
+import { Spinner } from "@/components/ui/Spinner";
 
 export function ChangePasswordForm() {
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +107,13 @@ export function ChangePasswordForm() {
           disabled={pending}
           className="cursor-pointer border border-border-strong bg-transparent px-3.5 py-2 font-mono text-[9px] tracking-[0.13em] text-ink-2 transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {pending ? "SAVING…" : "CHANGE PASSWORD"}
+          {pending ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner /> SAVING…
+            </span>
+          ) : (
+            "CHANGE PASSWORD"
+          )}
         </button>
         {error ? <p className="font-mono text-xs tracking-[0.02em] text-red">{error}</p> : null}
         {success ? (

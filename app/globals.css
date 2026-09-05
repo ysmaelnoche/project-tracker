@@ -124,6 +124,25 @@
     opacity: 0.3;
   }
 }
+/* A HUD scanline sweeping across a bar — used by loading skeletons and the
+   route-transition loading screen (see components/ui/Skeleton.tsx). */
+@keyframes scan {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+/* A slower ambient sweep for full-width progress/status bars. */
+@keyframes scan-wide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
 @keyframes blink {
   0%,
   60% {

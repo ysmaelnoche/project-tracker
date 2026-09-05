@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateUsername } from "@/lib/auth/actions";
 import { validateUsername } from "@/lib/auth/validation";
+import { Spinner } from "@/components/ui/Spinner";
 
 export function ChangeUsernameForm({ currentUsername }: { currentUsername: string | null }) {
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +56,13 @@ export function ChangeUsernameForm({ currentUsername }: { currentUsername: strin
         disabled={pending}
         className="cursor-pointer border border-border-strong bg-transparent px-3.5 py-2 font-mono text-[9px] tracking-[0.13em] text-ink-2 transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {pending ? "SAVING…" : "SAVE"}
+        {pending ? (
+          <span className="inline-flex items-center gap-2">
+            <Spinner /> SAVING…
+          </span>
+        ) : (
+          "SAVE"
+        )}
       </button>
       {error ? (
         <p className="basis-full font-mono text-xs tracking-[0.02em] text-red">{error}</p>

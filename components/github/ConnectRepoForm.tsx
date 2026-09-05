@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
 import { connectRepository } from "@/lib/github/actions";
 
@@ -49,7 +50,13 @@ export function ConnectRepoForm({ projectId, onDone }: { projectId: string; onDo
         disabled={isPending}
         className="self-start cursor-pointer bg-accent px-3.5 py-2 font-mono text-[9px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {isPending ? "LINKING…" : "+ LINK REPO"}
+        {isPending ? (
+          <span className="inline-flex items-center gap-2">
+            <Spinner /> LINKING…
+          </span>
+        ) : (
+          "+ LINK REPO"
+        )}
       </button>
     </form>
   );

@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
 import { refreshRepository } from "@/lib/github/actions";
 
@@ -34,7 +35,13 @@ export function RefreshButton({ repositoryId, projectId }: { repositoryId: strin
 
   return (
     <Button variant="secondary" onClick={handleRefresh} disabled={isPending}>
-      {isPending ? "REFRESHING…" : "↻ REFRESH"}
+      {isPending ? (
+        <span className="inline-flex items-center gap-2">
+          <Spinner /> REFRESHING…
+        </span>
+      ) : (
+        "↻ REFRESH"
+      )}
     </Button>
   );
 }
