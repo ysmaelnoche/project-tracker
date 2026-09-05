@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens lifted from the "Shipyard" design concept
+ * (claude.ai/design/p/9f666279-e145-405f-bcbe-e6d9fdbf27df). Tailwind v4 turns each
+ * of these into utility classes automatically, e.g. --color-amber -> bg-amber/text-amber.
+ */
+@theme {
+  --color-bg: #07090c;
+  --color-surface: #0a0d11;
+  --color-surface-raised: #0c1014;
+  --color-surface-hover: #10151a;
+  --color-border: #1c2329;
+  --color-border-strong: #2a343c;
+  --color-divider: #131a1f;
+  --color-track: #080b0e;
+
+  --color-ink: #dde4e8;
+  --color-ink-2: #8a98a2;
+  --color-ink-3: #78848d;
+  --color-ink-faint: #5c6871;
+  --color-ink-disabled: #3d474f;
+
+  --color-amber: #e9a94a;
+  --color-amber-hover: #f5c57e;
+  --color-teal: #6fb3a8;
+  --color-red: #e4614a;
+
+  --font-mono: var(--font-azeret-mono), ui-monospace, monospace;
+  --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  background-image: linear-gradient(rgba(138, 152, 162, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 152, 162, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+a {
+  color: var(--color-amber);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-amber-hover);
+}
+button {
+  font-family: inherit;
+  color: inherit;
+}
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+::selection {
+  background: var(--color-border-strong);
+  color: var(--color-ink);
+}
+::placeholder {
+  color: var(--color-ink-faint);
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-amber);
+  outline-offset: 2px;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes lift {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sweep {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+@keyframes blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0.25;
+  }
+}
