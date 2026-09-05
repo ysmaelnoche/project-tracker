@@ -17,6 +17,9 @@ interface ConfirmDialogProps {
   /** While true, the confirm button shows a spinner + `pendingLabel` and both buttons disable — every lifecycle-transition dialog's own missing buffering state, closed in one place. */
   pending?: boolean;
   pendingLabel?: string;
+  /** An escape-hatch link below the main buttons, e.g. DECOMMISSION's "skip straight to scuttling" — deliberately smaller/quieter than the two primary actions so it never reads as the default choice. */
+  dangerLabel?: string;
+  onDanger?: () => void;
   onConfirm?: () => void;
   onClose: () => void;
 }
@@ -51,6 +54,8 @@ export function ConfirmDialog({
   hideConfirm = false,
   pending = false,
   pendingLabel = "WORKING…",
+  dangerLabel,
+  onDanger,
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
@@ -137,6 +142,16 @@ export function ConfirmDialog({
               </button>
             ) : null}
           </div>
+
+          {dangerLabel && onDanger ? (
+            <button
+              onClick={onDanger}
+              disabled={pending}
+              className="mt-3 block w-full cursor-pointer border-0 bg-transparent p-0 text-right font-mono text-[9px] tracking-[0.13em] text-ink-faint transition-colors hover:text-red disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {dangerLabel}
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
