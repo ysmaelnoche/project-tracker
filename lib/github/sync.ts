@@ -189,9 +189,9 @@ export async function syncRepository(repositoryId: string): Promise<SyncResult> 
     return { ok: false, error: "Repository not found." };
   }
 
-  const octokit = getGithubClient();
+  const octokit = await getGithubClient();
   if (!octokit) {
-    const message = "GitHub isn't configured. Add a GITHUB_TOKEN to enable repository sync.";
+    const message = "GitHub isn't configured. Add a token in Config to enable repository sync.";
     await supabase.from("repositories").update({ last_sync_error: message }).eq("id", repositoryId);
     revalidateGithubSurfaces(repo.project_id);
     return { ok: false, error: message };

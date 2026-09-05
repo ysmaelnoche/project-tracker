@@ -10,6 +10,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Octokit } from "@octokit/rest";
 
 import { createClient } from "@/lib/supabase/server";
 import { getGithubClient } from "@/lib/github/client";
@@ -49,9 +50,9 @@ export async function connectRepository(
     return { ok: false, error: "Enter a repository as owner/name — e.g. me/my-project." };
   }
 
-  const octokit = getGithubClient();
+  const octokit = await getGithubClient();
   if (!octokit) {
-    return { ok: false, error: "GitHub isn't configured. Add a GITHUB_TOKEN to enable this." };
+    return { ok: false, error: "GitHub isn't configured. Add a token in Config to enable this." };
   }
 
   let meta: { default_branch: string; private: boolean };
@@ -189,6 +190,54 @@ export async function toggleAutomationSetting(key: AutomationSettingKey): Promis
     .upsert({ user_id: user.id, [column]: next }, { onConflict: "user_id" });
 
   if (error) return { ok: false, error: "Could not save that setting." };
+
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+/**
+ * Saves a GitHub personal access token to the database, so it can be set
+ * from the Config screen instead of only via the GITHUB_TOKEN env var (see
+ * lib/github/token-source.ts — a database token always wins once set).
+ * Validates the token actually authenticates with GitHub before persisting
+ * it, via the rate-limit endpoint (works for any valid token regardless of
+ * its scopes, unlike e.g. the repo-specific calls elsewhere in this file).
+ */
+export async function saveGithubToken(formData: FormData): Promise<GithubActionResult> {
+  const token = String(formData.get("token") ?? "").trim();
+  if (!token) return { ok: false, error: "Enter a token." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "You need to be signed in." };
+
+  try {
+    await new Octokit({ auth: token }).rest.rateLimit.get();
+  } catch (error) {
+    return { ok: false, error: toFriendlyGithubError(error) };
+  }
+
+  const { error } = await supabase
+    .from("github_credentials")
+    .upsert({ user_id: user.id, token }, { onConflict: "user_id" });
+  if (error) return { ok: false, error: "Could not save the token. Try again." };
+
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+/** Removes the database-stored token. GITHUB_TOKEN (if set) takes back over. */
+export async function removeGithubToken(): Promise<GithubActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "You need to be signed in." };
+
+  const { error } = await supabase.from("github_credentials").delete().eq("user_id", user.id);
+  if (error) return { ok: false, error: "Could not remove the token. Try again." };
 
   revalidatePath("/settings");
   return { ok: true };

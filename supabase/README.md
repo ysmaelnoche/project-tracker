@@ -13,9 +13,12 @@
    consider raising the minimum password length to 8 to match the app's own
    validation (`lib/auth/validation.ts`) — defense in depth, not required.
 5. Optional, for GitHub activity: create a fine-grained personal access token
-   (read-only: Contents, Metadata, Pull requests) and put it in `GITHUB_TOKEN` in
-   `.env.local`. The app works fully without it — repository/commit/PR panels just stay
-   in their empty state until a token and a repository are connected.
+   (read-only: Contents, Metadata, Pull requests). Either put it in `GITHUB_TOKEN` in
+   `.env.local`, or paste it into **Config → GitHub Connection** once signed into the
+   app (validated against GitHub before it's saved; a database-stored token always
+   takes priority over the env var). The app works fully without either — repository/
+   commit/PR panels just stay in their empty state until a token and a repository are
+   connected.
 
 Migrations are plain numbered SQL files under `migrations/`. Add new ones as
 `00XX_description.sql` rather than editing an already-applied file.

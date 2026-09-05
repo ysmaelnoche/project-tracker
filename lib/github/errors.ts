@@ -28,13 +28,13 @@ export function toFriendlyGithubError(error: unknown): string {
   const rateLimitRemaining = error.response?.headers?.["x-ratelimit-remaining"];
 
   if (status === 401) {
-    return "GitHub token is invalid or expired. Update GITHUB_TOKEN and try again.";
+    return "GitHub token is invalid or expired. Update it in Config and try again.";
   }
   if (status === 403 && rateLimitRemaining === "0") {
     return "GitHub rate limit reached. Try refreshing again in a few minutes.";
   }
   if (status === 403) {
-    return "GitHub denied access to this repository — it may have been made private. Check GITHUB_TOKEN's access.";
+    return "GitHub denied access to this repository — it may have been made private. Check the token's access in Config.";
   }
   if (status === 404) {
     return "Repository not found on GitHub. It may have been deleted or renamed.";
