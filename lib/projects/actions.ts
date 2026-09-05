@@ -14,7 +14,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { linkRepository } from "@/lib/github/actions";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
-import { isPurgeEligible } from "@/lib/projects/purge";
 import type { ActivityTone, Priority, ProjectStatus, ProjectType } from "@/lib/types";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -318,37 +317,33 @@ export async function restoreProject(id: string) {
 }
 
 // ---------------------------------------------------------------------------
-// Purge (PLAN.md addendum: permanent deletion, operator-confirmed only)
+// Scuttle (permanent deletion, operator-confirmed — no waiting period)
 // ---------------------------------------------------------------------------
 
-export type PurgeProjectResult = { ok: true } | { ok: false; error: string };
+export type ScuttleProjectResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Permanently deletes a decommissioned project — the one genuinely
- * irreversible action in this app. Re-verifies eligibility server-side
- * (never trusts the client's own countdown/eligibility check): the project
- * must still be archived and at least `PURGE_GRACE_DAYS` (lib/projects/purge.ts)
- * past its `archived_at`. Deleting the `projects` row cascades to its tasks,
- * notes' own column (dropped with the row), links, and its repository row
- * (which itself cascades to gh_commits/gh_branches/gh_pull_requests) — see
- * the `on delete cascade` foreign keys in supabase/migrations/0001_init.sql.
+ * Permanently deletes a project — the one genuinely irreversible action in
+ * this app. Reachable either as a decommissioned project's own action, or
+ * as an escape hatch straight from an active project (skipping
+ * decommissioning entirely) — either way the operator has already been
+ * through a real confirmation dialog plus a countdown-with-abort
+ * (components/projects/ScuttleSequence.tsx) before this ever runs; there is
+ * no eligibility window to re-check here. Deleting the `projects` row
+ * cascades to its tasks, notes, links, and its repository row (which itself
+ * cascades to gh_commits/gh_branches/gh_pull_requests) — see the
+ * `on delete cascade` foreign keys in supabase/migrations/0001_init.sql.
  * This NEVER calls the GitHub API: the repository on GitHub itself is
  * completely untouched, only this app's own record of it goes.
  */
-export async function purgeProject(id: string): Promise<PurgeProjectResult> {
+export async function scuttleProject(id: string): Promise<ScuttleProjectResult> {
   const supabase = await createClient();
   const project = await fetchProjectCore(supabase, id);
   if (!project) return { ok: false, error: "Project not found." };
-  if (project.status !== "archived") {
-    return { ok: false, error: "Only a decommissioned project can be purged." };
-  }
-  if (!isPurgeEligible(project.archived_at, todayIso())) {
-    return { ok: false, error: "This project isn't eligible for purge yet." };
-  }
 
   // Logged before the delete — the projects row (and the ref this activity
   // entry names) won't exist to look up afterward.
-  await logActivity(supabase, "PURGED", project.name, project.ref, "red");
+  await logActivity(supabase, "SCUTTLED", project.name, project.ref, "red");
 
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) {

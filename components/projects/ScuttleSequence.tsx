@@ -3,43 +3,44 @@
 import { useEffect, useRef, useState } from "react";
 import { BufferPanel } from "@/components/ui/BufferPanel";
 import { buildSequenceLines, computeSequencePercent } from "@/lib/ui/sequence";
-import { PURGE_FAILED_STEP, PURGE_STEPS } from "@/lib/projects/purge-sequence";
+import { SCUTTLE_FAILED_STEP, SCUTTLE_STEPS } from "@/lib/projects/scuttle-sequence";
 
-const COUNTDOWN_SECONDS = 6;
+const COUNTDOWN_SECONDS = 5;
 const STEP_INTERVAL_MS = 300;
-const AUTO_REVEAL_CAP = PURGE_STEPS.length - 1;
+const AUTO_REVEAL_CAP = SCUTTLE_STEPS.length - 1;
 
-type Phase = "countdown" | "purging" | "failed";
+type Phase = "countdown" | "scuttling" | "failed";
 
-export interface PurgeResult {
+export interface ScuttleResult {
   ok: boolean;
   error?: string;
 }
 
 /**
- * The most severe confirmation in the app — permanently deleting a project
- * record (never anything on GitHub — `onPurge` must never call the GitHub
- * API; see lib/projects/actions.ts's `purgeProject`). Deliberately not a
- * plain ConfirmDialog: a large visible countdown auto-proceeds unless
- * canceled, framed as the shipyard's own "PURGE SEQUENCE" — the one
- * genuinely irreversible action in this app earns a slower, harder-to-
- * trigger-by-accident confirmation than everything else.
+ * The countdown-and-execute half of SCUTTLE — permanently deleting a
+ * project (never anything on GitHub; `onScuttle` must never call the
+ * GitHub API, see lib/projects/actions.ts's `scuttleProject`). By the time
+ * this opens, the operator has already confirmed once in a plain
+ * ConfirmDialog upstream (see ProjectActions.tsx's "SCUTTLE THE SHIP?"
+ * dialog) — this is the second, harder-to-stop layer: a large visible
+ * countdown that auto-proceeds unless canceled, then the same staged
+ * BufferPanel mechanism every other CRUD write uses.
  */
-export function PurgeSequence({
+export function ScuttleSequence({
   open,
   projectRef,
   projectName,
-  onPurge,
-  onPurged,
+  onScuttle,
+  onScuttled,
   onClose,
 }: {
   open: boolean;
   projectRef: string;
   projectName: string;
   /** Perform the real deletion. Must never touch the GitHub API. */
-  onPurge: () => Promise<PurgeResult>;
+  onScuttle: () => Promise<ScuttleResult>;
   /** Called once the buffer's payoff line has been shown — navigate/toast here. */
-  onPurged: () => void;
+  onScuttled: () => void;
   onClose: () => void;
 }) {
   const [phase, setPhase] = useState<Phase>("countdown");
@@ -77,8 +78,8 @@ export function PurgeSequence({
     }
   }
 
-  function runPurge() {
-    setPhase("purging");
+  function runScuttle() {
+    setPhase("scuttling");
     setRevealed(0);
     setError(null);
 
@@ -86,11 +87,11 @@ export function PurgeSequence({
       setRevealed((n) => (n < AUTO_REVEAL_CAP ? n + 1 : n));
     }, STEP_INTERVAL_MS);
 
-    onPurge().then((result) => {
+    onScuttle().then((result) => {
       stopTicker();
       if (result.ok) {
-        setRevealed(PURGE_STEPS.length);
-        setTimeout(onPurged, 600);
+        setRevealed(SCUTTLE_STEPS.length);
+        setTimeout(onScuttled, 600);
       } else {
         setPhase("failed");
         setError(result.error ?? "Something went wrong. The project was not deleted.");
@@ -113,7 +114,7 @@ export function PurgeSequence({
   }, []);
 
   // The countdown itself — ticks once a second while phase is "countdown",
-  // handing off to the purge buffer when it reaches zero. The zero-check
+  // handing off to the scuttle buffer when it reaches zero. The zero-check
   // lives in the timer's own callback (an external system reacting to its
   // own tick), not in the effect body itself, matching AccessForm's ticker.
   useEffect(() => {
@@ -124,21 +125,21 @@ export function PurgeSequence({
       setSecondsLeft(remainingRef.current);
       if (remainingRef.current === 0) {
         stopCountdown();
-        runPurge();
+        runScuttle();
       }
     }, 1000);
     return () => stopCountdown();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- runPurge closes over onPurge/onPurged, which the caller passes fresh each render; re-running this effect on every render would restart the countdown, so it intentionally only re-runs when the countdown itself should (re)start
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runScuttle closes over onScuttle/onScuttled, which the caller passes fresh each render; re-running this effect on every render would restart the countdown, so it intentionally only re-runs when the countdown itself should (re)start
   }, [open, phase]);
 
   if (!open) return null;
 
   const failed = phase === "failed";
-  const lines = buildSequenceLines(PURGE_STEPS, revealed, failed, {
-    ...PURGE_FAILED_STEP,
-    detail: error ?? PURGE_FAILED_STEP.detail,
+  const lines = buildSequenceLines(SCUTTLE_STEPS, revealed, failed, {
+    ...SCUTTLE_FAILED_STEP,
+    detail: error ?? SCUTTLE_FAILED_STEP.detail,
   });
-  const percent = computeSequencePercent(PURGE_STEPS, revealed, failed);
+  const percent = computeSequencePercent(SCUTTLE_STEPS, revealed, failed);
 
   return (
     <div
@@ -155,7 +156,7 @@ export function PurgeSequence({
         <div className="pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r border-red" />
 
         <div className="flex flex-wrap items-baseline gap-3 border-b border-border px-5 py-3.5">
-          <span className="font-mono text-[9px] tracking-[0.2em] text-red">{"// PURGE SEQUENCE"}</span>
+          <span className="font-mono text-[9px] tracking-[0.2em] text-red">{"// SCUTTLE SEQUENCE"}</span>
           <span className="ml-auto font-mono text-[9px] tracking-[0.12em] text-ink-faint">{projectRef}</span>
         </div>
 
@@ -165,22 +166,22 @@ export function PurgeSequence({
               {secondsLeft}
             </div>
             <p className="mt-4 text-sm leading-relaxed text-ink-2">
-              Permanently deleting <span className="text-ink">{projectName}</span> — tasks,
-              notes, links, and GitHub sync history go with it. The GitHub repository itself is
-              never touched.
+              Scuttling <span className="text-ink">{projectName}</span> — tasks, notes, links,
+              and GitHub sync history go down with it. The GitHub repository itself is never
+              touched.
             </p>
             <button
               onClick={handleCancel}
               className="mt-6 w-full cursor-pointer border border-border-strong bg-transparent px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-ink transition-colors hover:border-ink"
             >
-              ✕ CANCEL
+              ✕ ABORT
             </button>
           </div>
         ) : (
           <div className="px-6 py-6">
             <BufferPanel
               tone="red"
-              eyebrow={failed ? "PURGE FAILED" : percent === 100 ? "PURGED" : "PURGING"}
+              eyebrow={failed ? "SCUTTLE FAILED" : percent === 100 ? "SCUTTLED" : "SCUTTLING"}
               subline={
                 failed
                   ? (error ?? "Something went wrong. The project was not deleted.")

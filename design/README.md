@@ -132,19 +132,36 @@ sitting inert. Also fixed in the same pass: the Access screen's own line-reveal
 animation referenced a CSS keyframe, `inject`, that was never actually defined — that
 effect had been silently inert since the screen was built.
 
-**PURGE — permanently deleting a decommissioned project**: not in the mockup (which
-has no concept of permanent deletion at all — "Nothing was deleted" is the app's
-whole existing philosophy for DECOMMISSION). Added at the user's explicit request,
-scoped deliberately narrowly: a project becomes eligible only 14 calendar days after
-being decommissioned (`archived_at`, set by `archiveProject`/cleared by
-`restoreProject` — see `lib/projects/purge.ts`'s `isPurgeEligible`), and even then
-nothing happens without an explicit, hard-to-trigger-by-accident confirmation.
-Deliberately not a plain confirm dialog: `components/projects/PurgeSequence.tsx` is a
-visible countdown (framed as the shipyard's own "PURGE SEQUENCE") that auto-proceeds
-only if not canceled, then plays the same staged-buffer mechanism as every other CRUD
-write on the way to the actual delete. `purgeProject` (`lib/projects/actions.ts`)
-re-verifies eligibility server-side — it never trusts the client's own countdown —
-and only ever deletes this app's own `projects` row (which FK-cascades to its tasks,
+**SCUTTLE — permanently deleting a project**: not in the mockup at all (which has no
+concept of permanent deletion — "Nothing was deleted" is the app's whole existing
+philosophy for DECOMMISSION). Added at the user's explicit request. First built as a
+"PURGE" action gated behind a 14-day waiting period after decommissioning, then
+redesigned once the user saw it: no waiting period at all — instead, real operator
+confirmation stacked twice before anything destructive happens, reachable from either
+of the two moments that make sense:
+
+- From an **already-decommissioned** project's own page: **RESTORE** and **☠ SCUTTLE**
+  sit side by side — the two things you can actually do with something already retired.
+- From an **active** project: the DECOMMISSION confirmation dialog itself carries a
+  small "☠ scuttle the ship instead — skip decommissioning" link below its normal
+  buttons (`ConfirmDialog`'s new `dangerLabel`/`onDanger` props) — a quiet escape
+  hatch, not a third equally-weighted button, for destroying a project outright
+  without archiving it first.
+
+Both paths converge on the same two-step confirmation: a plain `ConfirmDialog`
+("Scuttle {name}?", tone red) asking for real confirmation, then
+`components/projects/ScuttleSequence.tsx` — a large 5-4-3-2-1 countdown with an ABORT
+button that auto-proceeds if not stopped, handing off into the same staged-buffer
+mechanism every other CRUD write uses on the way to the actual delete. Named
+"scuttle" (the real nautical term for deliberately sinking your own ship) rather than
+mixing it with the generic "purge" — every other lifecycle action in this app uses one
+consistent word end-to-end (DEPLOY → "DEPLOYED", DECOMMISSION → "DECOMMISSIONED"), so
+this one does too (button, both dialogs, the countdown, and the "SCUTTLED" activity-log
+entry). "PURGE" stays exactly as it was for deleting a *task* — a different, unrelated
+entity, deliberately still its own word. `scuttleProject` (`lib/projects/actions.ts`)
+only ever deletes this app's own `projects` row (which FK-cascades to its tasks,
 notes, links, and repository/sync-history rows); it never calls the GitHub API, so
-the repository on GitHub itself is completely untouched. Requires
+the repository on GitHub itself is completely untouched. `archived_at` (set by
+`archiveProject`, cleared by `restoreProject`) is kept as a plain historical fact —
+when a project was decommissioned — even though nothing gates on it anymore. Requires
 `supabase/migrations/0005_project_purge.sql`.

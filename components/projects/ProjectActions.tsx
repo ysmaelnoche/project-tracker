@@ -9,28 +9,27 @@ import { diffDays, formatStamp } from "@/lib/format";
 import {
   archiveProject,
   markProduction,
-  purgeProject,
   restoreProject,
+  scuttleProject,
   startDevelopment,
   togglePause,
 } from "@/lib/projects/actions";
-import { daysUntilPurgeEligible, isPurgeEligible } from "@/lib/projects/purge";
-import { PurgeSequence } from "@/components/projects/PurgeSequence";
+import { ScuttleSequence } from "@/components/projects/ScuttleSequence";
 import type { Project } from "@/lib/types";
 
-type ConfirmKind = "start" | "production" | "archive" | null;
+type ConfirmKind = "start" | "production" | "archive" | "scuttle" | null;
 
 interface ProjectActionsProps {
-  project: Pick<
-    Project,
-    "id" | "ref" | "name" | "status" | "devStartDate" | "publishedDate" | "archivedAt"
-  >;
+  project: Pick<Project, "id" | "ref" | "name" | "status" | "devStartDate" | "publishedDate">;
   openTaskCount: number;
   today: string;
   confirmBeforeArchive: boolean;
 }
 
 const GENERIC_ERROR = "Something went wrong. Your project data is unaffected — try again.";
+
+const SCUTTLE_BODY =
+  "This permanently deletes the project — tasks, notes, links, and GitHub sync history go down with it. The GitHub repository itself is never touched. This cannot be undone.";
 
 export function ProjectActions({
   project,
@@ -39,7 +38,7 @@ export function ProjectActions({
   confirmBeforeArchive,
 }: ProjectActionsProps) {
   const [confirmKind, setConfirmKind] = useState<ConfirmKind>(null);
-  const [purgeOpen, setPurgeOpen] = useState(false);
+  const [scuttleSequenceOpen, setScuttleSequenceOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const toast = useToast();
@@ -159,19 +158,20 @@ export function ProjectActions({
     }
   }
 
-  function handlePurged() {
+  function handleScuttleConfirmed() {
+    setConfirmKind(null);
+    setScuttleSequenceOpen(true);
+  }
+
+  function handleScuttled() {
     toast.show({
-      label: "PURGED",
+      label: "SCUTTLED",
       tone: "red",
       message: `${project.name} was permanently deleted. This cannot be undone.`,
     });
     router.push("/projects");
     router.refresh();
   }
-
-  const purgeEligible = project.status === "archived" && isPurgeEligible(project.archivedAt, today);
-  const purgeEtaDays =
-    project.status === "archived" && !purgeEligible ? daysUntilPurgeEligible(project.archivedAt, today) : null;
 
   const dur = project.devStartDate ? diffDays(project.devStartDate, today) : 0;
   const productionBody =
@@ -180,63 +180,52 @@ export function ProjectActions({
       : `All tasks closed. Build start ${formatStamp(project.devStartDate)} → deploy ${formatStamp(today)} — ${dur} day${dur === 1 ? "" : "s"} of development.`;
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <div className="flex flex-wrap justify-end gap-2">
-        {project.status === "pending" ? (
-          <Button variant="primary" onClick={() => setConfirmKind("start")}>
-            ▸ INITIATE BUILD
-          </Button>
-        ) : null}
-
-        {project.status === "in_development" ? (
-          <>
-            <button
-              onClick={() => setConfirmKind("production")}
-              className="cursor-pointer bg-teal px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-opacity hover:opacity-[0.82]"
-            >
-              ◈ DEPLOY
-            </button>
-            <Button variant="secondary" onClick={runTogglePause} disabled={isPending}>
-              HOLD
-            </Button>
-          </>
-        ) : null}
-
-        {project.status === "paused" ? (
-          <Button variant="primary" onClick={runTogglePause} disabled={isPending}>
-            ▸ RESUME BUILD
-          </Button>
-        ) : null}
-
-        {project.status === "archived" ? (
-          <Button variant="primary" onClick={runRestore} disabled={isPending}>
-            RESTORE
-          </Button>
-        ) : null}
-
-        {project.status !== "archived" ? (
-          <Button variant="danger" onClick={handleArchiveClick} disabled={isPending}>
-            DECOMMISSION
-          </Button>
-        ) : null}
-
-        {purgeEligible ? (
-          <button
-            onClick={() => setPurgeOpen(true)}
-            className="cursor-pointer border border-red bg-transparent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-red transition-colors hover:bg-red hover:text-bg"
-          >
-            ☠ PURGE
-          </button>
-        ) : null}
-      </div>
-
-      {purgeEtaDays !== null ? (
-        <span className="font-mono text-[9px] tracking-[0.12em] text-ink-faint">
-          ELIGIBLE FOR PURGE IN {purgeEtaDays} DAY{purgeEtaDays === 1 ? "" : "S"}
-        </span>
+    <div className="flex flex-wrap justify-end gap-2">
+      {project.status === "pending" ? (
+        <Button variant="primary" onClick={() => setConfirmKind("start")}>
+          ▸ INITIATE BUILD
+        </Button>
       ) : null}
-      {purgeEligible ? (
-        <span className="font-mono text-[9px] tracking-[0.12em] text-red">ELIGIBLE FOR PURGE</span>
+
+      {project.status === "in_development" ? (
+        <>
+          <button
+            onClick={() => setConfirmKind("production")}
+            className="cursor-pointer bg-teal px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-opacity hover:opacity-[0.82]"
+          >
+            ◈ DEPLOY
+          </button>
+          <Button variant="secondary" onClick={runTogglePause} disabled={isPending}>
+            HOLD
+          </Button>
+        </>
+      ) : null}
+
+      {project.status === "paused" ? (
+        <Button variant="primary" onClick={runTogglePause} disabled={isPending}>
+          ▸ RESUME BUILD
+        </Button>
+      ) : null}
+
+      {project.status === "archived" ? (
+        <Button variant="primary" onClick={runRestore} disabled={isPending}>
+          RESTORE
+        </Button>
+      ) : null}
+
+      {project.status !== "archived" ? (
+        <Button variant="danger" onClick={handleArchiveClick} disabled={isPending}>
+          DECOMMISSION
+        </Button>
+      ) : null}
+
+      {project.status === "archived" ? (
+        <button
+          onClick={() => setConfirmKind("scuttle")}
+          className="cursor-pointer border border-red bg-transparent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-red transition-colors hover:bg-red hover:text-bg"
+        >
+          ☠ SCUTTLE
+        </button>
       ) : null}
 
       <ConfirmDialog
@@ -286,17 +275,32 @@ export function ProjectActions({
         cancelLabel="CANCEL"
         pending={isPending}
         pendingLabel="DECOMMISSIONING…"
+        dangerLabel="☠ SCUTTLE THE SHIP INSTEAD — SKIP DECOMMISSIONING"
+        onDanger={() => setConfirmKind("scuttle")}
         onConfirm={runArchive}
         onClose={closeConfirm}
       />
 
-      <PurgeSequence
-        open={purgeOpen}
+      <ConfirmDialog
+        open={confirmKind === "scuttle"}
+        tone="red"
+        eyebrow="SCUTTLE THE SHIP"
+        refLabel={project.ref}
+        title={`Scuttle ${project.name}?`}
+        body={SCUTTLE_BODY}
+        confirmLabel="☠ SCUTTLE"
+        cancelLabel="ABORT"
+        onConfirm={handleScuttleConfirmed}
+        onClose={closeConfirm}
+      />
+
+      <ScuttleSequence
+        open={scuttleSequenceOpen}
         projectRef={project.ref}
         projectName={project.name}
-        onPurge={() => purgeProject(project.id)}
-        onPurged={handlePurged}
-        onClose={() => setPurgeOpen(false)}
+        onScuttle={() => scuttleProject(project.id)}
+        onScuttled={handleScuttled}
+        onClose={() => setScuttleSequenceOpen(false)}
       />
     </div>
   );
