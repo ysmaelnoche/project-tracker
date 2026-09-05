@@ -189,3 +189,35 @@ merge dates into independent parallel weekly series — reused as-is for both th
 Dashboard's fleet-wide aggregate (`lib/github/dev-activity-fetch.ts`) and each
 project's own trend (`lib/github/queries.ts`'s `getProjectActivityTrend`), so the two
 charts are guaranteed to bucket activity identically.
+
+**"Lay a keel" for a project that isn't actually starting from zero**: not in the
+mockup — every project there begins on STANDBY. Added an **ENTRY STAGE** picker to
+the create form (`lib/projects/entry-stage.ts`) for registering a project that
+already exists elsewhere: already under construction, or already shipped. Reuses the
+app's own existing STANDBY/BUILD/DEPLOYED vocabulary and marks (○/●/◈, straight from
+`StageBadge`) rather than inventing new terms for the same three states — a second
+vocabulary for one concept would be exactly the kind of inconsistency this section
+keeps calling out. Each choice carries a one-line explanation of what it actually
+does, since "already deployed" quietly changing what fields exist isn't obvious
+otherwise.
+
+Picking DEPLOYED removes the TARGET DATE field (a forward-looking date makes no
+sense for something already shipped) via a smooth height/opacity collapse — CSS
+grid's `grid-template-rows` trick, animating a real "auto height" rather than a
+fixed pixel value. BUILD keeps target date, since a ship target still makes sense
+mid-construction. `deriveEntryStageFields` (pure, TDD'd) decides the actual fields
+from here: BUILD stamps today as the build start; DEPLOYED stamps today as the
+deploy date and *never* invents a build-start date it doesn't actually know — the
+same "don't fabricate history" principle the Access screen's auth sequence already
+established.
+
+Each entry stage plays its own COMMITTING animation (`lib/projects/create-sequence.ts`),
+not a shared one with different colors: BUILD and DEPLOYED name the record they're
+actually writing ("RECORDING BUILD START" / "RECORDING DEPLOYMENT") and end on their
+own "joining the fleet" step, with their own payoff term — KEEL LAID / BUILD LOGGED /
+DEPLOYMENT LOGGED — which `createProject` also writes as the activity-log entry, so
+the animation and the permanent record always agree. That "joining the fleet" beat
+is deliberately the *last step of the same animation* rather than a separate
+animation on the real Fleet list page — simpler, and it plays before navigating to
+the new project's own page either way; animating the actual list page on arrival
+would be a bigger, separate change.

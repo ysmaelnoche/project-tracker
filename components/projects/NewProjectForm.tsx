@@ -3,11 +3,53 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createProject } from "@/lib/projects/actions";
-import { buildKeelSteps } from "@/lib/projects/create-sequence";
+import { buildKeelSteps, KEEL_PAYOFF } from "@/lib/projects/create-sequence";
+import type { EntryStage } from "@/lib/projects/entry-stage";
 import { buildSequenceLines, computeSequencePercent, type SequenceStep } from "@/lib/ui/sequence";
 import { BufferPanel } from "@/components/ui/BufferPanel";
 
 const STEP_INTERVAL_MS = 300;
+
+interface EntryStageOption {
+  value: EntryStage;
+  mark: string;
+  markClass: string;
+  label: string;
+  note: string;
+}
+
+// Reuses StageBadge's own marks/colors (○ ink-faint, ● accent, ◈ teal) so a
+// project registered straight into BUILD or DEPLOYED looks, from the first
+// second, like the same badge it'll wear everywhere else in the console.
+const ENTRY_STAGE_OPTIONS: EntryStageOption[] = [
+  {
+    value: "pending",
+    mark: "○",
+    markClass: "text-ink-faint",
+    label: "STANDBY",
+    note: "Nothing built yet. Tasks stay locked until you initiate the build yourself.",
+  },
+  {
+    value: "in_development",
+    mark: "●",
+    markClass: "text-accent",
+    label: "BUILD",
+    note: "Already under construction. Today is recorded as the build start — tasks unlock immediately.",
+  },
+  {
+    value: "production",
+    mark: "◈",
+    markClass: "text-teal",
+    label: "DEPLOYED",
+    note: "Already shipped. Today is recorded as the deploy date — no target date needed.",
+  },
+];
+
+const SUCCESS_SUBLINE: Record<EntryStage, string> = {
+  pending: "Committed. Opening the project record…",
+  in_development: "Committed. This one's already moving — opening its record…",
+  production: "Committed. This one's already live — opening its record…",
+};
 
 /**
  * New project form (PLAN.md "Creating a Project"). Client-driven so a
@@ -15,14 +57,22 @@ const STEP_INTERVAL_MS = 300;
  * (lib/projects/create-sequence.ts) instead of leaving the operator staring
  * at an unchanged screen while `createProject` runs — see AccessForm for the
  * stage/ticking pattern this mirrors.
+ *
+ * "Lay a keel" doesn't have to mean starting from zero — the ENTRY STAGE
+ * picker (lib/projects/entry-stage.ts) lets the operator register a project
+ * that's already mid-build or already shipped, each with its own animated
+ * sequence and payoff term (KEEL_PAYOFF) rather than pretending every
+ * project starts fresh.
  */
 export function NewProjectForm() {
   const router = useRouter();
   const [stage, setStage] = useState<"form" | "committing">("form");
-  const [steps, setSteps] = useState<SequenceStep[]>(() => buildKeelSteps(false));
+  const [entryStage, setEntryStage] = useState<EntryStage>("pending");
+  const [steps, setSteps] = useState<SequenceStep[]>(() => buildKeelSteps("pending", false));
   const [revealed, setRevealed] = useState(0);
   const [outcome, setOutcome] = useState<"pending" | "ok" | "fail">("pending");
   const [errorMessage, setErrorMessage] = useState("");
+  const [payoff, setPayoff] = useState<string>(KEEL_PAYOFF.pending);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -42,10 +92,11 @@ export function NewProjectForm() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const repoSlug = String(formData.get("repoSlug") ?? "").trim();
-    const keelSteps = buildKeelSteps(!!repoSlug);
+    const keelSteps = buildKeelSteps(entryStage, !!repoSlug);
     const autoRevealCap = keelSteps.length - 1;
 
     setSteps(keelSteps);
+    setPayoff(KEEL_PAYOFF[entryStage]);
     setOutcome("pending");
     setErrorMessage("");
     setRevealed(0);
@@ -84,6 +135,9 @@ export function NewProjectForm() {
   }
 
   if (stage === "form") {
+    const showTargetDate = entryStage !== "production";
+    const activeNote = ENTRY_STAGE_OPTIONS.find((o) => o.value === entryStage)?.note;
+
     return (
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
@@ -132,8 +186,32 @@ export function NewProjectForm() {
           </div>
         </fieldset>
 
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1">
+        <fieldset className="flex flex-col gap-2 border-t border-divider pt-5">
+          <legend className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+            ENTRY STAGE
+          </legend>
+          <div className="flex flex-wrap gap-4">
+            {ENTRY_STAGE_OPTIONS.map((opt) => (
+              <label
+                key={opt.value}
+                className="flex items-center gap-2 font-mono text-xs tracking-[0.05em] text-ink-2"
+              >
+                <input
+                  type="radio"
+                  name="entryStage"
+                  value={opt.value}
+                  checked={entryStage === opt.value}
+                  onChange={() => setEntryStage(opt.value)}
+                />
+                <span className={opt.markClass}>{opt.mark}</span> {opt.label}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs leading-relaxed text-ink-3">{activeNote}</p>
+        </fieldset>
+
+        <div className="flex flex-col gap-4">
+          <div>
             <label
               htmlFor="priority"
               className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
@@ -151,20 +229,37 @@ export function NewProjectForm() {
               <option value="high">HIGH</option>
             </select>
           </div>
-          <div className="flex-1">
-            <label
-              htmlFor="targetDate"
-              className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
-            >
-              TARGET DATE (OPTIONAL)
-            </label>
-            <input
-              id="targetDate"
-              name="targetDate"
-              type="date"
-              className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-accent"
-            />
+
+          <div
+            className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+            style={{ gridTemplateRows: showTargetDate ? "1fr" : "0fr" }}
+          >
+            <div className="overflow-hidden">
+              <div
+                className={`transition-opacity duration-200 ${showTargetDate ? "opacity-100" : "opacity-0"}`}
+              >
+                <label
+                  htmlFor="targetDate"
+                  className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint"
+                >
+                  TARGET DATE (OPTIONAL)
+                </label>
+                <input
+                  id="targetDate"
+                  name="targetDate"
+                  type="date"
+                  className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm outline-none transition-colors focus:border-accent"
+                />
+              </div>
+            </div>
           </div>
+
+          {!showTargetDate ? (
+            <p className="-mt-2 font-mono text-[10px] leading-relaxed text-teal">
+              ◈ Deploy date recorded as today — a target date doesn&apos;t apply to something
+              already shipped.
+            </p>
+          ) : null}
         </div>
 
         <div className="border-t border-divider pt-5">
@@ -203,11 +298,11 @@ export function NewProjectForm() {
   });
   const percent = computeSequencePercent(steps, revealed, failed);
   const tone = failed ? "red" : succeeded ? "teal" : "accent";
-  const eyebrow = failed ? "COMMIT REJECTED" : succeeded ? "KEEL LAID" : "COMMITTING";
+  const eyebrow = failed ? "COMMIT REJECTED" : succeeded ? payoff : "COMMITTING";
   const subline = failed
     ? "The record was not written. Nothing was saved."
     : succeeded
-      ? "Committed. Opening the project record…"
+      ? SUCCESS_SUBLINE[entryStage]
       : "Writing to the fleet ledger — do not close this panel.";
 
   return (
