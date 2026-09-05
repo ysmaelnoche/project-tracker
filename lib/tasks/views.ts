@@ -24,9 +24,15 @@ export const TASK_CONTEXT_DEFS: { key: TaskContext; label: string }[] = [
   { key: "standalone", label: "STANDALONE" },
 ];
 
-/** Defensive parse of the `?view=` search param — falls back to "today". */
+/**
+ * Defensive parse of the `?view=` search param — falls back to "all" (ALL
+ * OPEN). "today" used to be the default landing view, but it only shows
+ * tasks due today or already overdue (see `bucketTasksByView`), so a
+ * freshly created task with no due date — or a future one — looked like it
+ * had vanished the moment you landed back on the Queue.
+ */
 export function parseTaskView(value: string | undefined | null): TaskView {
-  return TASK_VIEW_DEFS.some((v) => v.key === value) ? (value as TaskView) : "today";
+  return TASK_VIEW_DEFS.some((v) => v.key === value) ? (value as TaskView) : "all";
 }
 
 /** Defensive parse of the `?context=` search param — falls back to "all". */
@@ -51,8 +57,8 @@ function isOpenTask(task: Task): boolean {
 
 /**
  * Buckets tasks into one Queue view. Note "today" deliberately rolls overdue
- * tasks in too (due <= today) — matches the reference so nothing already late
- * can hide from the default tab.
+ * tasks in too (due <= today) — matches the reference so nothing already
+ * late can hide from that tab.
  */
 export function bucketTasksByView(tasks: Task[], view: TaskView, today: string): Task[] {
   switch (view) {
@@ -98,13 +104,13 @@ export function sortTaskRows<T extends { dueDate: string | null }>(tasks: T[]): 
 
 /**
  * Builds a `/tasks` href for a given view+context pair, omitting a param when
- * it's the default so the URL stays clean (`/tasks`, not `/tasks?view=today`).
+ * it's the default so the URL stays clean (`/tasks`, not `/tasks?view=all`).
  * Shared by TaskViewTabs and ContextFilter so switching one filter preserves
  * the other.
  */
 export function buildTaskQueueHref(view: TaskView, context: TaskContext): string {
   const params = new URLSearchParams();
-  if (view !== "today") params.set("view", view);
+  if (view !== "all") params.set("view", view);
   if (context !== "all") params.set("context", context);
   const qs = params.toString();
   return qs ? `/tasks?${qs}` : "/tasks";
