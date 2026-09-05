@@ -31,8 +31,6 @@ export function ProjectCard({
   tasks: ProjectTaskRow[];
   today: string;
 }) {
-  const { total, percent } = computeTaskProgress(tasks);
-
   return (
     <Link
       href={`/projects/${project.id}`}
@@ -47,9 +45,6 @@ export function ProjectCard({
           {project.type === "personal" ? "PERSONAL" : "WORK"}
         </span>
         <StageBadge status={project.status} />
-        <span className="flex-none w-11 text-right font-mono text-xs tabular-nums text-ink">
-          {total ? `${percent}%` : "—"}
-        </span>
       </div>
       <div className="mt-2.5 font-mono text-[9px] leading-relaxed tracking-[0.12em] text-ink-faint">
         {buildMetaLine(project, tasks, today)}

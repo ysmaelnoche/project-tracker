@@ -44,7 +44,7 @@ export default async function ProjectDetailPage({
     getProjectActivityTrend(project.id, today),
   ]);
 
-  const { done, total, percent } = computeTaskProgress(tasks);
+  const { done, total } = computeTaskProgress(tasks);
   const openTaskCount = total - done;
 
   return (
@@ -90,15 +90,10 @@ export default async function ProjectDetailPage({
           </div>
         </div>
 
-        <div className="mt-7 flex flex-wrap items-baseline justify-between gap-3">
-          <div className="font-mono text-[9px] tracking-[0.13em] text-ink-2">
-            {total
-              ? `${String(done).padStart(2, "0")} CLOSED · ${String(openTaskCount).padStart(2, "0")} OPEN`
-              : "NO TASKS ON RECORD"}
-          </div>
-          <div className="font-mono text-[clamp(20px,2.6vw,26px)] font-light tracking-[-0.03em] tabular-nums text-ink">
-            {total ? `${percent}%` : "—"}
-          </div>
+        <div className="mt-7 font-mono text-[9px] tracking-[0.13em] text-ink-2">
+          {total
+            ? `${String(done).padStart(2, "0")} CLOSED · ${String(openTaskCount).padStart(2, "0")} OPEN`
+            : "NO TASKS ON RECORD"}
         </div>
 
         {activityTrend.hasRepo ? (
