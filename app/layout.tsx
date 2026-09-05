@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Azeret_Mono, IBM_Plex_Sans } from "next/font/google";
+import { TimezoneSync } from "@/components/TimezoneSync";
 import "./globals.css";
 
 const azeretMono = Azeret_Mono({
@@ -26,7 +27,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${azeretMono.variable} ${ibmPlexSans.variable}`}>
-      <body>{children}</body>
+      <body>
+        <TimezoneSync />
+        {children}
+      </body>
     </html>
   );
 }

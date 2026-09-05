@@ -15,6 +15,7 @@ import {
   parseSourceTab,
   sortPullRequestsForFeed,
 } from "@/lib/github/views";
+import { getTodayIso } from "@/lib/timezone-server";
 
 interface MetricDef {
   key: "linkedRepos" | "openPRs" | "awaitingReview" | "failingChecks" | "pushedToday" | "staleBranches";
@@ -47,9 +48,7 @@ export default async function SourcePage({
   const tab = parseSourceTab(tabParam);
 
   const overview = await getSourceOverview();
-
-  const now = new Date();
-  const today = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+  const today = await getTodayIso();
 
   const metrics = computeSourceMetrics({
     repoCount: overview.repositories.length,

@@ -6,6 +6,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { listPaletteProjects, listPaletteTasks } from "@/lib/palette/queries";
 import { computeStatusLineCounts, formatStatusLine } from "@/lib/dashboard/status-line";
 import { getStatusLineCounts } from "@/lib/dashboard/queries";
+import { getTodayIso } from "@/lib/timezone-server";
 
 // A failed read here must never take down every page in the app (PLAN.md
 // "Error States") — the palette just has fewer results if this fails.
@@ -19,7 +20,7 @@ async function loadPaletteSource() {
 }
 
 async function StatusLine() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = await getTodayIso();
   const { projects, tasks } = await getStatusLineCounts();
   return <ScopeBar statusLine={formatStatusLine(computeStatusLineCounts(projects, tasks, today))} />;
 }
