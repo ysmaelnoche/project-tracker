@@ -221,6 +221,20 @@
     background-position: 28px 0;
   }
 }
+/* A sonar-style expanding ring — the pulsing "current position" beacon at
+   the leading edge of a TrendChart line (components/ui/TrendChart.tsx).
+   Needs `transform-box: fill-box` on the element so it scales from its own
+   center rather than the SVG viewport's origin. */
+@keyframes ping-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
 
 /* Decorative, opt-in classes that aren't resets — kept in their own layer
    (same reasoning as @layer base above: an unlayered rule would beat any

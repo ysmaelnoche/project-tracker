@@ -51,7 +51,7 @@ export default async function DashboardPage({
 
       <ReviewQueuePanel rows={view.reviewQueue} />
 
-      <DevelopmentActivityPanel activity={activity} />
+      <DevelopmentActivityPanel activity={activity} today={today} />
 
       {view.eventLog.length > 0 ? <EventLogPanel rows={view.eventLog} /> : null}
     </div>

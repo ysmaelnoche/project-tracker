@@ -248,3 +248,29 @@ rolling over last). `lib/timezone-server.ts` reads the cookie and exposes
 `getTodayIso()`, which every Server Component/Action now calls instead of
 computing its own — self-correcting if the operator travels, with UTC as a
 fallback only for the brief window before the very first sync.
+
+**TrendChart: hover readout, then a full sci-fi rework**: added first — hovering
+(or touching) a point shows which week it covers and that week's exact
+commit/merge counts, via `lib/github/dev-activity.ts`'s new `weekEndDate` (pure,
+TDD'd: bucket `weeks - 1` always ends today, each earlier bucket exactly 7 days
+before the next). Both chart call sites (Project Detail, the Dashboard) now pass
+`todayIso` for this to label against.
+
+Then restyled entirely into a HUD "laser" readout, at the user's request: the
+straight `<polyline>` became a smoothed `<path>` (a lightweight quadratic-Bezier
+technique — no spline library, see `smoothPath`), rendered through an SVG
+`feGaussianBlur` glow filter, with a small node at every point and a pulsing
+sonar-ring beacon (the new `ping-ring` keyframe) at each line's most recent point.
+A faint projection grid plus an animated scan-sweep band (reusing the loading
+screens' `scan-wide` keyframe) sit behind the lines for the "holographic panel"
+read. Purely decorative — no change to what data is plotted or how it's bucketed.
+
+**Project Detail's SOURCE panel, pulled out of the two-column grid**: it was
+squeezed into one half of a `lg:grid-cols-2` row opposite TasksPanel, so every PR
+title, branch name, and commit message wrapped onto two lines and the whole panel
+read as one long, narrow column — worse the more GitHub activity a project had,
+which is exactly backwards. Now full-width, its own row between the STANDBY/BUILD/
+DEPLOYED strip and the (now better-balanced) TasksPanel / Links+Notes+Log grid
+below it — every row gets real horizontal room, and "put it in the center, make it
+landscape" is just what a full-width panel already is inside this page's centered
+max-width container.
