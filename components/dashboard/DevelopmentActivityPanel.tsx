@@ -38,13 +38,15 @@ export function DevelopmentActivityPanel({
     <Panel>
       <PanelHeader>
         <PanelTitle>DEVELOPMENT ACTIVITY</PanelTitle>
-        <span className="ml-auto font-mono text-[9px] tracking-[0.14em] text-ink-faint">
-          LAST 12 WEEKS
-        </span>
       </PanelHeader>
 
       <div className="p-4">
-        <TrendChart commits={activity.trend.commits} merges={activity.trend.merges} todayIso={today} />
+        <TrendChart
+          commits={activity.trend.commits}
+          merges={activity.trend.merges}
+          todayIso={today}
+          meta="ALL CONNECTED REPOS · LAST 12 WEEKS"
+        />
 
         {activity.repoBreakdown.length > 0 ? (
           <div className="mt-5 flex flex-col gap-2 border-t border-divider pt-4">

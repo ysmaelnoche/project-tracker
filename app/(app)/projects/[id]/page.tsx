@@ -102,15 +102,12 @@ export default async function ProjectDetailPage({
         </div>
 
         {activityTrend.hasRepo ? (
-          <div className="mt-6 border-t border-divider pt-6">
-            <div className="mb-2 text-center font-mono text-[9px] tracking-[0.18em] text-ink-faint">
-              {"// SOURCE ACTIVITY — LAST 12 WEEKS"}
-            </div>
+          <div className="mt-6">
             <TrendChart
               commits={activityTrend.trend.commits}
               merges={activityTrend.trend.merges}
               todayIso={today}
-              heightPx={92}
+              meta={`${project.ref} · LAST 12 WEEKS`}
             />
           </div>
         ) : null}
