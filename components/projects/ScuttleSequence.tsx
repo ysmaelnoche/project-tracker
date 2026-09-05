@@ -7,9 +7,10 @@ import { SCUTTLE_FAILED_STEP, SCUTTLE_STEPS } from "@/lib/projects/scuttle-seque
 
 const COUNTDOWN_SECONDS = 5;
 const STEP_INTERVAL_MS = 300;
+const ABORT_DISPLAY_MS = 900;
 const AUTO_REVEAL_CAP = SCUTTLE_STEPS.length - 1;
 
-type Phase = "countdown" | "scuttling" | "failed";
+type Phase = "countdown" | "aborted" | "scuttling" | "failed";
 
 export interface ScuttleResult {
   ok: boolean;
@@ -49,6 +50,7 @@ export function ScuttleSequence({
   const [error, setError] = useState<string | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remainingRef = useRef(COUNTDOWN_SECONDS);
 
   // "Reset all state when open flips true" — done during render (React's
@@ -77,6 +79,12 @@ export function ScuttleSequence({
       tickerRef.current = null;
     }
   }
+  function stopAbortTimeout() {
+    if (abortTimeoutRef.current) {
+      clearTimeout(abortTimeoutRef.current);
+      abortTimeoutRef.current = null;
+    }
+  }
 
   function runScuttle() {
     setPhase("scuttling");
@@ -102,7 +110,11 @@ export function ScuttleSequence({
   function handleCancel() {
     if (phase !== "countdown") return; // no canceling mid-delete
     stopCountdown();
-    onClose();
+    setPhase("aborted");
+    // The stand-down confirmation holds briefly before actually closing —
+    // same "show the payoff, then hand off" shape as runScuttle's own
+    // success pause, just for the opposite outcome.
+    abortTimeoutRef.current = setTimeout(onClose, ABORT_DISPLAY_MS);
   }
 
   // Clear any running timers on unmount.
@@ -110,6 +122,7 @@ export function ScuttleSequence({
     return () => {
       stopCountdown();
       stopTicker();
+      stopAbortTimeout();
     };
   }, []);
 
@@ -135,11 +148,18 @@ export function ScuttleSequence({
   if (!open) return null;
 
   const failed = phase === "failed";
+  const aborted = phase === "aborted";
   const lines = buildSequenceLines(SCUTTLE_STEPS, revealed, failed, {
     ...SCUTTLE_FAILED_STEP,
     detail: error ?? SCUTTLE_FAILED_STEP.detail,
   });
   const percent = computeSequencePercent(SCUTTLE_STEPS, revealed, failed);
+
+  // Everything reads red (alarm) except the moment it's actually stood
+  // down, which reads teal (safe) — same on/off framing the rest of the
+  // app uses for a tone shift on a good outcome (BufferPanel, AccessForm).
+  const frameBorder = aborted ? "border-teal" : "border-red";
+  const frameBracket = aborted ? "border-teal" : "border-red";
 
   return (
     <div
@@ -156,12 +176,12 @@ export function ScuttleSequence({
               ? "lift 0.18s ease, alarm-glow 0.9s ease-in-out infinite"
               : "lift 0.18s ease",
         }}
-        className="relative m-auto w-full max-w-[480px] overflow-hidden border border-red bg-surface-raised"
+        className={`relative m-auto w-full max-w-[480px] overflow-hidden border bg-surface-raised ${frameBorder}`}
       >
         {phase === "countdown" ? <div className="hazard-stripes h-[5px] w-full" /> : null}
 
-        <div className="pointer-events-none absolute -top-px -left-px h-[11px] w-[11px] border-t border-l border-red" />
-        <div className="pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r border-red" />
+        <div className={`pointer-events-none absolute -top-px -left-px h-[11px] w-[11px] border-t border-l ${frameBracket}`} />
+        <div className={`pointer-events-none absolute -bottom-px -right-px h-[11px] w-[11px] border-b border-r ${frameBracket}`} />
 
         <div className="flex flex-wrap items-baseline gap-3 border-b border-border px-5 py-3.5">
           {phase === "countdown" ? (
@@ -169,9 +189,21 @@ export function ScuttleSequence({
               ⚠ EMERGENCY
             </span>
           ) : null}
-          <span className="font-mono text-[9px] tracking-[0.2em] text-red">{"// SCUTTLE SEQUENCE"}</span>
+          <span className={`font-mono text-[9px] tracking-[0.2em] ${aborted ? "text-teal" : "text-red"}`}>
+            {aborted ? "// STAND DOWN" : "// SCUTTLE SEQUENCE"}
+          </span>
           <span className="ml-auto font-mono text-[9px] tracking-[0.12em] text-ink-faint">{projectRef}</span>
         </div>
+
+        {aborted ? (
+          <div className="px-6 py-8 text-center [animation:lift_0.22s_ease]">
+            <div className="font-mono text-[56px] font-light leading-none text-teal">✓</div>
+            <p className="mt-4 font-mono text-[11px] tracking-[0.16em] text-teal">STAND DOWN</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-2">
+              Scuttle canceled. <span className="text-ink">{projectName}</span> is safe.
+            </p>
+          </div>
+        ) : null}
 
         {phase === "countdown" ? (
           <div className="px-6 py-8 text-center">
@@ -196,7 +228,7 @@ export function ScuttleSequence({
         ) : null}
         {phase === "countdown" ? <div className="hazard-stripes h-[5px] w-full" /> : null}
 
-        {phase !== "countdown" ? (
+        {phase === "scuttling" || failed ? (
           <div className="px-6 py-6">
             <BufferPanel
               tone="red"
