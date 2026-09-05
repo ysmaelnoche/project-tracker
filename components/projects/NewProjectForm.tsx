@@ -109,7 +109,7 @@ export function NewProjectForm({ error }: { error?: string }) {
           name="repoSlug"
           autoComplete="off"
           spellCheck={false}
-          placeholder="owner/repo — e.g. me/my-project"
+          placeholder="owner/repo, or paste its GitHub URL"
           className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-xs tracking-[0.02em] text-ink outline-none transition-colors focus:border-accent"
         />
         <p className="mt-2 text-xs leading-relaxed text-ink-3">

@@ -41,7 +41,7 @@ export function ConnectRepoForm({ projectId, onDone }: { projectId: string; onDo
       <input
         name="slug"
         required
-        placeholder="owner/repo — e.g. me/my-project"
+        placeholder="owner/repo, or paste its GitHub URL"
         className="border border-border-strong bg-track px-3 py-2 font-mono text-xs tracking-[0.04em] text-ink outline-none focus:border-accent"
       />
       {error ? <p className="text-xs leading-relaxed text-red">{error}</p> : null}

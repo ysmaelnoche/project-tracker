@@ -15,6 +15,7 @@ import { Octokit } from "@octokit/rest";
 import { createClient } from "@/lib/supabase/server";
 import { getGithubClient } from "@/lib/github/client";
 import { toFriendlyGithubError } from "@/lib/github/errors";
+import { parseRepoSlug } from "@/lib/github/slug";
 import { syncRepository } from "@/lib/github/sync";
 import { DEFAULT_AUTOMATION_SETTINGS } from "@/lib/types";
 import type { AutomationSettings } from "@/lib/types";
@@ -26,8 +27,6 @@ function revalidateGithubSurfaces(projectId: string) {
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/dashboard");
 }
-
-const SLUG_PATTERN = /^([\w.-]+)\/([\w.-]+)$/;
 
 /**
  * Connects a repository to a project: validates `owner/name` resolves via
@@ -52,15 +51,14 @@ export async function connectRepository(
  * `repoError` on the new project's page, same empty-state form ready to retry.
  */
 export async function linkRepository(projectId: string, slug: string): Promise<GithubActionResult> {
-  const match = slug.match(SLUG_PATTERN);
-  if (!match) {
-    return { ok: false, error: "Enter a repository as owner/name — e.g. me/my-project." };
+  const parsed = parseRepoSlug(slug);
+  if (!parsed) {
+    return {
+      ok: false,
+      error: "Enter a repository as owner/name or paste its GitHub URL — e.g. me/my-project.",
+    };
   }
-  const owner = match[1];
-  const name = match[2];
-  if (!owner || !name) {
-    return { ok: false, error: "Enter a repository as owner/name — e.g. me/my-project." };
-  }
+  const { owner, name } = parsed;
 
   const octokit = await getGithubClient();
   if (!octokit) {
