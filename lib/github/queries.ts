@@ -8,7 +8,7 @@ import "server-only";
  */
 
 import { createClient } from "@/lib/supabase/server";
-import { isGithubConfigured as checkGithubConfigured } from "@/lib/github/client";
+import { getGithubTokenSource, isGithubConfigured as checkGithubConfigured } from "@/lib/github/client";
 import {
   DEFAULT_AUTOMATION_SETTINGS,
   type AutomationSettings,
@@ -18,7 +18,7 @@ import {
   type Repository,
 } from "@/lib/types";
 
-export { checkGithubConfigured as isGithubConfigured };
+export { checkGithubConfigured as isGithubConfigured, getGithubTokenSource };
 
 interface RepositoryRow {
   id: string;

@@ -1,11 +1,12 @@
 import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
 import { ChangeUsernameForm } from "@/components/auth/ChangeUsernameForm";
 import { AutomationToggle } from "@/components/github/AutomationToggle";
+import { GithubTokenForm } from "@/components/github/GithubTokenForm";
 import { Panel, PanelHeader, PanelTitle } from "@/components/ui/Panel";
 import { getCurrentUsername } from "@/lib/auth/queries";
 import { signOutAction } from "@/lib/github/actions";
 import type { AutomationSettingKey } from "@/lib/github/actions";
-import { getAutomationSettings, isGithubConfigured } from "@/lib/github/queries";
+import { getAutomationSettings, getGithubTokenSource } from "@/lib/github/queries";
 
 interface ToggleDef {
   key: AutomationSettingKey;
@@ -60,11 +61,12 @@ const TOGGLE_DEFS: ToggleDef[] = [
  * connection + automation rules). See PLAN.md's "Main Navigation" -> Settings.
  */
 export default async function SettingsPage() {
-  const [settings, currentUsername] = await Promise.all([
+  const [settings, currentUsername, tokenSource] = await Promise.all([
     getAutomationSettings(),
     getCurrentUsername(),
+    getGithubTokenSource(),
   ]);
-  const githubConfigured = isGithubConfigured();
+  const githubConfigured = tokenSource !== "none";
 
   return (
     <div>
@@ -144,11 +146,14 @@ export default async function SettingsPage() {
                 {githubConfigured ? "● CONFIGURED" : "○ NOT CONFIGURED"}
               </span>
               <span className="ml-auto max-w-[36ch] text-right text-xs leading-relaxed text-ink-3">
-                {githubConfigured
-                  ? "GITHUB_TOKEN is set on the server."
-                  : "Add GITHUB_TOKEN to .env.local to enable repository sync."}
+                {tokenSource === "database"
+                  ? "Using the token saved below."
+                  : tokenSource === "environment"
+                    ? "Using GITHUB_TOKEN from the server environment."
+                    : "Add a token below, or set GITHUB_TOKEN on the server, to enable repository sync."}
               </span>
             </div>
+            <GithubTokenForm hasDatabaseToken={tokenSource === "database"} />
           </Panel>
 
           <Panel>
