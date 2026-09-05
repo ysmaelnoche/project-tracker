@@ -1,12 +1,24 @@
-import { Panel } from "@/components/ui/Panel";
+import { NewTaskForm } from "@/components/tasks/NewTaskForm";
+import { buildProjectOptions } from "@/lib/tasks/present";
+import { listProjectsLite } from "@/lib/tasks/queries";
 
-// TODO(tasks slice): replace with the real "New task" form (title, project or
-// standalone, priority, due date). Must refuse a project whose status is
-// "pending" — see PLAN.md "Project Task Business Rule".
-export default function NewTaskPage() {
+export default async function NewTaskPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ project?: string; context?: string }>;
+}) {
+  const { project, context } = await searchParams;
+  const projects = await listProjectsLite();
+  const options = buildProjectOptions(projects);
+
   return (
-    <Panel className="p-8 text-ink-3">
-      New task — under construction.
-    </Panel>
+    <div className="flex flex-col gap-3">
+      <h1 className="font-mono text-2xl font-light tracking-[0.02em] sm:text-[32px]">NEW TASK</h1>
+      <NewTaskForm
+        options={options}
+        defaultProjectId={project ?? null}
+        hideStandaloneOption={context === "project"}
+      />
+    </div>
   );
 }
