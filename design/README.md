@@ -274,3 +274,48 @@ DEPLOYED strip and the (now better-balanced) TasksPanel / Links+Notes+Log grid
 below it — every row gets real horizontal room, and "put it in the center, make it
 landscape" is just what a full-width panel already is inside this page's centered
 max-width container.
+
+**TrendChart, replaced again — this time by importing a real Claude Design
+mockup** (same project as `Shipyard.dc.html` above, file `Trend Lasers.dc.html`):
+the sci-fi rework above was a from-scratch guess at "glowing lasers, hologram
+background, round smooth curves," and once built it didn't actually look right.
+Rather than keep guessing, the mockup's own techniques were read directly out of
+its `.dc.html`/`support.js` component logic (via the `DesignSync` tool's
+`get_project`/`get_file`) and ported into `components/ui/TrendChart.tsx`:
+
+- **Curve math**: the quadratic-midpoint `smoothPath` is gone. `lib/ui/chart-path.ts`
+  now has `splinePath` — a Catmull-Rom-to-Bezier conversion, TDD'd — which passes
+  *exactly* through every point instead of near it, so a turn reads as a
+  deliberate round "C" the way the mockup's own `spline()` method does.
+- **Instrument framing**: the chart is now its own bordered panel with four accent
+  corner brackets, a header (pulsing status dot, "SOURCE ACTIVITY", a `meta` label
+  the caller sets, and a legend — clicking the MERGES dot toggles that series,
+  exactly like the mockup), and a footer stats strip (TOTAL / PEAK / MEAN / MERGE
+  RATIO + a "sweep to arm" / "locked on \<date\>" hint). Both call sites
+  (`DevelopmentActivityPanel`, Project Detail) dropped their own now-redundant
+  caption/border wrappers around it.
+- **Layered "laser" strokes**: each line is four stacked passes (wide blur bloom,
+  mid blur halo, a thin core stroke, a near-white hairline) plus, on the commits
+  line only, a short bright dash endlessly traveling the path
+  (`stroke-dasharray` + the new `laser-flow` keyframe) — the mockup's signature
+  "light moving through glass" look, distinct from the beacon-at-the-tip effect.
+- **Ambient hologram motion**: a slow vertical scan band (`scan-vertical`, distinct
+  from the loading screens' horizontal `scan-wide`) and a slow-rotating dashed
+  targeting reticle (`reticle-spin`, 34s) around the most recent commit point —
+  both far slower than anything alarm-related, deliberately ambient rather than
+  attention-grabbing.
+- **Real-pixel hover tooltip**: repositioned via `getBoundingClientRect()` against
+  the *rendered* SVG size rather than viewBox percentages (the mockup's own
+  technique), so it doesn't drift out of alignment at odd panel widths. Its "vs
+  prior week" line uses the new `lib/ui/chart-format.ts#formatWeekDelta` (TDD'd),
+  and its date range uses the new `weekStartDate` alongside the existing
+  `weekEndDate` (`lib/github/dev-activity.ts`).
+
+Two things from the mockup were deliberately **not** ported: its per-bucket
+flavor-text notes ("SCAFFOLD · 2 BRANCHES OPENED", etc.) have no corresponding
+real data in this app's schema, so the tooltip ends at the delta line rather than
+inventing commentary; and its two-tone blue/mint stroke *gradients* were flattened
+to this app's single `--color-accent` / `--color-teal` tokens (still literal hex
+in the SVG, for the same `stop-color` cross-browser reliability reason as
+before) rather than introducing a second, competing color pair alongside the one
+every other screen already uses.

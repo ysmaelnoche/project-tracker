@@ -4,6 +4,7 @@ import {
   bucketCommitsByWeek,
   summarizeActivityByRepo,
   weekEndDate,
+  weekStartDate,
 } from "@/lib/github/dev-activity";
 
 describe("bucketCommitsByWeek", () => {
@@ -74,6 +75,19 @@ describe("weekEndDate", () => {
 
   it("walks back correctly across a month boundary", () => {
     expect(weekEndDate(0, 3, "2026-09-06")).toBe("2026-08-23");
+  });
+});
+
+describe("weekStartDate", () => {
+  it("is six days before that bucket's end date", () => {
+    expect(weekStartDate(1, 2, "2026-09-06")).toBe("2026-08-31");
+  });
+
+  it("spans a full 7-day window with weekEndDate", () => {
+    const start = weekStartDate(0, 3, "2026-09-06");
+    const end = weekEndDate(0, 3, "2026-09-06");
+    expect(start).toBe("2026-08-17");
+    expect(end).toBe("2026-08-23");
   });
 });
 

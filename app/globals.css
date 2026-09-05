@@ -235,6 +235,35 @@
     opacity: 0;
   }
 }
+/* The bright hairline riding along a TrendChart laser line — a short dash
+   endlessly traveling the length of the path via stroke-dashoffset, read as
+   a pulse of light moving through the line rather than the line itself
+   moving. Unitless: SVG stroke-dasharray/-offset are plain numbers in the
+   path's own user-space units, not CSS lengths. */
+@keyframes laser-flow {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+/* A slow vertical sweep behind a TrendChart's plotted field — the same
+   "instrument is actively scanning" idea as `scan-wide`, but top-to-bottom
+   instead of sideways, and much slower (ambient, not a loading cue). */
+@keyframes scan-vertical {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(460%);
+  }
+}
+/* A slow, ambient rotation for the dashed targeting rings around a
+   TrendChart's leading data point — ornamental "hologram is live" motion,
+   deliberately much slower than anything alarm-related. */
+@keyframes reticle-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Decorative, opt-in classes that aren't resets — kept in their own layer
    (same reasoning as @layer base above: an unlayered rule would beat any

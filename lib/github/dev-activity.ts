@@ -35,6 +35,11 @@ export function weekEndDate(index: number, weeks: number, todayIso: string): str
   return shiftDate(todayIso, weeksAgo * 7);
 }
 
+/** The first day covered by bucket `index` — six days before its `weekEndDate`, so the pair spans exactly the 7-day bucket. */
+export function weekStartDate(index: number, weeks: number, todayIso: string): string {
+  return shiftDate(weekEndDate(index, weeks, todayIso), 6);
+}
+
 /**
  * Buckets dates into `weeks` consecutive 7-day windows ending today, oldest
  * first (so the array renders left-to-right in chronological order). Dates
