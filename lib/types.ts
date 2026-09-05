@@ -35,6 +35,7 @@ export interface Project {
   devStartDate: string | null; // ISO date
   targetDate: string | null;
   publishedDate: string | null;
+  archivedAt: string | null; // full timestamp — see lib/projects/purge.ts
   notes: string;
   createdAt: string;
   updatedAt: string;

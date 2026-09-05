@@ -108,4 +108,43 @@ always created first, then, if a slug was given, the same connect logic the Sour
 panel uses (`lib/github/actions.ts`'s `linkRepository`, factored out of
 `connectRepository`) runs against the new project's id. A bad slug or unreachable repo
 never undoes the project — it lands the operator on the new project's page with the
-reason shown right next to the same connect form, ready to retry.
+reason shown right next to the same connect form, ready to retry. That same connect
+form also now accepts a pasted GitHub URL, not just the bare `owner/repo` slug it
+originally demanded (`lib/github/slug.ts`'s `parseRepoSlug`) — pasting the repo's
+actual URL is the more natural thing to do and was silently failing before.
+
+**A sci-fi "buffering" system, not in the mockup at all**: several mutating actions
+(creating a project, saving an edit, connecting a repository, creating a task) had
+either no pending indicator at all or a plain spinner + static text — nothing tied to
+this app's HUD aesthetic, and nothing as satisfying as the Access screen's staged
+"AUTHENTICATING" sequence. Generalized that sequence's engine out of
+`lib/auth/auth-sequence.ts` into `lib/ui/sequence.ts` (same public API, so
+`AccessForm` needed zero changes) and built a shared `components/ui/BufferPanel.tsx`
+around it. Every CRUD write plays its own staged sequence through the same
+mechanism, with its own copy — a distinct concept from sign-in's identity handshake,
+not a reskin of it: "COMMITTING" (writing a project/task record) and "LINKING"
+(a live GitHub round trip) instead of "AUTHENTICATING", ending in a payoff specific
+to what happened ("KEEL LAID", "ENTRY QUEUED", "UPLINK ESTABLISHED"). Lighter-weight
+actions (toggles, saves, disconnects) got a cheaper upgrade instead: `Spinner` became
+a small counter-rotating twin-ring reticle, and `ConfirmDialog` gained a `pending`
+state so its own confirm button reflects an in-flight Server Action rather than
+sitting inert. Also fixed in the same pass: the Access screen's own line-reveal
+animation referenced a CSS keyframe, `inject`, that was never actually defined — that
+effect had been silently inert since the screen was built.
+
+**PURGE — permanently deleting a decommissioned project**: not in the mockup (which
+has no concept of permanent deletion at all — "Nothing was deleted" is the app's
+whole existing philosophy for DECOMMISSION). Added at the user's explicit request,
+scoped deliberately narrowly: a project becomes eligible only 14 calendar days after
+being decommissioned (`archived_at`, set by `archiveProject`/cleared by
+`restoreProject` — see `lib/projects/purge.ts`'s `isPurgeEligible`), and even then
+nothing happens without an explicit, hard-to-trigger-by-accident confirmation.
+Deliberately not a plain confirm dialog: `components/projects/PurgeSequence.tsx` is a
+visible countdown (framed as the shipyard's own "PURGE SEQUENCE") that auto-proceeds
+only if not canceled, then plays the same staged-buffer mechanism as every other CRUD
+write on the way to the actual delete. `purgeProject` (`lib/projects/actions.ts`)
+re-verifies eligibility server-side — it never trusts the client's own countdown —
+and only ever deletes this app's own `projects` row (which FK-cascades to its tasks,
+notes, links, and repository/sync-history rows); it never calls the GitHub API, so
+the repository on GitHub itself is completely untouched. Requires
+`supabase/migrations/0005_project_purge.sql`.

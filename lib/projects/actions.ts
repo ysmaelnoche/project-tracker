@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { linkRepository } from "@/lib/github/actions";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
+import { isPurgeEligible } from "@/lib/projects/purge";
 import type { ActivityTone, Priority, ProjectStatus, ProjectType } from "@/lib/types";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -44,7 +45,7 @@ function revalidateProject(id: string) {
 async function fetchProjectCore(supabase: SupabaseServerClient, id: string) {
   const { data, error } = await supabase
     .from("projects")
-    .select("id, ref, name, status, dev_start_date, published_date")
+    .select("id, ref, name, status, dev_start_date, published_date, archived_at")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -55,6 +56,7 @@ async function fetchProjectCore(supabase: SupabaseServerClient, id: string) {
     status: ProjectStatus;
     dev_start_date: string | null;
     published_date: string | null;
+    archived_at: string | null;
   } | null;
 }
 
@@ -270,7 +272,8 @@ export async function togglePause(id: string) {
 /**
  * Archives the project. Whether the UI confirms first is decided by the caller
  * (see `getConfirmBeforeArchive` in `lib/projects/queries.ts`) — this action
- * just performs the transition once invoked.
+ * just performs the transition once invoked. Records `archived_at`, which
+ * starts the PURGE eligibility clock (lib/projects/purge.ts).
  */
 export async function archiveProject(id: string) {
   const supabase = await createClient();
@@ -278,7 +281,10 @@ export async function archiveProject(id: string) {
   if (!project) throw new Error("Project not found.");
   if (project.status === "archived") return;
 
-  const { error } = await supabase.from("projects").update({ status: "archived" }).eq("id", id);
+  const { error } = await supabase
+    .from("projects")
+    .update({ status: "archived", archived_at: new Date().toISOString() })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   await logActivity(supabase, "DECOMMISSIONED", project.name, project.ref, "quiet");
@@ -288,6 +294,7 @@ export async function archiveProject(id: string) {
 /**
  * Restores an archived project. See `deriveRestoreStatus` for the corrected
  * (vs. the design reference) derivation of which status it returns to.
+ * Clears `archived_at` — re-archiving later restarts its PURGE clock.
  */
 export async function restoreProject(id: string) {
   const supabase = await createClient();
@@ -300,9 +307,55 @@ export async function restoreProject(id: string) {
     devStartDate: project.dev_start_date,
   });
 
-  const { error } = await supabase.from("projects").update({ status: nextStatus }).eq("id", id);
+  const { error } = await supabase
+    .from("projects")
+    .update({ status: nextStatus, archived_at: null })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   await logActivity(supabase, "RESTORED", project.name, project.ref, "quiet");
   revalidateProject(id);
+}
+
+// ---------------------------------------------------------------------------
+// Purge (PLAN.md addendum: permanent deletion, operator-confirmed only)
+// ---------------------------------------------------------------------------
+
+export type PurgeProjectResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Permanently deletes a decommissioned project — the one genuinely
+ * irreversible action in this app. Re-verifies eligibility server-side
+ * (never trusts the client's own countdown/eligibility check): the project
+ * must still be archived and at least `PURGE_GRACE_DAYS` (lib/projects/purge.ts)
+ * past its `archived_at`. Deleting the `projects` row cascades to its tasks,
+ * notes' own column (dropped with the row), links, and its repository row
+ * (which itself cascades to gh_commits/gh_branches/gh_pull_requests) — see
+ * the `on delete cascade` foreign keys in supabase/migrations/0001_init.sql.
+ * This NEVER calls the GitHub API: the repository on GitHub itself is
+ * completely untouched, only this app's own record of it goes.
+ */
+export async function purgeProject(id: string): Promise<PurgeProjectResult> {
+  const supabase = await createClient();
+  const project = await fetchProjectCore(supabase, id);
+  if (!project) return { ok: false, error: "Project not found." };
+  if (project.status !== "archived") {
+    return { ok: false, error: "Only a decommissioned project can be purged." };
+  }
+  if (!isPurgeEligible(project.archived_at, todayIso())) {
+    return { ok: false, error: "This project isn't eligible for purge yet." };
+  }
+
+  // Logged before the delete — the projects row (and the ref this activity
+  // entry names) won't exist to look up afterward.
+  await logActivity(supabase, "PURGED", project.name, project.ref, "red");
+
+  const { error } = await supabase.from("projects").delete().eq("id", id);
+  if (error) {
+    return { ok: false, error: "Could not delete the project. Try again in a moment." };
+  }
+
+  revalidateProject(id);
+  revalidatePath("/source");
+  return { ok: true };
 }

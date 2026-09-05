@@ -37,6 +37,7 @@ interface ProjectRow {
   dev_start_date: string | null;
   target_date: string | null;
   published_date: string | null;
+  archived_at: string | null;
   notes: string;
   created_at: string;
   updated_at: string;
@@ -54,6 +55,7 @@ function mapProject(row: ProjectRow): Project {
     devStartDate: row.dev_start_date,
     targetDate: row.target_date,
     publishedDate: row.published_date,
+    archivedAt: row.archived_at,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -216,7 +218,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       supabase
         .from("projects")
         .select(
-          "id, ref, name, description, type, status, priority, dev_start_date, target_date, published_date, notes, created_at, updated_at",
+          "id, ref, name, description, type, status, priority, dev_start_date, target_date, published_date, archived_at, notes, created_at, updated_at",
         ),
       supabase
         .from("tasks")
