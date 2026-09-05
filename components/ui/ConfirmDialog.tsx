@@ -147,7 +147,7 @@ export function ConfirmDialog({
             <button
               onClick={onDanger}
               disabled={pending}
-              className="mt-3 block w-full cursor-pointer border-0 bg-transparent p-0 text-right font-mono text-[9px] tracking-[0.13em] text-ink-faint transition-colors hover:text-red disabled:cursor-not-allowed disabled:opacity-40"
+              className="mt-4 w-full cursor-pointer border border-red/50 bg-transparent px-4 py-2.5 font-mono text-[10px] tracking-[0.13em] text-red transition-colors hover:border-red hover:bg-red hover:text-bg disabled:cursor-not-allowed disabled:opacity-40"
             >
               {dangerLabel}
             </button>
