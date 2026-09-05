@@ -31,11 +31,11 @@ export default function AccessPage() {
         <div className="pointer-events-none absolute -bottom-px -right-px z-10 h-[13px] w-[13px] border-b border-r border-amber" />
 
         {/* Branding / lifecycle panel */}
-        <div className="flex min-h-[420px] flex-col justify-center gap-7 border-b border-border bg-track p-6 sm:border-r sm:border-b-0 sm:p-8">
+        <div className="flex min-h-[420px] flex-col gap-7 border-b border-border bg-track p-6 sm:border-r sm:border-b-0 sm:p-8">
           <div className="flex items-center gap-2.5">
             <span className="h-2 w-2 animate-[blink_3.4s_ease-in-out_infinite] rounded-full bg-amber shadow-[0_0_10px_rgba(233,169,74,0.85)]" />
             <span className="font-mono text-[13px] font-medium tracking-[0.16em] text-ink">
-              YSMAEL&apos;S SHIPYARD
+              SHIPYARD
             </span>
             <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
               {"// BUILD CONTROL"}
@@ -74,6 +74,12 @@ export default function AccessPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="mt-auto border-t border-divider pt-4">
+            <span className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+              Ysmael&apos;s SHIPYARD
+            </span>
           </div>
         </div>
 

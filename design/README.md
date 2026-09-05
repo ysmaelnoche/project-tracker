@@ -46,11 +46,11 @@ Two deliberate departures from this reference:
     UI-only in the demo (no session-length or OAuth-provider change behind them) —
     left out rather than shipping a toggle that does nothing.
   - "LAST SESSION" briefly existed for real (Supabase Auth's own `last_sign_in_at`,
-    read fresh on every visit), then was dropped at the user's request along with the
-    demo's "TERMINAL" (device recognition) and "CONSOLE" (build stamp) footer rows —
-    those two never had real backing to begin with. The branding mark is
-    "YSMAEL'S SHIPYARD" throughout (header nav, Access screen, page title), not the
-    mockup's generic "SHIPYARD" — this is a named personal instance, not a product.
+    read fresh on every visit), then was dropped along with the demo's "TERMINAL"
+    (device recognition) and "CONSOLE" (build stamp) footer rows — those two never
+    had real backing to begin with. That footer spot now carries a personal
+    signature line, "Ysmael's SHIPYARD", instead — the app's actual brand mark stays
+    plain "SHIPYARD" everywhere else (header nav, page title).
 
 Everything else in the mockup (screens, data model, automation rules and their default
 on/off state, copy) is the intended real behavior.
