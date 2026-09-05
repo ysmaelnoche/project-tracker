@@ -21,13 +21,16 @@ export default async function NewProjectPage({
 
       <Panel className="mt-5 p-6 sm:p-8">
         <div className="font-mono text-[9px] tracking-[0.2em] text-ink-faint">
-          {"// NEW RECORD"}
+          {"// NEW KEEL"}
         </div>
         <h1 className="mt-3 font-mono text-2xl font-light tracking-[0.01em] text-ink">
-          Register a project.
+          Lay a new keel.
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-ink-2">
-          Every project starts on standby. Initiate the build when you&apos;re ready — that&apos;s
+        <p className="mt-1 font-mono text-[10px] tracking-[0.06em] text-ink-faint">
+          Shipyard-speak for &quot;register a new project.&quot;
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-ink-2">
+          Every keel starts on standby. Initiate the build when you&apos;re ready — that&apos;s
           also when tasks unlock and the start date is recorded for you.
         </p>
 

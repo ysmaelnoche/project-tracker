@@ -70,7 +70,7 @@ export default async function ProjectsPage({
       href="/projects/new"
       className="cursor-pointer bg-accent px-[15px] py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover"
     >
-      + NEW PROJECT
+      + LAY KEEL
     </Link>
   );
 
@@ -106,8 +106,8 @@ export default async function ProjectsPage({
             title={isFleetEmpty ? "The fleet is empty." : "No records match."}
             body={
               isFleetEmpty
-                ? "Register your first project. Everything else in the console follows from it."
-                : "Loosen a filter, or register something new."
+                ? "Lay your first keel. Everything else in the console follows from it."
+                : "Loosen a filter, or lay a new keel."
             }
             action={newProjectButton}
           />

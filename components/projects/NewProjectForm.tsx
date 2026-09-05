@@ -100,11 +100,29 @@ export function NewProjectForm({ error }: { error?: string }) {
         </div>
       </div>
 
+      <div className="border-t border-divider pt-5">
+        <label htmlFor="repoSlug" className="block font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+          REPOSITORY (OPTIONAL)
+        </label>
+        <input
+          id="repoSlug"
+          name="repoSlug"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="owner/repo — e.g. me/my-project"
+          className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-xs tracking-[0.02em] text-ink outline-none transition-colors focus:border-accent"
+        />
+        <p className="mt-2 text-xs leading-relaxed text-ink-3">
+          Link a GitHub repo now, or skip it and connect one later from the project&apos;s Source
+          panel. Requires GitHub to be configured (Config → GitHub Connection).
+        </p>
+      </div>
+
       <button
         type="submit"
         className="mt-2 w-full cursor-pointer bg-accent px-4 py-3 font-mono text-[11px] font-medium tracking-[0.16em] text-bg transition-colors hover:bg-accent-hover sm:w-auto sm:self-start"
       >
-        + REGISTER PROJECT
+        + LAY KEEL
       </button>
     </form>
   );

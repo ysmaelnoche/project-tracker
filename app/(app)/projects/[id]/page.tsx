@@ -26,10 +26,10 @@ export default async function ProjectDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; repoError?: string }>;
 }) {
   const { id } = await params;
-  const { error } = await searchParams;
+  const { error, repoError } = await searchParams;
 
   const project = await getProject(id);
   if (!project) notFound();
@@ -109,7 +109,7 @@ export default async function ProjectDetailPage({
         <TasksPanel project={project} tasks={tasks} today={today} />
 
         <div className="flex flex-col gap-[clamp(16px,2.5vw,26px)]">
-          <RepoPanel projectId={project.id} />
+          <RepoPanel projectId={project.id} linkError={repoError} />
 
           <LinksPanel projectId={project.id} links={project.links} />
           <NotesPanel projectId={project.id} notes={project.notes} key={`notes-${project.updatedAt}`} />

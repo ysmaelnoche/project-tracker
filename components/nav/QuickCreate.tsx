@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const ITEMS = [
-  { href: "/projects/new", label: "New project", hint: "ENTERS ON STANDBY" },
+  { href: "/projects/new", label: "Lay a keel", hint: "NEW PROJECT · ENTERS ON STANDBY" },
   { href: "/tasks/new", label: "New standalone task", hint: "NO PROJECT REQUIRED" },
   { href: "/tasks/new?context=project", label: "New project task", hint: "ACTIVE BUILDS ONLY" },
 ];

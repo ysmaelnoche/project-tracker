@@ -83,3 +83,29 @@ shown as a 12-week bar chart plus a per-repo breakdown, styled like the rest of 
 console instead of borrowing GitHub's own green-calendar look. Closer to what
 `PLAN.md`'s "GitHub Dashboard Integration" section originally asked for anyway
 ("3 commits today, 1 open PR" style summaries) than the calendar mimicry was.
+
+**"Register a project" → "Lay a new keel"**: the mockup's create-project copy
+("Register a project.", "+ REGISTER PROJECT", the "Registered." standby-stage note
+on Access) was generic form-speak, at odds with the rest of the console's shipyard
+vocabulary (FLEET, BUILD, DEPLOYED, DECOMM). Renamed the *action* of creating a
+project to "lay a keel" — real shipbuilding term for the formal, ceremonial start of
+a new hull's construction record, which is exactly what the pending/STANDBY stage
+already represents here (registered, but development not yet under way). Deliberately
+not "build a ship": "BUILD" is already the in-development lifecycle stage elsewhere in
+this app (`StageBadge`, `startDevelopment`'s "BUILD INITIATED" log entry), so reusing
+it for project *creation* would collide with that meaning. The jargon heading on
+`/projects/new` carries a plain-English subtitle under it ("Shipyard-speak for
+'register a new project.'") so the term is never opaque on its own. `QuickCreate`'s
+shared "// NEW RECORD" menu header was left alone — it covers task-creation entries
+too, not just projects, so it stays generic rather than borrowing a project-only term.
+
+**Linking a repository at project creation**: the mockup (and, until now, this app)
+only let a repository be connected from an existing project's Source panel — a
+schema constraint, not just a UI gap (`repositories.project_id` is `not null unique`,
+so a repository row can't exist before its project does). Added an optional
+"REPOSITORY (OPTIONAL)" field to the create-project form instead: the project is
+always created first, then, if a slug was given, the same connect logic the Source
+panel uses (`lib/github/actions.ts`'s `linkRepository`, factored out of
+`connectRepository`) runs against the new project's id. A bad slug or unreachable repo
+never undoes the project — it lands the operator on the new project's page with the
+reason shown right next to the same connect form, ready to retry.

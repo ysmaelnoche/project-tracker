@@ -40,6 +40,18 @@ export async function connectRepository(
   formData: FormData,
 ): Promise<GithubActionResult> {
   const slug = String(formData.get("slug") ?? "").trim();
+  return linkRepository(projectId, slug);
+}
+
+/**
+ * The actual connect logic, factored out of `connectRepository` so
+ * `createProject` (lib/projects/actions.ts) can offer "link a repo now" as
+ * part of the create-project form, not just from the project detail page's
+ * Source panel. A failure here never fails project creation itself — the
+ * project is always created; a bad/unreachable repo slug just surfaces as
+ * `repoError` on the new project's page, same empty-state form ready to retry.
+ */
+export async function linkRepository(projectId: string, slug: string): Promise<GithubActionResult> {
   const match = slug.match(SLUG_PATTERN);
   if (!match) {
     return { ok: false, error: "Enter a repository as owner/name — e.g. me/my-project." };

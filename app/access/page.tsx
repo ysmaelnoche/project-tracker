@@ -5,7 +5,7 @@ const LIFECYCLE_STAGES = [
     step: "01",
     code: "STANDBY",
     tone: "text-ink-faint",
-    note: "Registered. Tasks stay locked until you commit to it.",
+    note: "Keel laid. Tasks stay locked until you commit to it.",
   },
   {
     step: "02",

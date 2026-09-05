@@ -17,7 +17,13 @@ const MAX_ROWS = 5;
  * the rest of the project page — this fetches independently and renders an
  * inline warning instead of throwing (see `repository.lastSyncError`).
  */
-export async function RepoPanel({ projectId }: { projectId: string }) {
+export async function RepoPanel({
+  projectId,
+  linkError,
+}: {
+  projectId: string;
+  linkError?: string;
+}) {
   const repository = await getRepositoryForProject(projectId);
 
   if (!repository) {
@@ -31,7 +37,16 @@ export async function RepoPanel({ projectId }: { projectId: string }) {
             eyebrow="NOT CONNECTED"
             title="Source — not connected yet."
             body="Connect a GitHub repository to see commits, pushes, pull requests, and development activity here."
-            action={<ConnectRepoForm projectId={projectId} />}
+            action={
+              <div className="flex flex-col items-center gap-3">
+                {linkError ? (
+                  <p className="max-w-[42ch] text-xs leading-relaxed text-red">
+                    Repository from the create form couldn&apos;t be linked: {linkError}
+                  </p>
+                ) : null}
+                <ConnectRepoForm projectId={projectId} />
+              </div>
+            }
           />
         </div>
       </Panel>

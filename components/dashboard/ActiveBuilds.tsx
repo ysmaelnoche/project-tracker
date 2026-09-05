@@ -76,13 +76,13 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
           <EmptyState
             eyebrow="NO ACTIVE BUILDS"
             title="All bays are empty."
-            body="Initiate a build on a standby project, or register a new one."
+            body="Initiate a build on a standby project, or lay a new keel."
             action={
               <Link
                 href="/projects/new"
                 className="inline-block cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover"
               >
-                + NEW PROJECT
+                + LAY KEEL
               </Link>
             }
           />

@@ -13,6 +13,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { linkRepository } from "@/lib/github/actions";
 import { canTogglePause, deriveRestoreStatus } from "@/lib/projects/lifecycle";
 import type { ActivityTone, Priority, ProjectStatus, ProjectType } from "@/lib/types";
 
@@ -73,6 +74,7 @@ export async function createProject(formData: FormData) {
   const type = String(formData.get("type") ?? "");
   const priority = String(formData.get("priority") ?? "medium") as Priority;
   const targetDate = String(formData.get("targetDate") ?? "").trim();
+  const repoSlug = String(formData.get("repoSlug") ?? "").trim();
 
   if (!name) {
     redirect("/projects/new?error=name_required");
@@ -98,10 +100,22 @@ export async function createProject(formData: FormData) {
     redirect("/projects/new?error=create_failed");
   }
 
-  await logActivity(supabase, "RECORD CREATED", data.name, data.ref, "quiet");
+  await logActivity(supabase, "KEEL LAID", data.name, data.ref, "quiet");
 
   revalidatePath("/projects");
   revalidatePath("/dashboard");
+
+  // Optional "link a repo now" field on the create form. A failed link never
+  // undoes the project — it's already created — it just lands the operator
+  // on the project page with the reason shown next to the same form, ready
+  // to retry (see `linkRepository`'s doc comment).
+  if (repoSlug) {
+    const result = await linkRepository(data.id, repoSlug);
+    if (!result.ok) {
+      redirect(`/projects/${data.id}?repoError=${encodeURIComponent(result.error)}`);
+    }
+  }
+
   redirect(`/projects/${data.id}`);
 }
 
