@@ -55,9 +55,9 @@ const TOGGLE_DEFS: ToggleDef[] = [
 ];
 
 /**
- * Config screen (PLAN.md doesn't name it directly, but "Main Navigation" ->
- * Settings): the automation-rule toggles, a GitHub connection status
- * readout (never the token itself), and sign-out.
+ * Config screen: the ship's own settings, in two groups — who commands it
+ * (Operator: profile + session) and how it's rigged (Ship Systems: GitHub
+ * connection + automation rules). See PLAN.md's "Main Navigation" -> Settings.
  */
 export default async function SettingsPage() {
   const [settings, currentUsername] = await Promise.all([
@@ -68,78 +68,106 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h1 className="m-0 font-mono text-[clamp(24px,3.4vw,32px)] font-light leading-[1.1] tracking-[0.02em] text-ink">
-        CONFIG
-      </h1>
+      <div className="flex flex-wrap items-baseline gap-4">
+        <h1 className="m-0 font-mono text-[clamp(24px,3.4vw,32px)] font-light leading-[1.1] tracking-[0.02em] text-ink">
+          CONFIG
+        </h1>
+        <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
+          {"// SHIP SETTINGS"}
+        </span>
+      </div>
+      <p className="mt-3 max-w-[64ch] text-sm leading-relaxed text-ink-2">
+        Who commands this vessel, how it&apos;s wired to source control, and which automations
+        are trusted to act on their own.
+      </p>
 
-      <div className="mt-6 max-w-[640px]">
-        <Panel>
-          <PanelHeader>
-            <PanelTitle>PROFILE</PanelTitle>
-          </PanelHeader>
-          <ChangeUsernameForm currentUsername={currentUsername} />
-          <div className="border-t border-divider" />
-          <ChangePasswordForm />
-        </Panel>
+      <div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-2 lg:items-start">
+        <div className="flex flex-col gap-6">
+          <span className="font-mono text-[9px] tracking-[0.18em] text-ink-faint">
+            {"// OPERATOR"}
+          </span>
 
-        <Panel className="mt-6">
-          <PanelHeader>
-            <PanelTitle>GITHUB CONNECTION</PanelTitle>
-          </PanelHeader>
-          <div className="flex flex-wrap items-baseline gap-3 px-4 py-3.5">
-            <span className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">TOKEN STATUS</span>
-            <span
-              className={`font-mono text-[11px] tracking-[0.08em] ${
-                githubConfigured ? "text-teal" : "text-red"
-              }`}
+          <Panel>
+            <PanelHeader>
+              <PanelTitle>PROFILE</PanelTitle>
+            </PanelHeader>
+            <ChangeUsernameForm currentUsername={currentUsername} />
+            <div className="border-t border-divider" />
+            <ChangePasswordForm />
+          </Panel>
+
+          <Panel>
+            <PanelHeader>
+              <PanelTitle>SESSION</PanelTitle>
+            </PanelHeader>
+            <form
+              action={signOutAction}
+              className="flex flex-wrap items-baseline gap-3 px-4 py-3.5"
             >
-              {githubConfigured ? "● CONFIGURED" : "○ NOT CONFIGURED"}
-            </span>
-            <span className="ml-auto max-w-[36ch] text-right text-xs leading-relaxed text-ink-3">
-              {githubConfigured
-                ? "GITHUB_TOKEN is set on the server."
-                : "Add GITHUB_TOKEN to .env.local to enable repository sync."}
-            </span>
-          </div>
-        </Panel>
+              <div className="flex-1">
+                <div className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+                  OPERATOR
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-ink-3">
+                  Sign out of this device. You&apos;ll need your username and password to sign
+                  back in.
+                </p>
+              </div>
+              <button
+                type="submit"
+                className="cursor-pointer border border-border-strong bg-transparent px-3.5 py-2 font-mono text-[9px] tracking-[0.13em] text-ink-2 transition-colors hover:border-red hover:text-red"
+              >
+                SIGN OUT
+              </button>
+            </form>
+          </Panel>
+        </div>
 
-        <Panel className="mt-6">
-          <PanelHeader>
-            <PanelTitle>AUTOMATION RULES</PanelTitle>
-          </PanelHeader>
-          <div>
-            {TOGGLE_DEFS.map((t) => (
-              <AutomationToggle
-                key={t.key}
-                settingKey={t.key}
-                label={t.label}
-                detail={t.detail}
-                enabled={settings[t.key]}
-              />
-            ))}
-          </div>
-        </Panel>
+        <div className="flex flex-col gap-6">
+          <span className="font-mono text-[9px] tracking-[0.18em] text-ink-faint">
+            {"// SHIP SYSTEMS"}
+          </span>
 
-        <Panel className="mt-6">
-          <PanelHeader>
-            <PanelTitle>SESSION</PanelTitle>
-          </PanelHeader>
-          <form action={signOutAction} className="flex flex-wrap items-baseline gap-3 px-4 py-3.5">
-            <div className="flex-1">
-              <div className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">OPERATOR</div>
-              <p className="mt-1.5 text-xs leading-relaxed text-ink-3">
-                Sign out of this device. You&apos;ll need your username and password to sign back
-                in.
-              </p>
+          <Panel>
+            <PanelHeader>
+              <PanelTitle>GITHUB CONNECTION</PanelTitle>
+            </PanelHeader>
+            <div className="flex flex-wrap items-baseline gap-3 px-4 py-3.5">
+              <span className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+                TOKEN STATUS
+              </span>
+              <span
+                className={`font-mono text-[11px] tracking-[0.08em] ${
+                  githubConfigured ? "text-teal" : "text-red"
+                }`}
+              >
+                {githubConfigured ? "● CONFIGURED" : "○ NOT CONFIGURED"}
+              </span>
+              <span className="ml-auto max-w-[36ch] text-right text-xs leading-relaxed text-ink-3">
+                {githubConfigured
+                  ? "GITHUB_TOKEN is set on the server."
+                  : "Add GITHUB_TOKEN to .env.local to enable repository sync."}
+              </span>
             </div>
-            <button
-              type="submit"
-              className="cursor-pointer border border-border-strong bg-transparent px-3.5 py-2 font-mono text-[9px] tracking-[0.13em] text-ink-2 transition-colors hover:border-red hover:text-red"
-            >
-              SIGN OUT
-            </button>
-          </form>
-        </Panel>
+          </Panel>
+
+          <Panel>
+            <PanelHeader>
+              <PanelTitle>AUTOMATION RULES</PanelTitle>
+            </PanelHeader>
+            <div>
+              {TOGGLE_DEFS.map((t) => (
+                <AutomationToggle
+                  key={t.key}
+                  settingKey={t.key}
+                  label={t.label}
+                  detail={t.detail}
+                  enabled={settings[t.key]}
+                />
+              ))}
+            </div>
+          </Panel>
+        </div>
       </div>
     </div>
   );

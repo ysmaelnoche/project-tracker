@@ -44,17 +44,3 @@ export function relativeUpcoming(isoDate: string, today: string): string {
   if (d < 7) return `T+${d}`;
   return formatStamp(isoDate);
 }
-
-/**
- * Formats a real timestamp (an instant, not a calendar date) as
- * "2026.09.05 14:32", in UTC for a deterministic result regardless of where
- * the server happens to run. Unlike the rest of this file, this is for
- * things like Supabase's `last_sign_in_at`, not a due date.
- */
-export function formatDateTimeStamp(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const stamp = `${d.getUTCFullYear()}.${pad2(d.getUTCMonth() + 1)}.${pad2(d.getUTCDate())}`;
-  const time = `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
-  return `${stamp} ${time} UTC`;
-}

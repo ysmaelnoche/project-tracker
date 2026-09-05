@@ -45,12 +45,12 @@ Two deliberate departures from this reference:
   - "TRUST THIS TERMINAL FOR 30 DAYS" and a "Sign in with GitHub" alternate path are
     UI-only in the demo (no session-length or OAuth-provider change behind them) —
     left out rather than shipping a toggle that does nothing.
-  - "LAST SESSION" is real: Supabase Auth's own `last_sign_in_at` for the one
-    operator account, read fresh on every visit (`getLastSessionInfo()` in
-    `lib/auth/queries.ts`) — not a placeholder string. The demo's "TERMINAL" (device
-    recognition) and "CONSOLE" (build stamp) footer rows were dropped along with it,
-    since they'd need real device-trust tracking and build-metadata plumbing this app
-    doesn't have yet.
+  - "LAST SESSION" briefly existed for real (Supabase Auth's own `last_sign_in_at`,
+    read fresh on every visit), then was dropped at the user's request along with the
+    demo's "TERMINAL" (device recognition) and "CONSOLE" (build stamp) footer rows —
+    those two never had real backing to begin with. The branding mark is
+    "YSMAEL'S SHIPYARD" throughout (header nav, Access screen, page title), not the
+    mockup's generic "SHIPYARD" — this is a named personal instance, not a product.
 
 Everything else in the mockup (screens, data model, automation rules and their default
 on/off state, copy) is the intended real behavior.

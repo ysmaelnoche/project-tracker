@@ -17,7 +17,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Shipyard — Project Tracker",
+  title: "Ysmael's Shipyard — Project Tracker",
   description: "Personal command console for projects, tasks, and GitHub activity.",
 };
 

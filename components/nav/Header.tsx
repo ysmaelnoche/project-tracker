@@ -11,7 +11,7 @@ export function Header() {
         <Link href="/dashboard" className="flex items-center gap-2 py-2">
           <span className="h-[7px] w-[7px] animate-[blink_3.4s_ease-in-out_infinite] rounded-full bg-amber shadow-[0_0_9px_rgba(233,169,74,0.8)]" />
           <span className="font-mono text-[13px] font-medium tracking-[0.14em] text-ink">
-            SHIPYARD
+            YSMAEL&apos;S SHIPYARD
           </span>
           <span className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
             {"// BUILD CONTROL"}

@@ -1,10 +1,4 @@
 import { AccessForm } from "@/components/auth/AccessForm";
-import { getLastSessionInfo } from "@/lib/auth/queries";
-import { formatDateTimeStamp } from "@/lib/format";
-
-// "Last session" must be read fresh on every visit, not frozen at build/deploy
-// time — this page can never be statically prerendered.
-export const dynamic = "force-dynamic";
 
 const LIFECYCLE_STAGES = [
   {
@@ -27,10 +21,7 @@ const LIFECYCLE_STAGES = [
   },
 ] as const;
 
-export default async function AccessPage() {
-  const { lastSignInAt } = await getLastSessionInfo();
-  const lastSessionLabel = lastSignInAt ? formatDateTimeStamp(lastSignInAt) : "NO PRIOR SESSION ON RECORD";
-
+export default function AccessPage() {
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center overflow-auto bg-bg p-4 sm:p-6">
       <div className="relative grid w-full max-w-[940px] grid-cols-1 border border-border-strong bg-surface sm:grid-cols-2">
@@ -40,11 +31,11 @@ export default async function AccessPage() {
         <div className="pointer-events-none absolute -bottom-px -right-px z-10 h-[13px] w-[13px] border-b border-r border-amber" />
 
         {/* Branding / lifecycle panel */}
-        <div className="flex flex-col gap-7 border-b border-border bg-track p-6 sm:border-r sm:border-b-0 sm:p-8">
+        <div className="flex min-h-[420px] flex-col justify-center gap-7 border-b border-border bg-track p-6 sm:border-r sm:border-b-0 sm:p-8">
           <div className="flex items-center gap-2.5">
             <span className="h-2 w-2 animate-[blink_3.4s_ease-in-out_infinite] rounded-full bg-amber shadow-[0_0_10px_rgba(233,169,74,0.85)]" />
             <span className="font-mono text-[13px] font-medium tracking-[0.16em] text-ink">
-              SHIPYARD
+              YSMAEL&apos;S SHIPYARD
             </span>
             <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
               {"// BUILD CONTROL"}
@@ -82,17 +73,6 @@ export default async function AccessPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div className="mt-auto border-t border-divider pt-4">
-            <div className="flex items-baseline gap-3 py-1">
-              <span className="flex-none basis-[92px] font-mono text-[9px] tracking-[0.14em] text-ink-faint">
-                LAST SESSION
-              </span>
-              <span className="min-w-0 flex-1 font-mono text-[10px] tracking-[0.02em] text-ink-3">
-                {lastSessionLabel}
-              </span>
             </div>
           </div>
         </div>
