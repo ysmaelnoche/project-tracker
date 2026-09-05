@@ -17,11 +17,13 @@ interface EmptyCopy {
 }
 
 /**
- * Owns the Queue list's interaction state: optimistic complete/reopen with an
- * UNDO toast, and a confirm-then-purge delete flow — matching the reference's
- * `toggleTask`/`confirmDelete`. `router.refresh()` after each mutation
- * resyncs the view/context tab counts, which are computed server-side by the
- * parent page.
+ * Owns the Queue list's interaction state: a confirm-then-complete flow
+ * (the checkbox is a small target — a stray click shouldn't silently close
+ * a task), optimistic complete with an UNDO toast once confirmed, an
+ * un-gated single-click reopen, and a confirm-then-purge delete flow —
+ * matching the reference's `toggleTask`/`confirmDelete`. `router.refresh()`
+ * after each mutation resyncs the view/context tab counts, which are
+ * computed server-side by the parent page.
  */
 export function TaskQueueList({
   rows,
@@ -42,6 +44,8 @@ export function TaskQueueList({
   }
 
   const [pendingDelete, setPendingDelete] = useState<TaskRowView | null>(null);
+  const [pendingComplete, setPendingComplete] = useState<TaskRowView | null>(null);
+  const [committing, setCommitting] = useState(false);
   const router = useRouter();
   const toast = useToast();
 
@@ -53,11 +57,12 @@ export function TaskQueueList({
     setTasks((current) => current.filter((t) => t.id !== id));
   }
 
-  function handleToggle(row: TaskRowView) {
+  function handleToggle(row: TaskRowView, onSettled?: () => void) {
     remove(row.id);
 
     toggleTaskStatus(row.id)
       .then((result) => {
+        onSettled?.();
         if (!result.ok) {
           reinsert(row);
           toast.show({ label: "TASK ERROR", message: result.error, tone: "red" });
@@ -85,9 +90,30 @@ export function TaskQueueList({
         router.refresh();
       })
       .catch(() => {
+        onSettled?.();
         reinsert(row);
         toast.show({ label: "TASK ERROR", message: "Something went wrong. Try again.", tone: "red" });
       });
+  }
+
+  // Completing goes through a confirmation first; reopening (undoing a
+  // mistaken close) stays a single click.
+  function requestToggle(row: TaskRowView) {
+    if (row.done) {
+      handleToggle(row);
+    } else {
+      setPendingComplete(row);
+    }
+  }
+
+  function confirmComplete() {
+    if (!pendingComplete || committing) return;
+    const row = pendingComplete;
+    setCommitting(true);
+    handleToggle(row, () => {
+      setCommitting(false);
+      setPendingComplete(null);
+    });
   }
 
   function confirmDelete() {
@@ -123,11 +149,32 @@ export function TaskQueueList({
           <TaskRow
             key={row.id}
             row={row}
-            onToggle={() => handleToggle(row)}
+            onToggle={() => requestToggle(row)}
             onDelete={() => setPendingDelete(row)}
           />
         ))}
       </div>
+
+      <ConfirmDialog
+        open={pendingComplete !== null}
+        tone="teal"
+        eyebrow="CLOSE TASK"
+        refLabel={pendingComplete?.ref}
+        title="Mark this task complete?"
+        body={
+          pendingComplete
+            ? `"${pendingComplete.title}" will be logged as done. You can reopen it any time.`
+            : ""
+        }
+        confirmLabel="COMPLETE"
+        cancelLabel="CANCEL"
+        pending={committing}
+        pendingLabel="LOGGING…"
+        onConfirm={confirmComplete}
+        onClose={() => {
+          if (!committing) setPendingComplete(null);
+        }}
+      />
 
       <ConfirmDialog
         open={pendingDelete !== null}

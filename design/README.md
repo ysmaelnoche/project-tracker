@@ -335,3 +335,26 @@ AUTHENTICATING buffering sequences' own `percent` (`lib/ui/sequence.ts`,
 `BufferPanel`) is a different thing — a loading-animation readout of how many
 steps have played, not a claim about how much of the operator's actual work is
 done — and was left alone.
+
+**Project Detail's Tasks panel: from read-only to a real complete/reopen flow,
+with a confirm gate everywhere completion happens**: the panel's docstring had
+said "read-only shell" outright — completion only ever lived on the Queue
+(`/tasks`) — which meant the one task list an operator sees most (their own
+project's page) couldn't check anything off; the checkbox was a static `<span>`.
+`ProjectTaskList.tsx` makes it real: the same `toggleTaskStatus` Server Action
+the Queue uses, so both surfaces log the identical activity entry. Ordering is
+pulled out into a pure, TDD'd `sortProjectTasks` (`lib/projects/task-order.ts`)
+so an optimistic toggle doesn't reshuffle the list out from under the operator
+mid-animation — it re-sorts once `router.refresh()` brings back the server's
+real order.
+
+Completing (not reopening) now asks for confirmation first, on all three
+surfaces that can complete a task — the Queue, the Dashboard's "My Day" panel,
+and this new one — since the checkbox is a small, frequent target and a stray
+click shouldn't silently close something. Reopening (undoing a mistaken close)
+stays a single click on purpose: the correction for an accidental *close*
+shouldn't itself need confirming. Confirming plays a brief "committed" flash in
+place — a pulse ring on the checkbox (reusing the `ping-ring` keyframe), the
+title's strikethrough animating in via a `scaleX` transform rather than
+snapping on instantly, and a momentary "✓ LOGGED" / "○ REOPENED" label before
+it settles into the normal "✓ DONE" / due-date readout.

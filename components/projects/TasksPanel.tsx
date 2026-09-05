@@ -1,23 +1,19 @@
 import Link from "next/link";
 import { Panel, PanelHeader, PanelTitle } from "@/components/ui/Panel";
-import { diffDays, isOverdue, relativeUpcoming } from "@/lib/format";
+import { ProjectTaskList } from "@/components/projects/ProjectTaskList";
 import { isTaskCreationLocked } from "@/lib/projects/lifecycle";
 import { pickNextTask } from "@/lib/next-task";
 import { computeTaskProgress } from "@/lib/projects/progress";
 import type { ProjectTaskRow } from "@/lib/projects/task-reads";
 import type { Project } from "@/lib/types";
 
-const STATUS_ORDER: Record<ProjectTaskRow["status"], number> = {
-  in_progress: 0,
-  todo: 1,
-  done: 2,
-};
-
 /**
- * Read-only shell for a project's tasks — the Tasks slice owns creation,
- * completion, and deletion (on `/tasks`). This panel only shows the locked
- * state, an empty state, or a static list, plus a "Next" pointer per PLAN.md
- * "In Development" ("see the next relevant task").
+ * Shell for a project's Tasks panel — creation still only happens via the
+ * "+ ADD TASK" link out to the Queue (`/tasks/new`), but completing or
+ * reopening a task happens right here now too (`ProjectTaskList`), the same
+ * `toggleTaskStatus` action the Queue uses. This component owns the locked
+ * state, the empty state, and the "Next" pointer per PLAN.md "In Development"
+ * ("see the next relevant task").
  */
 export function TasksPanel({
   project,
@@ -31,13 +27,6 @@ export function TasksPanel({
   const locked = isTaskCreationLocked(project.status);
   const { done: doneCount, total } = computeTaskProgress(tasks);
   const next = pickNextTask(tasks);
-
-  const sorted = tasks.slice().sort((a, b) => {
-    const doneA = a.status === "done" ? 1 : 0;
-    const doneB = b.status === "done" ? 1 : 0;
-    if (doneA !== doneB) return doneA - doneB;
-    return STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
-  });
 
   return (
     <Panel>
@@ -95,50 +84,7 @@ export function TasksPanel({
               <span className="text-sm text-ink">{next.title}</span>
             </div>
           ) : null}
-          {sorted.map((task) => {
-            const isDone = task.status === "done";
-            const overdue = isOverdue(task.dueDate, today, isDone);
-            let rightMeta: string;
-            if (isDone) rightMeta = "✓ DONE";
-            else if (overdue && task.dueDate) rightMeta = `⚠ OVERDUE T+${diffDays(task.dueDate, today)}`;
-            else if (task.dueDate) rightMeta = relativeUpcoming(task.dueDate, today);
-            else rightMeta = "—";
-
-            return (
-              <div
-                key={task.id}
-                className="flex items-start gap-3 border-b border-divider px-4 py-3 last:border-b-0"
-              >
-                <span
-                  className={`mt-px font-mono text-xs ${isDone ? "text-teal" : overdue ? "text-red" : "text-ink-disabled"}`}
-                >
-                  {isDone ? "[×]" : "[ ]"}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div
-                    className={`text-sm leading-relaxed ${isDone ? "text-ink-faint line-through" : "text-ink"}`}
-                  >
-                    {task.title}
-                  </div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.12em] text-ink-faint">
-                    {task.ref}
-                  </div>
-                </div>
-                {task.status === "in_progress" ? (
-                  <span className="flex-none font-mono text-[9px] tracking-[0.12em] text-accent">
-                    ● ACTIVE
-                  </span>
-                ) : null}
-                <span
-                  className={`flex-none font-mono text-[9px] tracking-[0.11em] ${
-                    overdue ? "text-red" : isDone ? "text-teal" : "text-ink-3"
-                  }`}
-                >
-                  {rightMeta}
-                </span>
-              </div>
-            );
-          })}
+          <ProjectTaskList tasks={tasks} today={today} />
         </div>
       )}
 

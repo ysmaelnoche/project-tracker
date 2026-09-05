@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { toggleTaskStatus } from "@/lib/tasks/actions";
 import type { TaskRowView } from "@/lib/tasks/present";
@@ -25,6 +26,10 @@ function pad2(n: number) {
  * "My Day" (PLAN.md "My Day"): overdue + due-today tasks, complete/reopen
  * inline. Rows are pre-decorated via `decorateTaskRow` (lib/tasks/present.ts)
  * so this reads and behaves identically to a Queue row, minus delete.
+ *
+ * Completing goes through a confirmation first — the checkbox is a small
+ * target and a stray click shouldn't silently close a task; reopening
+ * (undoing a mistaken close) stays a single click.
  */
 export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
   // Resync when the server hands us fresh rows after router.refresh(), same
@@ -36,6 +41,8 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
     setTasks(rows);
   }
 
+  const [pendingComplete, setPendingComplete] = useState<TaskRowView | null>(null);
+  const [committing, setCommitting] = useState(false);
   const router = useRouter();
   const toast = useToast();
 
@@ -46,10 +53,11 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
     setTasks((current) => (current.some((t) => t.id === row.id) ? current : [row, ...current]));
   }
 
-  function handleToggle(row: TaskRowView) {
+  function handleToggle(row: TaskRowView, onSettled?: () => void) {
     remove(row.id);
     toggleTaskStatus(row.id)
       .then((result) => {
+        onSettled?.();
         if (!result.ok) {
           reinsert(row);
           toast.show({ label: "TASK ERROR", message: result.error, tone: "red" });
@@ -63,9 +71,28 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
         router.refresh();
       })
       .catch(() => {
+        onSettled?.();
         reinsert(row);
         toast.show({ label: "TASK ERROR", message: "Something went wrong. Try again.", tone: "red" });
       });
+  }
+
+  function requestToggle(row: TaskRowView) {
+    if (row.done) {
+      handleToggle(row);
+    } else {
+      setPendingComplete(row);
+    }
+  }
+
+  function confirmComplete() {
+    if (!pendingComplete || committing) return;
+    const row = pendingComplete;
+    setCommitting(true);
+    handleToggle(row, () => {
+      setCommitting(false);
+      setPendingComplete(null);
+    });
   }
 
   const hasOverdue = tasks.some((t) => t.tone === "overdue");
@@ -89,7 +116,7 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
               className="flex items-start gap-2.5 border-b border-divider px-4 py-3 transition-colors last:border-b-0 hover:bg-surface-hover"
             >
               <button
-                onClick={() => handleToggle(row)}
+                onClick={() => requestToggle(row)}
                 aria-label={row.done ? "Reopen task" : "Complete task"}
                 className={`mt-px shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mono text-xs leading-[1.4] tracking-[-0.04em] transition-colors ${BOX_TONE[row.tone]}`}
               >
@@ -130,6 +157,26 @@ export function MyDayPanel({ rows }: { rows: TaskRowView[] }) {
           </p>
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingComplete !== null}
+        tone="teal"
+        eyebrow="CLOSE TASK"
+        title="Mark this task complete?"
+        body={
+          pendingComplete
+            ? `"${pendingComplete.title}" will be logged as done. You can reopen it any time.`
+            : ""
+        }
+        confirmLabel="COMPLETE"
+        cancelLabel="CANCEL"
+        pending={committing}
+        pendingLabel="LOGGING…"
+        onConfirm={confirmComplete}
+        onClose={() => {
+          if (!committing) setPendingComplete(null);
+        }}
+      />
     </div>
   );
 }
