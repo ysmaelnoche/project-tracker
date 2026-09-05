@@ -17,6 +17,12 @@ create trigger profiles_set_updated_at
 
 create index if not exists profiles_username_idx on profiles(username);
 
+-- The SQL editor doesn't always apply Supabase's usual auto-grant the way its
+-- Table Editor UI does — without this, every query hits "permission denied for
+-- table profiles" before RLS policies even get evaluated. RLS (below) remains
+-- the actual security boundary; this just lets each role attempt a query at all.
+grant select, insert, update, delete on public.profiles to anon, authenticated, service_role;
+
 alter table profiles enable row level security;
 
 create policy "profiles_owner_all" on profiles
