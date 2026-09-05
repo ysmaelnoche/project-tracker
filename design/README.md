@@ -358,3 +358,16 @@ place — a pulse ring on the checkbox (reusing the `ping-ring` keyframe), the
 title's strikethrough animating in via a `scaleX` transform rather than
 snapping on instantly, and a momentary "✓ LOGGED" / "○ REOPENED" label before
 it settles into the normal "✓ DONE" / due-date readout.
+
+**Queue's default view changed from "TODAY" to "ALL OPEN"**: a task created
+with no due date, or a future one, doesn't show up under "TODAY" —
+`bucketTasksByView`'s `"today"` case only ever included tasks due today or
+already overdue, by design. Landing back on `/tasks` after creating exactly
+that kind of task made it look like it had simply vanished. The first fix
+attempt kept "TODAY" as the default and instead routed the post-creation
+redirect to whichever tab would actually show the new task; the operator's
+own call was simpler and more honest instead: "TODAY" was never really a
+safe default landing view if it can silently hide a task you just made, so
+`parseTaskView`'s fallback (used by every navigation to `/tasks` without an
+explicit `?view=`, not just this one) is now `"all"`. `buildTaskQueueHref`'s
+"omit the param when it's the default" URL-cleanup follows the same change.

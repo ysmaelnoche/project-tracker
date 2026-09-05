@@ -40,10 +40,10 @@ describe("parseTaskView", () => {
     expect(parseTaskView("completed")).toBe("completed");
   });
 
-  it("defaults to 'today' for missing/unknown values", () => {
-    expect(parseTaskView(undefined)).toBe("today");
-    expect(parseTaskView(null)).toBe("today");
-    expect(parseTaskView("bogus")).toBe("today");
+  it("defaults to 'all' for missing/unknown values", () => {
+    expect(parseTaskView(undefined)).toBe("all");
+    expect(parseTaskView(null)).toBe("all");
+    expect(parseTaskView("bogus")).toBe("all");
   });
 });
 
@@ -179,7 +179,7 @@ describe("sortTaskRows", () => {
 
 describe("buildTaskQueueHref", () => {
   it("omits both params for the defaults", () => {
-    expect(buildTaskQueueHref("today", "all")).toBe("/tasks");
+    expect(buildTaskQueueHref("all", "all")).toBe("/tasks");
   });
 
   it("sets only the view param when context is the default", () => {
@@ -187,7 +187,7 @@ describe("buildTaskQueueHref", () => {
   });
 
   it("sets only the context param when view is the default", () => {
-    expect(buildTaskQueueHref("today", "standalone")).toBe("/tasks?context=standalone");
+    expect(buildTaskQueueHref("all", "standalone")).toBe("/tasks?context=standalone");
   });
 
   it("preserves the other filter when both are non-default", () => {
