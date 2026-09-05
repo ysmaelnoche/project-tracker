@@ -10,12 +10,29 @@
 /** The trend window every commit/merge trend chart in the app shares — the Dashboard's aggregate panel and each project's own trend. */
 export const ACTIVITY_TREND_WEEKS = 12;
 
+function toUtcMs(iso: string): number {
+  const [y, m, d] = iso.split("-").map(Number);
+  return Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+}
+
 function diffDays(fromIso: string, toIso: string): number {
-  const toUtc = (iso: string) => {
-    const [y, m, d] = iso.split("-").map(Number);
-    return Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1);
-  };
-  return Math.round((toUtc(toIso) - toUtc(fromIso)) / 86_400_000);
+  return Math.round((toUtcMs(toIso) - toUtcMs(fromIso)) / 86_400_000);
+}
+
+/** `daysAgo` days before `todayIso`, as a plain YYYY-MM-DD date. */
+function shiftDate(todayIso: string, daysAgo: number): string {
+  return new Date(toUtcMs(todayIso) - daysAgo * 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
+ * The last day covered by bucket `index` of a `weeks`-wide window ending
+ * today — bucket `weeks - 1` (the most recent) always ends on `todayIso`
+ * itself. Lets a chart hovering over a given point say which real date
+ * (well, which week ending on that date) it's looking at.
+ */
+export function weekEndDate(index: number, weeks: number, todayIso: string): string {
+  const weeksAgo = weeks - 1 - index;
+  return shiftDate(todayIso, weeksAgo * 7);
 }
 
 /**

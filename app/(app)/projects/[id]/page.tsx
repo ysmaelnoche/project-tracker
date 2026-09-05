@@ -109,6 +109,7 @@ export default async function ProjectDetailPage({
             <TrendChart
               commits={activityTrend.trend.commits}
               merges={activityTrend.trend.merges}
+              todayIso={today}
               heightPx={92}
             />
           </div>
@@ -117,12 +118,19 @@ export default async function ProjectDetailPage({
 
       <StageStrip project={project} today={today} />
 
-      <div className="mt-[clamp(24px,3.5vw,34px)] grid grid-cols-1 items-start gap-[clamp(16px,2.5vw,26px)] lg:grid-cols-2">
+      {/* Full-width rather than squeezed into half the grid below: SOURCE's
+          own rows (PR title + meta, branch name + drift, commit message +
+          author) each need real horizontal room — cramped into one column,
+          every row wrapped to two lines and the whole panel read as one
+          long, narrow wall of text. */}
+      <div className="mt-[clamp(24px,3.5vw,34px)]">
+        <RepoPanel projectId={project.id} linkError={repoError} />
+      </div>
+
+      <div className="mt-[clamp(16px,2.5vw,26px)] grid grid-cols-1 items-start gap-[clamp(16px,2.5vw,26px)] lg:grid-cols-2">
         <TasksPanel project={project} tasks={tasks} today={today} />
 
         <div className="flex flex-col gap-[clamp(16px,2.5vw,26px)]">
-          <RepoPanel projectId={project.id} linkError={repoError} />
-
           <LinksPanel projectId={project.id} links={project.links} />
           <NotesPanel projectId={project.id} notes={project.notes} key={`notes-${project.updatedAt}`} />
           <ProjectActivity events={activity} />

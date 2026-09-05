@@ -10,7 +10,13 @@ import type { DevelopmentActivity } from "@/lib/github/dev-activity-fetch";
  * cannot see private repository activity for any token. This panel only
  * ever shows real, verifiable data from lib/github/dev-activity-fetch.ts.
  */
-export function DevelopmentActivityPanel({ activity }: { activity: DevelopmentActivity }) {
+export function DevelopmentActivityPanel({
+  activity,
+  today,
+}: {
+  activity: DevelopmentActivity;
+  today: string;
+}) {
   if (!activity.hasAnyRepo) {
     return (
       <Panel>
@@ -38,7 +44,7 @@ export function DevelopmentActivityPanel({ activity }: { activity: DevelopmentAc
       </PanelHeader>
 
       <div className="p-4">
-        <TrendChart commits={activity.trend.commits} merges={activity.trend.merges} />
+        <TrendChart commits={activity.trend.commits} merges={activity.trend.merges} todayIso={today} />
 
         {activity.repoBreakdown.length > 0 ? (
           <div className="mt-5 flex flex-col gap-2 border-t border-divider pt-4">
