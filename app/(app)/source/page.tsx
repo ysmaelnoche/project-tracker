@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BranchRow } from "@/components/github/BranchRow";
 import { CommitRow } from "@/components/github/CommitRow";
+import { DisconnectRepoButton } from "@/components/github/DisconnectRepoButton";
 import { PRRow } from "@/components/github/PRRow";
 import { UnlinkedProjectRow } from "@/components/github/UnlinkedProjectRow";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -110,33 +111,41 @@ export default async function SourcePage({
         {hasRepos ? (
           <div>
             {overview.repositories.map((repo) => (
-              <Link
+              <div
                 key={repo.id}
-                href={`/projects/${repo.projectId}`}
-                className="block border-b border-divider px-4 py-3.5 transition-colors last:border-b-0 hover:bg-surface-hover"
+                className="border-b border-divider px-4 py-3.5 transition-colors last:border-b-0 hover:bg-surface-hover"
               >
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">{repo.projectRef}</span>
-                  <span className="font-mono text-[13px] tracking-[0.03em] text-accent">
-                    github.com/{repo.owner}/{repo.name}
-                  </span>
-                  <span className="font-mono text-[9px] tracking-[0.13em] text-ink-faint">
-                    {(repo.visibility ?? "unknown").toUpperCase()} · ⎇ {repo.defaultBranch}
-                  </span>
-                  <span
-                    className={`ml-auto font-mono text-[9px] tracking-[0.12em] ${
-                      repo.openPrCount ? "text-accent" : "text-ink-faint"
-                    }`}
-                  >
-                    LAST PUSH{" "}
-                    {repo.lastPushAt ? repo.lastPushAt.slice(0, 16).replace("T", " ") : "—"} ·{" "}
-                    {pad2(repo.branchCount)} BRANCHES · {pad2(repo.openPrCount)} OPEN PR
-                  </span>
+                <Link href={`/projects/${repo.projectId}`} className="block">
+                  <div className="flex flex-wrap items-baseline gap-3">
+                    <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">{repo.projectRef}</span>
+                    <span className="font-mono text-[13px] tracking-[0.03em] text-accent">
+                      github.com/{repo.owner}/{repo.name}
+                    </span>
+                    <span className="font-mono text-[9px] tracking-[0.13em] text-ink-faint">
+                      {(repo.visibility ?? "unknown").toUpperCase()} · ⎇ {repo.defaultBranch}
+                    </span>
+                    <span
+                      className={`ml-auto font-mono text-[9px] tracking-[0.12em] ${
+                        repo.openPrCount ? "text-accent" : "text-ink-faint"
+                      }`}
+                    >
+                      LAST PUSH{" "}
+                      {repo.lastPushAt ? repo.lastPushAt.slice(0, 16).replace("T", " ") : "—"} ·{" "}
+                      {pad2(repo.branchCount)} BRANCHES · {pad2(repo.openPrCount)} OPEN PR
+                    </span>
+                  </div>
+                  {repo.lastSyncError ? (
+                    <div className="mt-1.5 text-xs text-red">{repo.lastSyncError}</div>
+                  ) : null}
+                </Link>
+                <div className="mt-2 text-right">
+                  <DisconnectRepoButton
+                    repositoryId={repo.id}
+                    projectId={repo.projectId}
+                    repoSlug={`${repo.owner}/${repo.name}`}
+                  />
                 </div>
-                {repo.lastSyncError ? (
-                  <div className="mt-1.5 text-xs text-red">{repo.lastSyncError}</div>
-                ) : null}
-              </Link>
+              </div>
             ))}
           </div>
         ) : (
