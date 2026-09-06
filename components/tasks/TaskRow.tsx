@@ -14,16 +14,18 @@ const RIGHT_TONE: Record<TaskRowView["tone"], string> = {
 
 /**
  * One row in the Queue list — checkbox toggle, title, context ref/project
- * line, due/overdue/completed meta, delete. Purely presentational; the
- * container owns optimistic state, toasts, and the delete confirmation.
+ * line, due/overdue/completed meta, edit, delete. Purely presentational; the
+ * container owns optimistic state, toasts, and the edit/delete confirmations.
  */
 export function TaskRow({
   row,
   onToggle,
+  onEdit,
   onDelete,
 }: {
   row: TaskRowView;
   onToggle: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -58,6 +60,14 @@ export function TaskRow({
       >
         {row.rightLabel}
       </span>
+
+      <button
+        onClick={onEdit}
+        aria-label="Edit task"
+        className="shrink-0 cursor-pointer border-0 bg-transparent px-0.5 py-0 font-mono text-[11px] leading-[2] text-ink-disabled transition-colors hover:text-accent"
+      >
+        ✎
+      </button>
 
       <button
         onClick={onDelete}
