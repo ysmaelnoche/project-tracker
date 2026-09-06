@@ -3,24 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NAV = [
+export const NAV_ITEMS = [
   { href: "/dashboard", label: "OVERVIEW" },
   { href: "/projects", label: "FLEET" },
   { href: "/tasks", label: "QUEUE" },
   { href: "/source", label: "SOURCE" },
   { href: "/activity", label: "LOG" },
   { href: "/settings", label: "CONFIG" },
-];
+] as const;
+
+/** Shared with MobileNav.tsx so the mobile drawer highlights the same active item. */
+export function isNavActive(pathname: string, href: string): boolean {
+  return pathname === href || (href === "/projects" && pathname.startsWith("/projects/"));
+}
 
 export function NavLinks() {
   const pathname = usePathname();
 
   return (
     <nav className="flex flex-wrap gap-0.5">
-      {NAV.map((item) => {
-        const active =
-          pathname === item.href ||
-          (item.href === "/projects" && pathname.startsWith("/projects/"));
+      {NAV_ITEMS.map((item) => {
+        const active = isNavActive(pathname, item.href);
         return (
           <Link
             key={item.href}

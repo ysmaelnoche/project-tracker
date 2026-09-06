@@ -413,3 +413,32 @@ COMPLETE/CANCEL) before calling `toggleTaskStatus`. Unlike the other three
 surfaces there's no reopen path to preserve here — `pickPrimaryDirective`
 (`lib/dashboard/directive.ts`) only ever surfaces an open task, since
 `pickNextTask` filters out done ones — so this button only ever completes.
+
+**Responsive pass for mobile/tablet/iPad**: most of the app was already sound
+here — the mockup translation leaned on `clamp()` for spacing/type and
+`flex-wrap` everywhere from the start, and every existing `grid-cols-N` was
+already mobile-first (`grid-cols-1` base with a `sm:`/`md:`/`lg:` override),
+so the real gaps were narrow. Two kinds of fix:
+
+- **The top nav didn't actually collapse** — `Header`'s six-link `NavLinks`
+  plus the logo, Clock, ⌘K, and +NEW would only ever `flex-wrap` onto extra
+  rows on a narrow screen, which doesn't overflow but reads as cluttered
+  rather than a deliberate mobile layout. New `MobileNav.tsx` collapses all
+  of that below `lg:` (1024px, not the more obvious `md:`/768px — a portrait
+  iPad, 768–834px, is still too narrow for the full inline row once measured)
+  into a toggle that drops the same six links full-width, plus the Clock/⌘K
+  that get hidden at that width; only the logo and QuickCreate ("+ NEW", worth
+  keeping one tap away) stay in the collapsed header itself. `NavLinks.tsx`
+  now exports its `NAV_ITEMS`/`isNavActive` so both it and `MobileNav` render
+  from one source rather than two copies of the same six links.
+- **Two "last cell loses its border" grids broke at more than one row**: the
+  Source screen's metric strip (`grid-cols-2 sm:grid-cols-3 lg:grid-cols-6`)
+  and the Dashboard's `MetricsBar` (an `auto-fit` grid) both stripped a
+  right border only from the DOM's actual last cell — correct for a single
+  row, wrong for every row above the last once a narrower viewport wraps the
+  same tiles into two or three rows, doubling that cell's border against the
+  grid's own edge (`MetricsBar` also had no row separator at all once
+  wrapped). Both switched to drawing grid lines with a `gap-px` over
+  `bg-divider` instead of per-cell borders — correct at any column count,
+  responsive or not, with no last-child math to keep in sync with the
+  breakpoints.
