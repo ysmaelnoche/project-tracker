@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import { toggleTaskStatus } from "@/lib/tasks/actions";
 import type { PrimaryDirective as PrimaryDirectiveData } from "@/lib/dashboard/directive";
@@ -12,9 +13,17 @@ import type { PrimaryDirective as PrimaryDirectiveData } from "@/lib/dashboard/d
  * urgent thing across every active build. The caller omits this component
  * entirely when there's no active project with an open task — see
  * `pickPrimaryDirective` in `lib/dashboard/directive.ts`.
+ *
+ * `pickPrimaryDirective` only ever surfaces an *open* task (`pickNextTask`
+ * filters out done ones), so MARK COMPLETE here only ever completes — there's
+ * no reopen path to gate differently, unlike TaskQueueList/MyDayPanel/
+ * ProjectTaskList. It still asks first, for the same reason those do: this
+ * button is a small, prominent, frequent target, and a stray click shouldn't
+ * silently close whatever task happens to be most urgent right now.
  */
 export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveData }) {
   const [isPending, startTransition] = useTransition();
+  const [confirming, setConfirming] = useState(false);
   const router = useRouter();
   const toast = useToast();
 
@@ -36,6 +45,8 @@ export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveDat
         router.refresh();
       } catch {
         toast.show({ label: "TASK ERROR", message: "Something went wrong. Try again.", tone: "red" });
+      } finally {
+        setConfirming(false);
       }
     });
   }
@@ -63,7 +74,7 @@ export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveDat
         </div>
         <div className="flex flex-none flex-wrap gap-2">
           <button
-            onClick={complete}
+            onClick={() => setConfirming(true)}
             disabled={isPending}
             className="cursor-pointer bg-accent px-4 py-2.5 font-mono text-[10px] font-medium tracking-[0.13em] text-bg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -77,6 +88,22 @@ export function PrimaryDirective({ directive }: { directive: PrimaryDirectiveDat
           </Link>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirming}
+        tone="teal"
+        eyebrow="CLOSE TASK"
+        title="Mark this task complete?"
+        body={`"${directive.task.title}" will be logged as done. You can reopen it any time.`}
+        confirmLabel="COMPLETE"
+        cancelLabel="CANCEL"
+        pending={isPending}
+        pendingLabel="LOGGING…"
+        onConfirm={complete}
+        onClose={() => {
+          if (!isPending) setConfirming(false);
+        }}
+      />
     </div>
   );
 }
