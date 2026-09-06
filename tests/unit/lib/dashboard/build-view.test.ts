@@ -104,7 +104,13 @@ function commit(overrides: Partial<GhCommit>): GhCommit {
 
 describe("buildDashboardView", () => {
   it("wires an active project's own next task through to both the Active Builds card and the Primary Directive", () => {
-    const orbit = project({ id: "p1", ref: "PRJ-01", name: "Orbit", status: "in_development" });
+    const orbit = project({
+      id: "p1",
+      ref: "PRJ-01",
+      name: "Orbit",
+      status: "in_development",
+      priority: "high",
+    });
     const tasks = [
       task({ id: "t1", projectId: "p1", title: "Implement timer", status: "todo", priority: "high" }),
       task({ id: "t2", projectId: "p1", title: "Write docs", status: "done" }),
@@ -125,6 +131,7 @@ describe("buildDashboardView", () => {
     expect(view.activeBuilds[0]?.nextTaskTitle).toBe("Implement timer");
     expect(view.activeBuilds[0]?.doneTasks).toBe(1);
     expect(view.activeBuilds[0]?.totalTasks).toBe(2);
+    expect(view.activeBuilds[0]?.priority).toBe("high");
 
     expect(view.directive).not.toBeNull();
     expect(view.directive?.task.title).toBe("Implement timer");

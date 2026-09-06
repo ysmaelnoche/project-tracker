@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateProject } from "@/lib/projects/actions";
 import { Spinner } from "@/components/ui/Spinner";
+import { priorityLabel } from "@/lib/priority";
 import type { Priority, Project } from "@/lib/types";
 
 const PRIORITIES: Priority[] = ["low", "medium", "high"];
@@ -102,7 +103,7 @@ export function ProjectEditForm({
           >
             {PRIORITIES.map((p) => (
               <option key={p} value={p}>
-                {p.toUpperCase()}
+                {priorityLabel(p)}
               </option>
             ))}
           </select>

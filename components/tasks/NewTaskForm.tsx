@@ -9,13 +9,14 @@ import { useToast } from "@/components/ui/Toast";
 import { createTask } from "@/lib/tasks/actions";
 import type { ProjectOptionView } from "@/lib/tasks/present";
 import { QUEUE_STEPS } from "@/lib/tasks/create-sequence";
+import { priorityLabel } from "@/lib/priority";
 import type { Priority } from "@/lib/types";
 import { buildSequenceLines, computeSequencePercent, type SequenceStep } from "@/lib/ui/sequence";
 
 const PRIORITIES: { key: Priority; label: string }[] = [
-  { key: "low", label: "LOW" },
-  { key: "medium", label: "MED" },
-  { key: "high", label: "HIGH" },
+  { key: "low", label: priorityLabel("low") },
+  { key: "medium", label: priorityLabel("medium") },
+  { key: "high", label: priorityLabel("high") },
 ];
 
 const STANDALONE_OPTION = {
@@ -248,15 +249,15 @@ export function NewTaskForm({
                   className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-[13px] outline-none transition-colors focus:border-accent"
                 />
               </div>
-              <div className="flex-1 basis-[150px]">
+              <div className="flex-1 basis-[220px]">
                 <div className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">PRIORITY</div>
-                <div className="mt-2.5 flex gap-1.5">
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {PRIORITIES.map((p) => (
                     <button
                       key={p.key}
                       type="button"
                       onClick={() => setPriority(p.key)}
-                      className={`cursor-pointer border px-3 py-2 font-mono text-[9px] tracking-[0.12em] ${
+                      className={`cursor-pointer whitespace-nowrap border px-3 py-2 font-mono text-[9px] tracking-[0.12em] ${
                         priority === p.key
                           ? "border-accent bg-accent text-bg"
                           : "border-border-strong bg-transparent text-ink-2"

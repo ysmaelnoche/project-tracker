@@ -93,7 +93,7 @@ describe("pickPrimaryDirective", () => {
     ];
     const result = pickPrimaryDirective(projects, TODAY);
     expect(result?.meta).toContain("ACTIVE");
-    expect(result?.meta).toContain("HIGH PRIORITY");
+    expect(result?.meta).toContain("CRITICAL PRIORITY");
     expect(result?.meta).toContain("OVERDUE");
   });
 

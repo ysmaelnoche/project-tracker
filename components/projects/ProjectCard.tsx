@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PriorityBadge } from "@/components/ui/PriorityBadge";
 import { StageBadge } from "@/components/ui/StageBadge";
 import { diffDays, formatStamp } from "@/lib/format";
 import { computeTaskProgress } from "@/lib/projects/progress";
@@ -44,6 +45,7 @@ export function ProjectCard({
         <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
           {project.type === "personal" ? "PERSONAL" : "WORK"}
         </span>
+        <PriorityBadge priority={project.priority} />
         <StageBadge status={project.status} />
       </div>
       <div className="mt-2.5 font-mono text-[9px] leading-relaxed tracking-[0.12em] text-ink-faint">
