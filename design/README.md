@@ -348,10 +348,12 @@ so an optimistic toggle doesn't reshuffle the list out from under the operator
 mid-animation — it re-sorts once `router.refresh()` brings back the server's
 real order.
 
-Completing (not reopening) now asks for confirmation first, on all three
-surfaces that can complete a task — the Queue, the Dashboard's "My Day" panel,
-and this new one — since the checkbox is a small, frequent target and a stray
-click shouldn't silently close something. Reopening (undoing a mistaken close)
+Completing (not reopening) now asks for confirmation first, on the surfaces
+that can complete a task from a checkbox — the Queue, the Dashboard's "My Day"
+panel, and this new one (a fourth, the Dashboard's "Primary Directive" card,
+was missed here and fixed separately below) — since the checkbox is a small,
+frequent target and a stray click shouldn't silently close something. Reopening
+(undoing a mistaken close)
 stays a single click on purpose: the correction for an accidental *close*
 shouldn't itself need confirming. Confirming plays a brief "committed" flash in
 place — a pulse ring on the checkbox (reusing the `ping-ring` keyframe), the
@@ -400,3 +402,14 @@ read the same word. `CRITICAL` alone gets a color (`text-red`, the same red
 already meaning "needs attention" for overdue/alerts) — `ROUTINE`/`STANDARD`
 stay in the same quiet ink tones as every other secondary meta label, since
 priority is a fact about the work, not a status.
+
+**A fourth "complete a task" surface missed the confirm gate**: the Dashboard's
+"Primary Directive" card (`components/dashboard/PrimaryDirective.tsx`) — the
+headline block at the very top of the Overview — has its own MARK COMPLETE
+button, separate from the Queue/My Day/Project Detail checkboxes, and it was
+overlooked when the confirm-before-complete gate above was added to those
+three. It now opens the same `ConfirmDialog` ("Mark this task complete?", teal,
+COMPLETE/CANCEL) before calling `toggleTaskStatus`. Unlike the other three
+surfaces there's no reopen path to preserve here — `pickPrimaryDirective`
+(`lib/dashboard/directive.ts`) only ever surfaces an open task, since
+`pickNextTask` filters out done ones — so this button only ever completes.
