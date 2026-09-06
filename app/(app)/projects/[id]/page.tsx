@@ -8,6 +8,7 @@ import { ProjectActivity } from "@/components/projects/ProjectActivity";
 import { ProjectEditForm } from "@/components/projects/ProjectEditForm";
 import { StageStrip } from "@/components/projects/StageStrip";
 import { TasksPanel } from "@/components/projects/TasksPanel";
+import { PriorityBadge } from "@/components/ui/PriorityBadge";
 import { StageBadge } from "@/components/ui/StageBadge";
 import { TrendChart } from "@/components/ui/TrendChart";
 import { getProjectActivityTrend } from "@/lib/github/queries";
@@ -66,6 +67,7 @@ export default async function ProjectDetailPage({
               <span className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
                 {project.type === "personal" ? "PERSONAL" : "WORK"} CLASS
               </span>
+              <PriorityBadge priority={project.priority} />
               <StageBadge status={project.status} />
             </div>
             <h1 className="mt-4 font-mono text-[clamp(26px,3.8vw,38px)] font-light leading-[1.12] tracking-[0.01em] text-ink">

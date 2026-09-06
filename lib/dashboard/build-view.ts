@@ -27,6 +27,7 @@ import type {
   ChecksState,
   GhCommit,
   GhPullRequest,
+  Priority,
   Project,
   ProjectType,
   PullRequestState,
@@ -39,6 +40,7 @@ export interface ActiveBuildCard {
   ref: string;
   name: string;
   type: ProjectType;
+  priority: Priority;
   description: string;
   doneTasks: number;
   totalTasks: number;
@@ -167,6 +169,7 @@ export function buildDashboardView(input: BuildDashboardViewInput): DashboardVie
       ref: p.ref,
       name: p.name,
       type: p.type,
+      priority: p.priority,
       description: p.description,
       doneTasks: done,
       totalTasks: total,

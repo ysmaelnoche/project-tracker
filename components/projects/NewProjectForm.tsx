@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createProject } from "@/lib/projects/actions";
 import { buildKeelSteps, KEEL_PAYOFF } from "@/lib/projects/create-sequence";
 import type { EntryStage } from "@/lib/projects/entry-stage";
+import { priorityLabel } from "@/lib/priority";
 import { buildSequenceLines, computeSequencePercent, type SequenceStep } from "@/lib/ui/sequence";
 import { BufferPanel } from "@/components/ui/BufferPanel";
 
@@ -263,9 +264,9 @@ export function NewProjectForm() {
               defaultValue="medium"
               className="mt-2.5 w-full border border-border-strong bg-track px-3 py-2.5 font-mono text-sm uppercase tracking-[0.08em] outline-none transition-colors focus:border-accent"
             >
-              <option value="low">LOW</option>
-              <option value="medium">MEDIUM</option>
-              <option value="high">HIGH</option>
+              <option value="low">{priorityLabel("low")}</option>
+              <option value="medium">{priorityLabel("medium")}</option>
+              <option value="high">{priorityLabel("high")}</option>
             </select>
           </div>
 

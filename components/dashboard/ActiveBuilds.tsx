@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PriorityBadge } from "@/components/ui/PriorityBadge";
 import type { ActiveBuildCard } from "@/lib/dashboard/build-view";
 
 function pad2(n: number) {
@@ -33,6 +34,7 @@ export function ActiveBuilds({ cards }: { cards: ActiveBuildCard[] }) {
                 <span className="font-mono text-[9px] tracking-[0.14em] text-ink-faint">
                   {card.type === "personal" ? "PERSONAL" : "WORK"}
                 </span>
+                <PriorityBadge priority={card.priority} />
                 <span className="ml-auto font-mono text-[9px] tracking-[0.14em] text-accent">● BUILD</span>
               </div>
 

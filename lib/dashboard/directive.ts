@@ -10,6 +10,7 @@
  */
 
 import { diffDays, relativeUpcoming } from "@/lib/format";
+import { priorityLabel } from "@/lib/priority";
 import type { Priority, TaskStatus } from "@/lib/types";
 
 const PRIORITY_WEIGHT: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
@@ -47,7 +48,7 @@ function score(task: DirectiveTask, today: string): number {
 function buildMeta(task: DirectiveTask, today: string): string {
   const bits: string[] = [];
   if (task.status === "in_progress") bits.push("● ACTIVE");
-  bits.push(`${task.priority.toUpperCase()} PRIORITY`);
+  bits.push(`${priorityLabel(task.priority)} PRIORITY`);
   if (task.dueDate) {
     bits.push(
       task.dueDate < today

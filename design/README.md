@@ -371,3 +371,32 @@ safe default landing view if it can silently hide a task you just made, so
 `parseTaskView`'s fallback (used by every navigation to `/tasks` without an
 explicit `?view=`, not just this one) is now `"all"`. `buildTaskQueueHref`'s
 "omit the param when it's the default" URL-cleanup follows the same change.
+
+**Project priority: captured but never shown, now displayed everywhere a
+project is — and renamed to match the console's own voice**: the create form
+had a PRIORITY field from the start, and it was saved and editable
+(`ProjectEditForm`), but no read surface ever rendered it back — not the
+Fleet list, not a project's own page, not the Dashboard's Active Builds
+cards — exactly the "Priority" line PLAN.md calls for in all three ("Active
+Projects", "Project Detail Experience", "Clean Visualization") but the
+mockup itself never actually wired up on a card either, so nothing here was
+carried over from a reference that never showed it. `PriorityBadge`
+(`components/ui/PriorityBadge.tsx`) now renders it in the same header row as
+type and status on `ProjectCard` (Fleet), `ActiveBuilds`, and the Project
+Detail page — ref → name → type → priority → stage, the same order on all
+three.
+
+While adding it, the operator asked whether the level names themselves fit
+the theme: LOW/MEDIUM/HIGH read as generic next to STANDBY/BUILD/DEPLOYED,
+HOLD, DECOMM. Renamed to ROUTINE/STANDARD/CRITICAL (`lib/priority.ts`'s
+`priorityLabel`) — the stored value is still `"low"`/`"medium"`/`"high"`
+(`Priority` in `lib/types.ts`, the `priority` column); only the label
+changes, everywhere it's read: both project priority selects
+(`NewProjectForm`, `ProjectEditForm`) and the *task* priority picker
+(`NewTaskForm`) and its "HIGH PRIORITY"-style meta line in the dashboard's
+Primary Directive (`lib/dashboard/directive.ts`) — `Priority` is one shared
+enum for both Projects and Tasks, so a "high" task and a "high" project now
+read the same word. `CRITICAL` alone gets a color (`text-red`, the same red
+already meaning "needs attention" for overdue/alerts) — `ROUTINE`/`STANDARD`
+stay in the same quiet ink tones as every other secondary meta label, since
+priority is a fact about the work, not a status.
