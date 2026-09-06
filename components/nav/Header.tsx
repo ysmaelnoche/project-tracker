@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { NavLinks } from "./NavLinks";
+import { MobileNav } from "./MobileNav";
 import { Clock } from "./Clock";
 import { QuickCreate } from "./QuickCreate";
 import { PaletteTrigger } from "./PaletteTrigger";
 
+/**
+ * Below `lg:` (1024px — see MobileNav's docstring for why that breakpoint),
+ * the six-link NavLinks plus Clock/⌘K collapse into MobileNav's toggle; only
+ * the logo and QuickCreate ("+ NEW", a primary action worth keeping one tap
+ * away) stay in the header itself.
+ */
 export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-bg/92 backdrop-blur-sm">
@@ -13,17 +20,24 @@ export function Header() {
           <span className="font-mono text-[13px] font-medium tracking-[0.14em] text-ink">
             SHIPYARD
           </span>
-          <span className="font-mono text-[9px] tracking-[0.16em] text-ink-faint">
+          <span className="hidden font-mono text-[9px] tracking-[0.16em] text-ink-faint sm:inline">
             {"// BUILD CONTROL"}
           </span>
         </Link>
 
-        <NavLinks />
+        <div className="hidden lg:block">
+          <NavLinks />
+        </div>
 
         <div className="ml-auto flex flex-wrap items-center gap-3">
-          <Clock />
-          <PaletteTrigger />
+          <div className="hidden lg:block">
+            <Clock />
+          </div>
+          <div className="hidden lg:block">
+            <PaletteTrigger />
+          </div>
           <QuickCreate />
+          <MobileNav />
         </div>
       </div>
     </header>

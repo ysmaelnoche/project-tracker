@@ -80,12 +80,19 @@ export default async function SourcePage({
         </span>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 border border-border bg-surface sm:grid-cols-3 lg:grid-cols-6">
+      {/* Grid lines drawn via a 1px gap over the divider color, not per-cell
+          borders — a `last:border-r-0` right-border only ever strips the
+          DOM's last cell, which is correct for one row (the lg: 6-col layout)
+          but wrong for every row above the last at 2 or 3 columns (mobile/
+          tablet): the real rightmost cell of each earlier row still got a
+          right border, doubled against the grid's own gap line. The gap
+          trick draws exactly one line between cells at any column count. */}
+      <div className="mt-5 grid grid-cols-2 gap-px border border-border bg-divider sm:grid-cols-3 lg:grid-cols-6">
         {METRIC_DEFS.map((m) => {
           const value = metrics[m.key];
           const alert = !!m.alertWhenPositive && value > 0;
           return (
-            <div key={m.key} className="border-b border-r border-divider p-4 last:border-r-0">
+            <div key={m.key} className="bg-surface p-4">
               <div className="font-mono text-[9px] tracking-[0.15em] text-ink-faint">{m.label}</div>
               <div className="mt-2.5 flex items-baseline gap-1.5">
                 <span
