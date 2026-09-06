@@ -78,6 +78,46 @@ export async function createTask(input: CreateTaskInput): Promise<TaskActionResu
   return { ok: true };
 }
 
+export interface UpdateTaskInput {
+  id: string;
+  title: string;
+  priority: Priority;
+  dueDate: string | null;
+}
+
+/**
+ * Edits a task's title, priority, and due date in place. Doesn't touch
+ * `project_id` (reassigning a task to a different project isn't part of the
+ * edit form), so this never trips `tasks_enforce_project_started` — that
+ * trigger only fires on insert or on an update *of* `project_id`. Logs
+ * `TASK UPDATED` to the activity feed, same as create/complete/reopen.
+ */
+export async function updateTask(input: UpdateTaskInput): Promise<TaskActionResult> {
+  const title = input.title.trim();
+  if (!title) return { ok: false, error: "Give the task a title." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("tasks")
+    .update({
+      title,
+      priority: input.priority,
+      due_date: input.dueDate || null,
+    })
+    .eq("id", input.id)
+    .select("project_id")
+    .single();
+
+  if (error || !data) {
+    return { ok: false, error: toFriendlyTaskError(error) };
+  }
+
+  await logTaskActivity(supabase, "TASK UPDATED", title, data.project_id, "quiet");
+  revalidateTaskSurfaces(data.project_id);
+
+  return { ok: true };
+}
+
 /**
  * Toggles a task between open and done. Completing sets `completed_at` to
  * now; reopening clears it — both server-side, matching PLAN.md "Task

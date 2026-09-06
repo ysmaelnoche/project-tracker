@@ -145,4 +145,10 @@ describe("decorateTaskRow", () => {
     expect(row.ctxLabel).toContain("LAKEHOUSE MIGRATION");
     expect(row.ctxLabel).toContain("WORK");
   });
+
+  it("carries the raw priority and due date through, for the edit form to prefill from", () => {
+    const row = decorateTaskRow(task({ priority: "high", dueDate: "2026-09-10" }), null, TODAY);
+    expect(row.priority).toBe("high");
+    expect(row.dueDate).toBe("2026-09-10");
+  });
 });

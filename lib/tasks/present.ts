@@ -5,7 +5,7 @@
  * and `projectOptions` (design/Shipyard.reference.html).
  */
 import { diffDays, formatStamp, isOverdue, relativeUpcoming } from "@/lib/format";
-import type { ProjectStatus, ProjectType, Task } from "@/lib/types";
+import type { Priority, ProjectStatus, ProjectType, Task } from "@/lib/types";
 
 /** Just the project columns the Tasks slice needs — see PLAN.md's guidance to
  * read projects directly here rather than building a shared projects service. */
@@ -68,6 +68,10 @@ export interface TaskRowView {
   ctxLabel: string;
   rightLabel: string;
   tone: TaskRowTone;
+  /** Raw (undecorated) fields, carried through so the edit form has
+   * something to prefill from — everything else on this view is display-only. */
+  priority: Priority;
+  dueDate: string | null;
 }
 
 /**
@@ -107,5 +111,7 @@ export function decorateTaskRow(task: Task, project: ProjectLite | null, today: 
     ctxLabel,
     rightLabel,
     tone,
+    priority: task.priority,
+    dueDate: task.dueDate,
   };
 }

@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
-import { deleteTask, toggleTaskStatus } from "@/lib/tasks/actions";
+import { deleteTask, toggleTaskStatus, updateTask } from "@/lib/tasks/actions";
 import type { TaskRowView } from "@/lib/tasks/present";
+import { EditTaskDialog, type EditTaskFields } from "./EditTaskDialog";
 import { TaskRow } from "./TaskRow";
 
 interface EmptyCopy {
@@ -20,10 +21,12 @@ interface EmptyCopy {
  * Owns the Queue list's interaction state: a confirm-then-complete flow
  * (the checkbox is a small target — a stray click shouldn't silently close
  * a task), optimistic complete with an UNDO toast once confirmed, an
- * un-gated single-click reopen, and a confirm-then-purge delete flow —
- * matching the reference's `toggleTask`/`confirmDelete`. `router.refresh()`
- * after each mutation resyncs the view/context tab counts, which are
- * computed server-side by the parent page.
+ * un-gated single-click reopen, an edit flow (dialog prefilled with the
+ * task's current fields, Save doubling as the confirmation step), and a
+ * confirm-then-purge delete flow — matching the reference's
+ * `toggleTask`/`confirmDelete`. `router.refresh()` after each mutation
+ * resyncs the view/context tab counts, which are computed server-side by
+ * the parent page.
  */
 export function TaskQueueList({
   rows,
@@ -45,7 +48,9 @@ export function TaskQueueList({
 
   const [pendingDelete, setPendingDelete] = useState<TaskRowView | null>(null);
   const [pendingComplete, setPendingComplete] = useState<TaskRowView | null>(null);
+  const [pendingEdit, setPendingEdit] = useState<TaskRowView | null>(null);
   const [committing, setCommitting] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
   const router = useRouter();
   const toast = useToast();
 
@@ -138,6 +143,32 @@ export function TaskQueueList({
       });
   }
 
+  function confirmEdit(fields: EditTaskFields) {
+    if (!pendingEdit || savingEdit) return;
+    const row = pendingEdit;
+    setSavingEdit(true);
+
+    updateTask({ id: row.id, ...fields })
+      .then((result) => {
+        setSavingEdit(false);
+        if (!result.ok) {
+          toast.show({ label: "TASK ERROR", message: result.error, tone: "red" });
+          return;
+        }
+        setPendingEdit(null);
+        toast.show({
+          label: "TASK UPDATED",
+          message: `"${fields.title}" was saved.`,
+          tone: "accent",
+        });
+        router.refresh();
+      })
+      .catch(() => {
+        setSavingEdit(false);
+        toast.show({ label: "TASK ERROR", message: "Something went wrong. Try again.", tone: "red" });
+      });
+  }
+
   if (tasks.length === 0) {
     return <EmptyState eyebrow={emptyCopy.eyebrow} title={emptyCopy.title} body={emptyCopy.body} />;
   }
@@ -150,10 +181,27 @@ export function TaskQueueList({
             key={row.id}
             row={row}
             onToggle={() => requestToggle(row)}
+            onEdit={() => setPendingEdit(row)}
             onDelete={() => setPendingDelete(row)}
           />
         ))}
       </div>
+
+      <EditTaskDialog
+        key={pendingEdit?.id ?? "edit-none"}
+        open={pendingEdit !== null}
+        refLabel={pendingEdit?.ref}
+        initial={
+          pendingEdit
+            ? { title: pendingEdit.title, priority: pendingEdit.priority, dueDate: pendingEdit.dueDate }
+            : { title: "", priority: "medium", dueDate: null }
+        }
+        pending={savingEdit}
+        onSave={confirmEdit}
+        onClose={() => {
+          if (!savingEdit) setPendingEdit(null);
+        }}
+      />
 
       <ConfirmDialog
         open={pendingComplete !== null}
